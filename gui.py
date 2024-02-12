@@ -1095,6 +1095,7 @@ class UniversalConverter(TkinterDnD.Tk):
             window_width, window_height = 300, 200
             self.settings_window.geometry(f"{window_width}x{window_height}")
             self.settings_window.resizable(False, False)
+            self.settings_window.transient(self)
 
             # Center the settings window to be inside of main app window
             main_x = self.winfo_x()
@@ -1152,6 +1153,9 @@ class UniversalConverter(TkinterDnD.Tk):
             self.theme_frame.grid(row=1, column=0, pady=(10, 0))
             apply_button.grid(row=2, column=0, padx=(
                 0, 20), pady=(20, 20), sticky=tk.E)
+        else:
+            self.settings_window.lift()
+            self.settings_window.focus_force()
 
     def apply_settings(self):
         self.settings["language"] = self.language_options[self.languages_var.get()]
@@ -1417,6 +1421,19 @@ class UniversalConverter(TkinterDnD.Tk):
                     row_num += 1
                 except KeyError:
                     pass
+
+            # Center the metadata window to be inside of main app window
+            self.metadata_window.update()
+            window_width = self.metadata_window.winfo_width()
+            window_height = self.metadata_window.winfo_height()
+
+            main_x = self.winfo_x()
+            main_y = self.winfo_y()
+            main_width = self.winfo_width()
+            main_height = self.winfo_height()
+            center_x = int(main_x + (main_width - window_width) / 2)
+            center_y = int(main_y + (main_height - window_height) / 2)
+            self.metadata_window.geometry(f"+{center_x}+{center_y}")
 
     # =============================================================
     # Additional options functions

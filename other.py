@@ -5,6 +5,7 @@ import gettext
 import polib
 import subprocess
 import pikepdf
+import locale
 
 ncm_input = [".ncm"]
 
@@ -37,9 +38,18 @@ def load_settings():
         with open(SETTINGS_FILE, "r") as f:
             return json.load(f)
     except FileNotFoundError:
-        # If the settings file doesn't exist, create it with default settings
+        system_locale = locale.getlocale()[0]
+        locale_mapping = {
+            "English_United States": "en_US",
+            "Chinese (Simplified)_China": "zh_CN",
+            "Chinese (Simplified)_Hong Kong SAR": "zh_CN",
+            "Chinese (Simplified)_Macao SAR": "zh_CN"
+        }
+        app_locale = locale_mapping.get(system_locale, 'en_US')
+
+        # Default settings
         default_settings = {
-            "language": "en_US",
+            "language": app_locale,
             "theme": "dark"
         }
         with open(SETTINGS_FILE, "w") as f:

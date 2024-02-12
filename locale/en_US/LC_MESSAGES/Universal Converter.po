@@ -1,0 +1,319 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Universal Converter\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.3.1\n"
+
+msgid "Options"
+msgstr "Options"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Conversion successful"
+msgstr "Conversion successful"
+
+msgid "Conversion failed"
+msgstr "Conversion failed"
+
+msgid "Terminal Output"
+msgstr "Terminal Output"
+
+msgid "Drag and Drop Files Here"
+msgstr "Drag and Drop Files Here"
+
+msgid "Clear list"
+msgstr "Clear list"
+
+msgid "Metadata"
+msgstr "Metadata"
+
+msgid "Output format:"
+msgstr "Output format:"
+
+msgid "Convert"
+msgstr "Convert"
+
+msgid "Video codec:"
+msgstr "Video codec:"
+
+msgid "Constant rate factor (CRF):"
+msgstr "Constant rate factor (CRF):"
+
+msgid "Preset:"
+msgstr "Preset:"
+
+msgid "Tune:"
+msgstr "Tune:"
+
+msgid "Faststart:"
+msgstr "Faststart:"
+
+msgid "Speed:"
+msgstr "Speed:"
+
+msgid "Sharpness:"
+msgstr "Sharpness:"
+
+msgid "Motion estimation quality:"
+msgstr "Motion estimation quality:"
+
+msgid "Global motion compensation:"
+msgstr "Global motion compensation:"
+
+msgid "Lossless:"
+msgstr "Lossless:"
+
+msgid "Adaptive quantization mode:"
+msgstr "Adaptive quantization mode:"
+
+msgid "Motion estimation algorithm:"
+msgstr "Motion estimation algorithm:"
+
+msgid "Audio codec:"
+msgstr "Audio codec:"
+
+msgid "Audio bitrate:"
+msgstr "Audio bitrate:"
+
+msgid "Coding algorithm:"
+msgstr "Coding algorithm:"
+
+msgid "LPC algorithm:"
+msgstr "LPC algorithm:"
+
+msgid "Stereo decorrelation mode:"
+msgstr "Stereo decorrelation mode:"
+
+msgid "Variable bit rate mode:"
+msgstr "Variable bit rate mode:"
+
+msgid "Room type:"
+msgstr "Room type:"
+
+msgid "Mixing level:"
+msgstr "Mixing level:"
+
+msgid "Preferred stereo downmix mode:"
+msgstr "Preferred stereo downmix mode:"
+
+msgid "Dolby surround mode:"
+msgstr "Dolby surround mode:"
+
+msgid "Dolby surround EX mode:"
+msgstr "Dolby surround EX mode:"
+
+msgid "Dolby headphone mode:"
+msgstr "Dolby headphone mode:"
+
+msgid "Sample rate:"
+msgstr "Sample rate:"
+
+msgid "Quality:"
+msgstr "Quality:"
+
+msgid "Resize:"
+msgstr "Resize:"
+
+msgid "Rotation:"
+msgstr "Rotation:"
+
+msgid "Combine files:"
+msgstr "Combine files:"
+
+msgid "Set user password:"
+msgstr "Set user password:"
+
+msgid "Set owner password:"
+msgstr "Set owner password:"
+
+msgid "Encrypt metadata:"
+msgstr "Encrypt metadata:"
+
+msgid "Permissions"
+msgstr "Permissions"
+
+msgid "Accessibility:"
+msgstr "Accessibility:"
+
+msgid "Extract content:"
+msgstr "Extract content:"
+
+msgid "Modify annotation:"
+msgstr "Modify annotation:"
+
+msgid "Modify assembly:"
+msgstr "Modify assembly:"
+
+msgid "Modify form:"
+msgstr "Modify form:"
+
+msgid "Modify other:"
+msgstr "Modify other:"
+
+msgid "Print at lower resolution:"
+msgstr "Print at lower resolution:"
+
+msgid "Print at higher resolution:"
+msgstr "Print at higher resolution:"
+
+msgid "DPI:"
+msgstr "DPI:"
+
+msgid "Image quality:"
+msgstr "Image quality:"
+
+msgid "Optimize image size:"
+msgstr "Optimize image size:"
+
+msgid "dark"
+msgstr "dark"
+
+msgid "light"
+msgstr "light"
+
+msgid "Language:"
+msgstr "Language:"
+
+msgid "Theme:"
+msgstr "Theme:"
+
+msgid "Apply"
+msgstr "Apply"
+
+msgid "Attention"
+msgstr "Attention"
+
+msgid "Please restart the application to apply settings"
+msgstr "Please restart the application to apply settings"
+
+msgid "Error"
+msgstr "Error"
+
+msgid "Please select files from the same category"
+msgstr "Please select files from the same category"
+
+msgid "Unsupported file type(s) selected"
+msgstr "Unsupported file type(s) selected"
+
+msgid "Success"
+msgstr "Success"
+
+msgid "Converting..."
+msgstr "Converting..."
+
+msgid "Error during converting, please see terminal output for details"
+msgstr "Error during converting, please see terminal output for details"
+
+msgid "Known issue: exiftool can't process non ascii characters in filename or in metadata, please try renaming the file"
+msgstr "Known issue: exiftool can't process non ascii characters in filename or in metadata, please try renaming the file"
+
+msgid "File Name"
+msgstr "File Name"
+
+msgid "File Size"
+msgstr "File Size"
+
+msgid "Duration"
+msgstr "Duration"
+
+msgid "File Modification Date/Time"
+msgstr "File Modification Date/Time"
+
+msgid "File Access Date/Time"
+msgstr "File Access Date/Time"
+
+msgid "File Creation Date/Time"
+msgstr "File Creation Date/Time"
+
+msgid "Image Width"
+msgstr "Image Width"
+
+msgid "Image Height"
+msgstr "Image Height"
+
+msgid "File Type"
+msgstr "File Type"
+
+msgid "MIME Type"
+msgstr "MIME Type"
+
+msgid "Major Brand"
+msgstr "Major Brand"
+
+msgid "Format"
+msgstr "Format"
+
+msgid "Bit Depth"
+msgstr "Bit Depth"
+
+msgid "Video Frame Rate"
+msgstr "Video Frame Rate"
+
+msgid "Audio Format"
+msgstr "Audio Format"
+
+msgid "Audio Channels"
+msgstr "Audio Channels"
+
+msgid "Audio Sample Rate"
+msgstr "Audio Sample Rate"
+
+msgid "Audio Bits Per Sample"
+msgstr "Audio Bits Per Sample"
+
+msgid "Audio Bitrate"
+msgstr "Audio Bitrate"
+
+msgid "Sample Rate"
+msgstr "Sample Rate"
+
+msgid "Channel Mode"
+msgstr "Channel Mode"
+
+msgid "Album"
+msgstr "Album"
+
+msgid "Artist"
+msgstr "Artist"
+
+msgid "Title"
+msgstr "Title"
+
+msgid "Picture MIME Type"
+msgstr "Picture MIME Type"
+
+msgid "Color Type"
+msgstr "Color Type"
+
+msgid "Page Count"
+msgstr "Page Count"
+
+msgid "Creator"
+msgstr "Creator"
+
+msgid "Author"
+msgstr "Author"
+
+msgid "Company"
+msgstr "Company"
+
+msgid "Lossless shouldn't be used with a CRF value"
+msgstr "Lossless shouldn't be used with a CRF value"
+
+msgid "Mixing level must be set if room type is set"
+msgstr "Mixing level must be set if room type is set"
+
+msgid "Please select a sample rate"
+msgstr "Please select a sample rate"
+
+msgid "No operations performed"
+msgstr "No operations performed"
