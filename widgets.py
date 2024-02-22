@@ -150,38 +150,38 @@ widget_options = {
 # format template: "": {"arg": "", "label": _(""), "type": "", "options": },
 widget_configs = {
     # video widgets (using ffmpeg)
-    "crf_v1": {"arg": "-crf", "label": _("CRF (Constant Rate Factor)"), "type": "slidebar", "options": (0, 51)},
-    "crf_v2": {"arg": "-crf", "label": _("CRF (Constant Rate Factor)"), "type": "slidebar", "options": (0, 63)},
-    "preset": {"arg": "-preset", "label": _("Preset"), "type": "combobox", "options": widget_options["preset"]},
-    "tune_h264": {"arg": "-tune", "label": _("Tune"), "type": "combobox", "options": widget_options["tune"]["H.264/MPEG-4"]},
-    "tune_h265": {"arg": "-tune", "label": _("Tune"), "type": "combobox", "options": widget_options["tune"]["H.265/HEVC"]},
-    "me_quality": {"arg": "-me_quality", "label": _("Motion Estimation Quality"), "type": "slidebar", "options": (0, 6)},
-    "gmc": {"arg": "-gmc", "label": _("Global Motion Compensation"), "type": "checkbox", "options": False},
-    "speed": {"arg": "-speed", "label": _("Speed"), "type": "slidebar", "options": (-16, 16)},
-    "sharpness": {"arg": "-sharpness", "label": _("Sharpness"), "type": "slidebar", "options": (-1, 7)},
-    "lossless": {"arg": "-lossless", "label": _("Lossless"), "type": "checkbox", "options": False},
-    "aq-mode": {"arg": "-aq-mode", "label": _("Adaptive Quantization Mode"), "type": "combobox", "options": widget_options["aq_mode"]},
-    "motion_est": {"arg": "-motion_est", "label": _("Motion Estimation Algorithm"), "type": "combobox", "options": widget_options["motion_est"]},
+    "crf_v1": {"arg": "-crf", "label": _("CRF (Constant Rate Factor):"), "type": "slider", "options": (0, 51)},
+    "crf_v2": {"arg": "-crf", "label": _("CRF (Constant Rate Factor):"), "type": "slider", "options": (0, 63)},
+    "preset": {"arg": "-preset", "label": _("Preset:"), "type": "combobox", "options": widget_options["preset"]},
+    "tune_h264": {"arg": "-tune", "label": _("Tune:"), "type": "combobox", "options": widget_options["tune"]["H.264/MPEG-4"]},
+    "tune_h265": {"arg": "-tune", "label": _("Tune:"), "type": "combobox", "options": widget_options["tune"]["H.265/HEVC"]},
+    "me_quality": {"arg": "-me_quality", "label": _("Motion Estimation Quality:"), "type": "slider", "options": (0, 6)},
+    "gmc": {"arg": "-gmc", "label": _("Global Motion Compensation:"), "type": "checkbox", "options": False},
+    "speed": {"arg": "-speed", "label": _("Speed:"), "type": "slider", "options": (-16, 16)},
+    "sharpness": {"arg": "-sharpness", "label": _("Sharpness:"), "type": "slider", "options": (-1, 7)},
+    "lossless": {"arg": "-lossless", "label": _("Lossless:"), "type": "checkbox", "options": False},
+    "aq-mode": {"arg": "-aq-mode", "label": _("Adaptive Quantization Mode:"), "type": "combobox", "options": widget_options["aq_mode"]},
+    "motion_est": {"arg": "-motion_est", "label": _("Motion Estimation Algorithm:"), "type": "combobox", "options": widget_options["motion_est"]},
 
     # audio widgets (using ffmpeg)
-    "audio_bitrate": {"arg": "-b:a", "label": _("Bitrate"), "type": "combobox", "options": widget_options["audio_bitrate"]},
-    "aac_coder": {"arg": "-aac_coder", "label": _("AAC Coding Algorithm"), "type": "combobox", "options": widget_options["aac_coder"]},
-    "room_type": {"arg": "-room_type", "label": _("Room Type"), "type": "combobox", "options": widget_options["room_type"]},
-    "mixing_level": {"arg": "-mixing_level", "label": _("Mixing Level"), "type": "slidebar", "options": (80, 111)},
-    "dmix_mode": {"arg": "-dmix_mode", "label": _("preferred Stereo Downmix Mode"), "type": "combobox", "options": widget_options["dmix_mode"]},
+    "audio_bitrate": {"arg": "-b:a", "label": _("Bitrate:"), "type": "combobox", "options": widget_options["audio_bitrate"]},
+    "aac_coder": {"arg": "-aac_coder", "label": _("AAC Coding Algorithm:"), "type": "combobox", "options": widget_options["aac_coder"]},
+    "room_type": {"arg": "-room_type", "label": _("Room Type:"), "type": "combobox", "options": widget_options["room_type"]},
+    "mixing_level": {"arg": "-mixing_level", "label": _("Mixing Level:"), "type": "slider", "options": (80, 111)},
+    "dmix_mode": {"arg": "-dmix_mode", "label": _("preferred Stereo Downmix Mode:"), "type": "combobox", "options": widget_options["dmix_mode"]},
     "dsur_mode": {"arg": "-dsur_mode", "label": _("Dolby Surround Mode:"), "type": "combobox", "options": widget_options["dsur_mode"]},
     "dsurex_mode": {"arg": "-dsurex_mode", "label": _("Dolby Surround EX Mode:"), "type": "combobox", "options": widget_options["dsurex_mode"]},
     "dheadphone_mode": {"arg": "-dheadphone_mode", "label": _("Dolby Headphone Mode:"), "type": "combobox", "options": widget_options["dheadphone_mode"]},
-    "vbr": {"arg": "-vbr", "label": _("Variable Bit Rate Mode"), "type": "combobox", "options": widget_options["vbr"]},
-    "lpc_type": {"arg": "-lpc_type", "label": _("LPC Algorithm"), "type": "combobox", "options": widget_options["lpc_type"]},
-    "ch_mode": {"arg": "-ch_mode", "label": _("Stereo Decorrelation Mode"), "type": "combobox", "options": widget_options["ch_mode"]},
-    "sample_rate_v1": {"arg": "-ar", "label": _("Sample Rate"), "type": "combobox", "options": widget_options["sample_rate"]["ADPCM"]},
-    "sample_rate_v2": {"arg": "-ar", "label": _("Sample Rate"), "type": "combobox", "options": widget_options["sample_rate"]["Nellymoser Asao"]},
+    "vbr": {"arg": "-vbr", "label": _("Variable Bit Rate Mode:"), "type": "combobox", "options": widget_options["vbr"]},
+    "lpc_type": {"arg": "-lpc_type", "label": _("LPC Algorithm:"), "type": "combobox", "options": widget_options["lpc_type"]},
+    "ch_mode": {"arg": "-ch_mode", "label": _("Stereo Decorrelation Mode:"), "type": "combobox", "options": widget_options["ch_mode"]},
+    "sample_rate_v1": {"arg": "-ar", "label": _("Sample Rate:"), "type": "combobox", "options": widget_options["sample_rate"]["ADPCM"]},
+    "sample_rate_v2": {"arg": "-ar", "label": _("Sample Rate:"), "type": "combobox", "options": widget_options["sample_rate"]["Nellymoser Asao"]},
 
     # image widgets (using imagemagick)
-    "img_quality": {"arg": "-q:v", "label": _("Image Quality"), "type": "slidebar", "options": (0, 31)},
-    "img_scale": {"arg": "-vf scale={arg0}:{arg1}", "label": _("Image Scale"), "type": "textinput_pair", "options": ("Image width", "Image height")},
-    "img_rotate": {"label": _("Image Rotation"), "type": "textinput", "options": "Rotation angle (0-360°, clockwise)"},
+    "img_quality": {"arg": "-q:v", "label": _("Image Quality:"), "type": "slider", "options": (0, 31)},
+    "img_scale": {"arg": "-vf scale={arg0}:{arg1}", "label": _("Image Scale:"), "type": "textinput_pair", "options": ("Image width", "Image height")},
+    "img_rotate": {"label": _("Image Rotation:"), "type": "textinput", "options": "Rotation angle (0-360°, clockwise)"},
 }
 
 video_formats = {
@@ -194,9 +194,9 @@ video_formats = {
                 "value": "libx264",
                 "widgets":
                 {
-                    "crf": widget_configs["crf_v1"],
+                    "crf_v1": widget_configs["crf_v1"],
                     "preset": widget_configs["preset"],
-                    "tune": widget_configs["tune_h264"],
+                    "tune_h264": widget_configs["tune_h264"],
                 }
             },
             "H.265/HEVC":
@@ -204,9 +204,9 @@ video_formats = {
                 "value": "libx265",
                 "widgets":
                 {
-                    "crf": widget_configs["crf_v1"],
+                    "crf_v1": widget_configs["crf_v1"],
                     "preset": widget_configs["preset"],
-                    "tune": widget_configs["tune_h265"],
+                    "tune_h265": widget_configs["tune_h265"],
                 }
             }
         },
@@ -235,6 +235,12 @@ video_formats = {
                 "widgets":
                 {
                     "audio_bitrate": widget_configs["audio_bitrate"],
+                    "room_type": widget_configs["room_type"],
+                    "mixing_level": widget_configs["mixing_level"],
+                    "dmix_mode": widget_configs["dmix_mode"],
+                    "dsur_mode": widget_configs["dsur_mode"],
+                    "dsurex_mode": widget_configs["dsurex_mode"],
+                    "dheadphone_mode": widget_configs["dheadphone_mode"],
                 }
             }
         }
@@ -248,9 +254,9 @@ video_formats = {
                 "value": "libx264",
                 "widgets":
                 {
-                    "crf": widget_configs["crf_v1"],
+                    "crf_v1": widget_configs["crf_v1"],
                     "preset": widget_configs["preset"],
-                    "tune": widget_configs["tune_h264"],
+                    "tune_h264": widget_configs["tune_h264"],
                 }
             },
             "ProRes":
@@ -263,9 +269,9 @@ video_formats = {
                 "value": "libx265",
                 "widgets":
                 {
-                    "crf": widget_configs["crf_v1"],
+                    "crf_v1": widget_configs["crf_v1"],
                     "preset": widget_configs["preset"],
-                    "tune": widget_configs["tune_h265"],
+                    "tune_h265": widget_configs["tune_h265"],
                 }
             }
         },
@@ -318,9 +324,9 @@ video_formats = {
                 "value": "libx264",
                 "widgets":
                 {
-                    "crf": widget_configs["crf_v1"],
+                    "crf_v1": widget_configs["crf_v1"],
                     "preset": widget_configs["preset"],
-                    "tune": widget_configs["tune_h264"],
+                    "tune_h264": widget_configs["tune_h264"],
                 }
             },
             "H.265/HEVC":
@@ -328,9 +334,9 @@ video_formats = {
                 "value": "libx265",
                 "widgets":
                 {
-                    "crf": widget_configs["crf_v1"],
+                    "crf_v1": widget_configs["crf_v1"],
                     "preset": widget_configs["preset"],
-                    "tune": widget_configs["tune_h265"],
+                    "tune_h265": widget_configs["tune_h265"],
                 }
             }
         },
@@ -377,9 +383,9 @@ video_formats = {
                 "value": "libx264",
                 "widgets":
                 {
-                    "crf": widget_configs["crf_v1"],
+                    "crf_v1": widget_configs["crf_v1"],
                     "preset": widget_configs["preset"],
-                    "tune": widget_configs["tune_h264"],
+                    "tune_h264": widget_configs["tune_h264"],
                 }
             },
             "H.265/HEVC":
@@ -387,9 +393,9 @@ video_formats = {
                 "value": "libx265",
                 "widgets":
                 {
-                    "crf": widget_configs["crf_v1"],
+                    "crf_v1": widget_configs["crf_v1"],
                     "preset": widget_configs["preset"],
-                    "tune": widget_configs["tune_h265"],
+                    "tune_h265": widget_configs["tune_h265"],
                 }
             },
             "VP9":
@@ -397,7 +403,7 @@ video_formats = {
                 "value": "libvpx-vp9",
                 "widgets":
                 {
-                    "crf": widget_configs["crf_v2"],
+                    "crf_v2": widget_configs["crf_v2"],
                     "speed": widget_configs["speed"],
                     "sharpness": widget_configs["sharpness"],
                     "lossless": widget_configs["lossless"],
@@ -408,7 +414,7 @@ video_formats = {
                 "value": "libvpx",
                 "widgets":
                 {
-                    "crf": widget_configs["crf_v2"],
+                    "crf_v2": widget_configs["crf_v2"],
                     "speed": widget_configs["speed"],
                     "sharpness": widget_configs["sharpness"],
                 }
@@ -418,7 +424,7 @@ video_formats = {
                 "value": "libaom-av1",
                 "widgets":
                 {
-                    "crf": widget_configs["crf_v2"],
+                    "crf_v2": widget_configs["crf_v2"],
                     "aq-mode": widget_configs["aq-mode"],
                 }
             }
@@ -499,7 +505,7 @@ video_formats = {
                 "value": "libvpx-vp9",
                 "widgets":
                 {
-                    "crf": widget_configs["crf_v2"],
+                    "crf_v2": widget_configs["crf_v2"],
                     "speed": widget_configs["speed"],
                     "sharpness": widget_configs["sharpness"],
                     "lossless": widget_configs["lossless"],
@@ -510,7 +516,7 @@ video_formats = {
                 "value": "libvpx",
                 "widgets":
                 {
-                    "crf": widget_configs["crf_v2"],
+                    "crf_v2": widget_configs["crf_v2"],
                     "speed": widget_configs["speed"],
                     "sharpness": widget_configs["sharpness"],
                 }
@@ -520,7 +526,7 @@ video_formats = {
                 "value": "libaom-av1",
                 "widgets":
                 {
-                    "crf": widget_configs["crf_v2"],
+                    "crf_v2": widget_configs["crf_v2"],
                     "aq-mode": widget_configs["aq-mode"],
                 }
             }
@@ -575,7 +581,7 @@ video_formats = {
                 "widgets":
                 {
                     "audio_bitrate": widget_configs["audio_bitrate"],
-                    "sample_rate": widget_configs["sample_rate_v1"],
+                    "sample_rate_v1": widget_configs["sample_rate_v1"],
                 }
             },
             "Nellymoser Asao":
@@ -584,7 +590,7 @@ video_formats = {
                 "widgets":
                 {
                     "audio_bitrate": widget_configs["audio_bitrate"],
-                    "sample_rate": widget_configs["sample_rate_v2"],
+                    "sample_rate_v2": widget_configs["sample_rate_v2"],
                 }
             }
         }
