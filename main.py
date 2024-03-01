@@ -2,13 +2,14 @@ import gettext
 import json
 import locale
 import os
+import platform
 import sys
 import subprocess
 from PIL import Image
 import tempfile
 
 import polib
-from PyQt6.QtWidgets import QApplication, QDialog, QMessageBox, QMenu, QLineEdit, QCheckBox, QSlider, QLayout, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QPushButton, QComboBox, QLabel, QFileDialog, QListWidget
+from PyQt6.QtWidgets import QApplication, QDialog, QMessageBox, QMenu, QLayoutItem, QAbstractItemView, QListWidgetItem, QLineEdit, QCheckBox, QSlider, QLayout, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QPushButton, QComboBox, QLabel, QFileDialog, QListWidget
 from PyQt6.QtCore import Qt, QMimeData, QEvent
 from PyQt6.QtGui import QIcon, QDragEnterEvent, QDropEvent, QPalette, QColor, QPainter, QFontDatabase, QFont, QAction
 import threading
@@ -95,11 +96,16 @@ def get_translator():
     return lang.gettext
 
 
-SETTINGS_FILE = os.path.join(
-    os.environ["APPDATA"], "UC Settings/", "settings.json")
+current_os = platform.system()
+if current_os == 'Windows':
+    settings_base_path = os.environ["APPDATA"]
+elif current_os == 'Darwin':
+    settings_base_path = os.path.expanduser("~/Library/Application Support/")
 
-setting_path = os.path.join(
-    os.environ["APPDATA"], "UC Settings/")
+SETTINGS_FILE = os.path.join(
+    settings_base_path, "UC Settings", "settings.json")
+setting_path = os.path.join(settings_base_path, "UC Settings")
+
 if not os.path.exists(setting_path):
     os.makedirs(setting_path)
 
@@ -126,7 +132,6 @@ class FileSelection(QListWidget):
         self.setAcceptDrops(True)
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.placeholderText = _("Drag and drop or click to select files")
-        self.selected_files = []  # list of input file full paths
         self.file_type = ""
         color_set = {
             "dark": {
@@ -158,19 +163,25 @@ class FileSelection(QListWidget):
         if event.mimeData().hasUrls():
             self.updateStyleSheet(self.dragColor)
             event.acceptProposedAction()
+        else:
+            super().dragEnterEvent(event)
 
     def dragLeaveEvent(self, event: QEvent):
         self.updateStyleSheet(self.baseColor)
+        super().dragLeaveEvent(event)
 
     def dropEvent(self, event: QDropEvent):
-        self.updateStyleSheet(self.baseColor)
-        files = [url.toLocalFile() for url in event.mimeData().urls()]
-        self.displayFiles(files)
+        if event.mimeData().hasUrls():
+            self.updateStyleSheet(self.baseColor)
+            files = [url.toLocalFile() for url in event.mimeData().urls()]
+            self.displayFiles(files)
+            event.acceptProposedAction()
+        else:
+            super().dropEvent(event)
 
     def paintEvent(self, event):
         super().paintEvent(event)
         if self.count() == 0:
-            cur_file_type = ""
             painter = QPainter(self.viewport())
             painter.setPen(QColor('gray'))
             painter.drawText(
@@ -189,33 +200,35 @@ class FileSelection(QListWidget):
             self.displayFiles(fileNames)
 
     def clearFileList(self):
-        self.selected_files = []
         self.file_type = ""
         self.clear()
         self.parent.formatCombo.clear()
-        self.parent.formatCombo.addItem(_("Select Format"))
+        self.parent.formatCombo.addItem(self.parent.selectFormatText)
 
     def displayFiles(self, files):
         error_messages = set()
 
         for file in files:
             cur_file_type = ""
-            if file in self.selected_files:
+            file_ext = os.path.splitext(file)[1].lower()
+            currentFilePaths = [
+                self.item(i).fullPath for i in range(self.count())]
+
+            if file in currentFilePaths:
                 continue
 
-            file_ext = os.path.splitext(file)[1].lower()
             for type, list in widgets.file_types.items():
                 if file_ext in list:
                     cur_file_type = type
                     break
 
             if not self.file_type and cur_file_type:
-                # if haven't determined file type, set it and output formats
+                # if haven't determined file type, set file type and output formats
                 self.file_type = cur_file_type
-                self.selected_files.append(file)
-                self.addItem(os.path.basename(file))
+                fileName = os.path.basename(file)
+                self.addItem(FileListItem(fileName, file))
                 self.parent.formatCombo.clear()
-                self.parent.formatCombo.addItem(_("Select Format"))
+                self.parent.formatCombo.addItem(self.parent.selectFormatText)
                 self.parent.formatCombo.addItems(
                     widgets.file_types[self.file_type])
             elif cur_file_type == "":
@@ -225,17 +238,26 @@ class FileSelection(QListWidget):
                 error_messages.add(
                     _("Selected files should be in the same type."))
             else:
-                self.selected_files.append(file)
-                self.addItem(os.path.basename(file))
+                fileName = os.path.basename(file)
+                self.addItem(FileListItem(fileName, file))
 
         if error_messages:
             QMessageBox.critical(
                 self, _("Error"), "\n".join(error_messages))
-            
+
+    def getFilePaths(self):
+        return [self.item(i).fullPath for i in range(self.count())]
+
+
+class FileListItem(QListWidgetItem):
+    def __init__(self, text, fullPath):
+        super().__init__(text)
+        self.fullPath = fullPath
+
 
 class CustomVBoxLayout(QVBoxLayout):
-    def __init__(self, *args, **kwargs):
-        super(CustomVBoxLayout, self).__init__(*args, **kwargs)
+    def __init__(self):
+        super().__init__()
         self.configName = None
 
 
@@ -309,14 +331,9 @@ class UniversalConverter(QMainWindow):
         self.updateLink = "https://api.github.com/repos/dyang886/Universal-Converter/releases/latest"
 
         # Paths and variable management
+        self.selectFormatText = _("Select Format")
         self.selectionText = _("Select from List")
-
-        # Widget fonts
-        self.font_config = {
-            "en_US": "assets/NotoSans-Regular.ttf",
-            "zh_CN": "assets/NotoSansSC-Regular.ttf",
-            "zh_TW": "assets/NotoSansTC-Regular.ttf"
-        }
+        self.ffmpeg_path = resource_path("dependency/ffmpeg.exe")
 
         # Window references
         self.settings_window = None
@@ -378,7 +395,7 @@ class UniversalConverter(QMainWindow):
 
         formatLayout.addWidget(QLabel(_("Output Format:")))
         self.formatCombo = QComboBox()
-        self.formatCombo.addItem(_("Select Format"))
+        self.formatCombo.addItem(self.selectFormatText)
         self.formatCombo.currentIndexChanged.connect(
             self.onOutputFormatChange)
         formatLayout.addWidget(self.formatCombo)
@@ -388,7 +405,7 @@ class UniversalConverter(QMainWindow):
 
         # Convert button
         convertButton = QPushButton(_("Convert"))
-        # self.convertButton.clicked.connect(convertFiles)
+        convertButton.clicked.connect(self.convert)
         leftLayout.addWidget(convertButton)
 
         # ===========================================================================
@@ -414,8 +431,13 @@ class UniversalConverter(QMainWindow):
         self.rightLayout.addLayout(self.rightWidgetsLayout)
 
     def onOutputFormatChange(self):
+        """
+        When output format changes, clear all widgets on the right panel and 
+        set new ones based on current file type.
+        """
+
         cur_ext = self.formatCombo.currentText()
-        if cur_ext == _("Select Format") or not cur_ext:
+        if cur_ext == self.selectFormatText or not cur_ext:
             self.clearContainer(self.rightWidgetsLayout)
             self.rightPanelText.show()
             return
@@ -447,6 +469,11 @@ class UniversalConverter(QMainWindow):
             pass
 
     def onCodecChange(self, codecCombo, layout, isVideo):
+        """
+        When video/audio codec changes, clear all widgets under corresponding 
+        codec combobox and set new ones based on selected codec.
+        """
+
         cur_codec = codecCombo.currentText()
         if cur_codec == self.selectionText:
             return
@@ -470,6 +497,12 @@ class UniversalConverter(QMainWindow):
         self.setWidgets(widgetList, layout)
 
     def setWidgets(self, widgetList, layout):
+        """
+        Set widgets to the right panel given a list of widgets dict.
+        Each widget is set under a CustomVBoxLayout with a configName
+        for easy looping when converting.
+        """
+
         for configName, config in widgetList.items():
             # Set custom attribute "configName"
             widgetLayout = CustomVBoxLayout()
@@ -484,8 +517,7 @@ class UniversalConverter(QMainWindow):
                 combobox = QComboBox()
                 widgetLayout.addWidget(combobox)
                 combobox.addItem(self.selectionText)
-                combobox.addItems([item["label"]
-                                  for item in config["options"]])
+                combobox.addItems([item for item in config["options"]])
 
             elif config["type"] == "slider":
                 label = QLabel(config["label"])
@@ -501,8 +533,10 @@ class UniversalConverter(QMainWindow):
                 slider.setMaximum(config["options"][1])
 
                 valueDisplayLabel = QLabel("")
+                valueDisplayLabel.setObjectName("sliderValueLabel")
                 sliderLayout.addWidget(valueDisplayLabel)
-                slider.valueChanged.connect(lambda value, label=valueDisplayLabel: label.setText(str(value)))
+                slider.valueChanged.connect(
+                    lambda value, label=valueDisplayLabel: label.setText(str(value)))
 
             elif config["type"] == "checkbox":
                 checkboxLayout = QHBoxLayout()
@@ -513,6 +547,7 @@ class UniversalConverter(QMainWindow):
                 checkboxLayout.addWidget(label)
 
                 checkbox = QCheckBox()
+                checkbox.setChecked(config["default"])
                 checkboxLayout.addWidget(checkbox)
 
             elif config["type"] == "textinput":
@@ -527,7 +562,7 @@ class UniversalConverter(QMainWindow):
 
     def setVideoCodec(self):
         videoContainer = QWidget()
-        videoContainer.setMinimumWidth(250)
+        videoContainer.setFixedWidth(250)
         self.rightWidgetsLayout.addWidget(videoContainer, 0, 0)
 
         # Main layout for all video widgets
@@ -539,20 +574,20 @@ class UniversalConverter(QMainWindow):
         videoCodecLayout.setSpacing(2)
         videoLayout.addLayout(videoCodecLayout)
         videoCodecLayout.addWidget(QLabel(_("Video Codec:")))
-        videoCodecCombo = QComboBox()
-        videoCodecCombo.currentIndexChanged.connect(
-            lambda: self.onCodecChange(videoCodecCombo, videoLayout, True))
-        videoCodecLayout.addWidget(videoCodecCombo)
+        self.videoCodecCombo = QComboBox()
+        self.videoCodecCombo.currentIndexChanged.connect(
+            lambda: self.onCodecChange(self.videoCodecCombo, videoLayout, True))
+        videoCodecLayout.addWidget(self.videoCodecCombo)
 
         # Set codec options
         cur_ext = self.formatCombo.currentText()
-        videoCodecCombo.addItem(self.selectionText)
-        videoCodecCombo.addItems(
+        self.videoCodecCombo.addItem(self.selectionText)
+        self.videoCodecCombo.addItems(
             widgets.video_formats[cur_ext]["video"].keys())
 
     def setAudioCodec(self):
         audioContainer = QWidget()
-        audioContainer.setMinimumWidth(250)
+        audioContainer.setFixedWidth(250)
         self.rightWidgetsLayout.addWidget(audioContainer, 0, 1)
 
         # Main layout for all audio widgets
@@ -564,33 +599,141 @@ class UniversalConverter(QMainWindow):
         audioCodecLayout.setSpacing(2)
         audioLayout.addLayout(audioCodecLayout)
         audioCodecLayout.addWidget(QLabel(_("Audio Codec:")))
-        audioCodecCombo = QComboBox()
-        audioCodecCombo.currentIndexChanged.connect(
-            lambda: self.onCodecChange(audioCodecCombo, audioLayout, False))
-        audioCodecLayout.addWidget(audioCodecCombo)
+        self.audioCodecCombo = QComboBox()
+        self.audioCodecCombo.currentIndexChanged.connect(
+            lambda: self.onCodecChange(self.audioCodecCombo, audioLayout, False))
+        audioCodecLayout.addWidget(self.audioCodecCombo)
 
         # Set codec options
         cur_ext = self.formatCombo.currentText()
         cur_file_type = self.fileList.file_type
-        audioCodecCombo.addItem(self.selectionText)
+        self.audioCodecCombo.addItem(self.selectionText)
         if cur_file_type == "video":
-            audioCodecCombo.addItems(
+            self.audioCodecCombo.addItems(
                 widgets.video_formats[cur_ext]["audio"].keys())
         elif cur_file_type == "audio":
-            audioCodecCombo.addItems(widgets.audio_formats[cur_ext].keys())
+            self.audioCodecCombo.addItems(
+                widgets.audio_formats[cur_ext].keys())
+
+    def convert(self):
+        """
+        Retrieve all values from displayed widgets and perform conversion 
+        with corresponding tools
+        """
+
+        cur_file_type = self.fileList.file_type
+        cur_ext = self.formatCombo.currentText()
+        file_paths = self.fileList.getFilePaths()
+        widget_args = {}
+        if cur_ext == self.selectFormatText or not cur_ext:
+            return
+
+        # loop through every CustomVBoxLayout
+        def loop_layouts(layout):
+            for i in range(layout.count()):
+                layoutItem = layout.itemAt(i)
+
+                if layoutItem.layout():
+                    if isinstance(layoutItem.layout(), CustomVBoxLayout):
+                        cLayout = layoutItem.layout()
+                        widgetConfigs = widgets.widget_configs[cLayout.configName]
+
+                        # Get the value from widgets
+                        if widgetConfigs["type"] == "combobox":
+                            widgetValue = self.findWidgetInstance(
+                                cLayout, QComboBox).currentText()
+                            value = widgetConfigs["options"][widgetValue]
+                            widget_args[widgetConfigs["arg"]] = value
+
+                        elif widgetConfigs["type"] == "slider":
+                            widgetValue = self.findWidgetInstance(
+                                cLayout, QLabel, "sliderValueLabel").text()
+                            widget_args[widgetConfigs["arg"]] = widgetValue
+
+                        elif widgetConfigs["type"] == "checkbox":
+                            widgetValue = self.findWidgetInstance(
+                                cLayout, QCheckBox).isChecked()
+                            value = widgetConfigs["options"][widgetValue]
+                            widget_args[widgetConfigs["arg"]] = value
+
+                        elif widgetConfigs["type"] == "textinput":
+                            widgetValue = self.findWidgetInstance(
+                                cLayout, QLineEdit).text()
+                            widget_args[widgetConfigs["arg"]] = widgetValue
+
+                elif layoutItem.widget():
+                    if layoutItem.widget().layout():
+                        loop_layouts(layoutItem.widget().layout())
+
+        loop_layouts(self.rightWidgetsLayout)
+
+        if cur_file_type == "video":
+            if self.videoCodecCombo:
+                vCodecSelection = self.videoCodecCombo.currentText()
+            if self.audioCodecCombo:
+                aCodecSelection = self.audioCodecCombo.currentText()
+
+            if vCodecSelection and vCodecSelection != self.selectionText:
+                vCodec = widgets.video_formats[cur_ext]["video"][vCodecSelection]["value"]
+                widget_args["-c:v"] = vCodec
+            if aCodecSelection and aCodecSelection != self.selectionText:
+                aCodec = widgets.video_formats[cur_ext]["audio"][aCodecSelection]["value"]
+                widget_args["-c:a"] = aCodec
+
+            for inputFile in file_paths:
+                command = self.constructFfmpegCommand(
+                    inputFile, cur_ext, widget_args)
+                print(command)
+                process = subprocess.Popen(command, stderr=subprocess.PIPE, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
+
+        elif cur_file_type == "audio":
+            if self.audioCodecCombo:
+                aCodecSelection = self.audioCodecCombo.currentText()
+
+            if aCodecSelection and aCodecSelection != self.selectionText:
+                aCodec = widgets.audio_formats[cur_ext][aCodecSelection]["value"]
+                widget_args["-c:a"] = aCodec
+
+            for inputFile in file_paths:
+                command = self.constructFfmpegCommand(
+                    inputFile, cur_ext, widget_args)
+                print(command)
+                process = subprocess.Popen(command, stderr=subprocess.PIPE, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
+
+    def constructFfmpegCommand(self, inputFile, outputExt, widget_args):
+        outputFile = os.path.splitext(inputFile)[0] + "_converted" + outputExt
+        command = [self.ffmpeg_path, "-i", inputFile]
+        for arg, value in widget_args.items():
+            if value:
+                command.extend([arg, str(value)])
+        command += ["-y", outputFile]
+        return command
+
+    def findWidgetInstance(self, layout, QInstance, widgetName=None):
+        for i in range(layout.count()):
+            layoutItem = layout.itemAt(i)
+
+            if layoutItem.widget():
+                if isinstance(layoutItem.widget(), QInstance) and (widgetName is None or layoutItem.widget().objectName() == widgetName):
+                    return layoutItem.widget()
+                elif layoutItem.widget().layout():
+                    return self.findWidgetInstance(layoutItem.widget().layout(), QInstance)
+
+            elif layoutItem.layout():
+                return self.findWidgetInstance(layoutItem.layout(), QInstance)
 
     def clearContainer(self, container):
         # Clears all widgets or layouts from a given container
         if isinstance(container, QLayout):
             while container.count():
-                item = container.takeAt(0)
-                widget = item.widget()
-                if widget:
-                    widget.deleteLater()
-                else:
-                    layout = item.layout()
-                    if layout:
-                        self.clearContainer(layout)
+                layoutItem = container.takeAt(0)
+
+                if layoutItem.widget():
+                    layoutItem.widget().deleteLater()
+                elif layoutItem.layout():
+                    self.clearContainer(layoutItem.layout())
+                    layoutItem.layout().deleteLater()
+
         elif isinstance(container, QWidget):
             container.deleteLater()
 
@@ -617,12 +760,12 @@ if __name__ == "__main__":
 
     # Language setting
     font_config = {
-            "en_US": "assets/NotoSans-Regular.ttf",
-            "zh_CN": "assets/NotoSansSC-Regular.ttf",
-            "zh_TW": "assets/NotoSansTC-Regular.ttf"
+        "en_US": resource_path("assets/NotoSans-Regular.ttf"),
+        "zh_CN": resource_path("assets/NotoSansSC-Regular.ttf"),
+        "zh_TW": resource_path("assets/NotoSansTC-Regular.ttf")
     }
     fontId = QFontDatabase.addApplicationFont(
-    font_config[settings["language"]])
+        font_config[settings["language"]])
     fontFamilies = QFontDatabase.applicationFontFamilies(fontId)
     customFont = QFont(fontFamilies[0], 10)
     app.setFont(customFont)

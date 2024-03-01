@@ -3,148 +3,155 @@ from main import get_translator
 _ = get_translator()
 
 widget_options = {
+    # general widgets
+    "checkbox":
+    {
+        True: 1,
+        False: 0,
+    },
+
     # video widgets
     "preset":
-    [
-        {"label": "Ultrafast", "value": "ultrafast"},
-        {"label": "Superfast", "value": "superfast"},
-        {"label": "Veryfast", "value": "veryfast"},
-        {"label": "Faster", "value": "faster"},
-        {"label": "Fast", "value": "fast"},
-        {"label": "Medium", "value": "medium"},
-        {"label": "Slow", "value": "slow"},
-        {"label": "Slower", "value": "slower"},
-        {"label": "Veryslow", "value": "veryslow"},
-    ],
+    {
+        "Ultrafast": "ultrafast",
+        "Superfast": "superfast",
+        "Veryfast": "veryfast",
+        "Faster": "faster",
+        "Fast": "fast",
+        "Medium": "medium",
+        "Slow": "slow",
+        "Slower": "slower",
+        "Veryslow": "veryslow"
+    },
     "tune":
     {
         "H.264/MPEG-4":
-        [
-            {"label": "Film", "value": "film"},
-            {"label": "Animation", "value": "animation"},
-            {"label": "Grain", "value": "grain"},
-            {"label": "Still Image", "value": "stillimage"},
-            {"label": "Fast Decode", "value": "fastdecode"},
-            {"label": "Zero Latency", "value": "zerolatency"},
-        ],
+        {
+            "Film": "film",
+            "Animation": "animation",
+            "Grain": "grain",
+            "Still Image": "stillimage",
+            "Fast Decode": "fastdecode",
+            "Zero Latency": "zerolatency"
+        },
         "H.265/HEVC":
-        [
-            {"label": "Animation", "value": "animation"},
-            {"label": "Grain", "value": "grain"},
-            {"label": "Fast Decode", "value": "fastdecode"},
-            {"label": "Zero Latency", "value": "zerolatency"},
-        ]
+        {
+            "Animation": "animation",
+            "Grain": "grain",
+            "Fast Decode": "fastdecode",
+            "Zero Latency": "zerolatency"
+        }
     },
     "aq_mode":
-    [
-        {"label": "None", "value": "0"},
-        {"label": "Variance", "value": "1"},
-        {"label": "Complexity", "value": "2"},
-        {"label": "Cyclic", "value": "3"},
-    ],
+    {
+        "None": "0",
+        "Variance": "1",
+        "Complexity": "2",
+        "Cyclic": "3"
+    },
     "motion_est":
-    [
-        {"label": "Zero", "value": "0"},
-        {"label": "EPZS", "value": "1"},
-        {"label": "Xone", "value": "2"},
-    ],
+    {
+        "Zero": "0",
+        "EPZS": "1",
+        "Xone": "2"
+    },
 
     # audio widgets
     "audio_bitrate":
-    [
-        {"label": "64 kbps", "value": "64k"},
-        {"label": "128 kbps", "value": "128k"},
-        {"label": "192 kbps", "value": "192k"},
-        {"label": "256 kbps", "value": "256k"},
-        {"label": "320 kbps", "value": "320k"},
-    ],
+    {
+        "64 kbps": "64k",
+        "128 kbps": "128k",
+        "192 kbps": "192k",
+        "256 kbps": "256k",
+        "320 kbps": "320k"
+    },
     "aac_coder":
-    [
-        {"label": "Two Loop", "value": "1"},
-        {"label": "Fast", "value": "2"},
-    ],
+    {
+        "Two Loop": "1",
+        "Fast": "2"
+    },
     "lpc_type":
-    [
-        {"label": "None", "value": "0"},
-        {"label": "Fixed", "value": "1"},
-        {"label": "Levinson", "value": "2"},
-        {"label": "Cholesky", "value": "3"},
-    ],
+    {
+        "None": "0",
+        "Fixed": "1",
+        "Levinson": "2",
+        "Cholesky": "3"
+    },
     "ch_mode":
-    [
-        {"label": "Auto", "value": "-1"},
-        {"label": "Independent", "value": "0"},
-        {"label": "Left Side", "value": "1"},
-        {"label": "Right Side", "value": "2"},
-        {"label": "Mid Side", "value": "3"},
-    ],
+    {
+        "Auto": "-1",
+        "Independent": "0",
+        "Left Side": "1",
+        "Right Side": "2",
+        "Mid Side": "3"
+    },
     "vbr":
-    [
-        {"label": "Constant Bit Rate", "value": "0"},
-        {"label": "Variable Bit Rate", "value": "1"},
-        {"label": "Constrained VBR", "value": "2"},
-    ],
+    {
+        "Constant Bit Rate": "0",
+        "Variable Bit Rate": "1",
+        "Constrained VBR": "2"
+    },
     "room_type":
-    [
-        {"label": "Not Indicated", "value": "0"},
-        {"label": "Large Room", "value": "1"},
-        {"label": "Small Room", "value": "2"},
-    ],
+    {
+        "Not Indicated": "0",
+        "Large Room": "1",
+        "Small Room": "2"
+    },
     "dmix_mode":
-    [
-        {"label": "Not Indicated", "value": "0"},
-        {"label": "Lt/Rt Downmix Preferred", "value": "1"},
-        {"label": "Lo/Ro Downmix Preferred", "value": "2"},
-        {"label": "Dolby Pro Logic II Downmix Preferred", "value": "3"},
-    ],
+    {
+        "Not Indicated": "0",
+        "Lt/Rt Downmix Preferred": "1",
+        "Lo/Ro Downmix Preferred": "2",
+        "Dolby Pro Logic II Downmix Preferred": "3"
+    },
     "dsur_mode":
-    [
-        {"label": "Not Indicated", "value": "0"},
-        {"label": "Not Dolby Surround Encoded", "value": "1"},
-        {"label": "Dolby Surround Encoded", "value": "2"},
-    ],
+    {
+        "Not Indicated": "0",
+        "Not Dolby Surround Encoded": "1",
+        "Dolby Surround Encoded": "2"
+    },
     "dsurex_mode":
-    [
-        {"label": "Not Indicated", "value": "0"},
-        {"label": "Not Dolby Surround EX Encoded", "value": "1"},
-        {"label": "Dolby Surround EX Encoded", "value": "2"},
-        {"label": "Dolby Pro Logic IIz-Encoded", "value": "3"},
-    ],
+    {
+        "Not Indicated": "0",
+        "Not Dolby Surround EX Encoded": "1",
+        "Dolby Surround EX Encoded": "2",
+        "Dolby Pro Logic IIz-Encoded": "3"
+    },
     "dheadphone_mode":
-    [
-        {"label": "Not Indicated", "value": "0"},
-        {"label": "Not Dolby Headphone Encoded", "value": "1"},
-        {"label": "Dolby Headphone Encoded", "value": "2"},
-    ],
+    {
+        "Not Indicated": "0",
+        "Not Dolby Headphone Encoded": "1",
+        "Dolby Headphone Encoded": "2"
+    },
     "sample_rate":
     {
         "ADPCM":
-        [
-            {"label": "11025 Hz", "value": "11025"},
-            {"label": "22050 Hz", "value": "22050"},
-            {"label": "44100 Hz", "value": "44100"},
-        ],
+        {
+            "11025 Hz": "11025",
+            "22050 Hz": "22050",
+            "44100 Hz": "44100"
+        },
         "Nellymoser Asao":
-        [
-            {"label": "8000 Hz", "value": "8000"},
-            {"label": "16000 Hz", "value": "16000"},
-            {"label": "11025 Hz", "value": "11025"},
-            {"label": "22050 Hz", "value": "22050"},
-            {"label": "44100 Hz", "value": "44100"},
-        ]
+        {
+            "8000 Hz": "8000",
+            "16000 Hz": "16000",
+            "11025 Hz": "11025",
+            "22050 Hz": "22050",
+            "44100 Hz": "44100"
+        }
     },
 
     # image widgets
     "image_preset":
-    [
-        {"label": "None", "value": "-1"},
-        {"label": "Default", "value": "0"},
-        {"label": "Picture", "value": "1"},
-        {"label": "Photo", "value": "2"},
-        {"label": "Drawing", "value": "3"},
-        {"label": "Icon", "value": "4"},
-        {"label": "Text", "value": "5"},
-    ],
+    {
+        "None": "-1",
+        "Default": "0",
+        "Picture": "1",
+        "Photo": "2",
+        "Drawing": "3",
+        "Icon": "4",
+        "Text": "5",
+    },
 }
 
 # format template: "": {"arg": "", "label": _(""), "type": "", "options": },
@@ -156,10 +163,10 @@ widget_configs = {
     "tune_h264": {"arg": "-tune", "label": _("Tune:"), "type": "combobox", "options": widget_options["tune"]["H.264/MPEG-4"]},
     "tune_h265": {"arg": "-tune", "label": _("Tune:"), "type": "combobox", "options": widget_options["tune"]["H.265/HEVC"]},
     "me_quality": {"arg": "-me_quality", "label": _("Motion Estimation Quality:"), "type": "slider", "options": (0, 6)},
-    "gmc": {"arg": "-gmc", "label": _("Global Motion Compensation:"), "type": "checkbox", "options": False},
+    "gmc": {"arg": "-gmc", "label": _("Global Motion Compensation:"), "type": "checkbox", "options": widget_options["checkbox"], "default": False},
     "speed": {"arg": "-speed", "label": _("Speed:"), "type": "slider", "options": (-16, 16)},
     "sharpness": {"arg": "-sharpness", "label": _("Sharpness:"), "type": "slider", "options": (-1, 7)},
-    "lossless": {"arg": "-lossless", "label": _("Lossless:"), "type": "checkbox", "options": False},
+    "lossless": {"arg": "-lossless", "label": _("Lossless:"), "type": "checkbox", "options": widget_options["checkbox"], "default": False},
     "aq-mode": {"arg": "-aq-mode", "label": _("Adaptive Quantization Mode:"), "type": "combobox", "options": widget_options["aq_mode"]},
     "motion_est": {"arg": "-motion_est", "label": _("Motion Estimation Algorithm:"), "type": "combobox", "options": widget_options["motion_est"]},
 
