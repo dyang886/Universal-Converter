@@ -86,4 +86,31 @@ dark = """
     QLabel {
         color: #FFFFFF;
     }
+
+    QTabWidget::pane {
+        border-top: 2px solid #2e2e2e;
+    }
+
+    QTabBar::tab {
+        background-color: #2a2a2a;
+        color: #FFFFFF;
+        padding: 10px;
+        border-radius: 3px;
+    }
+
+    QTabBar::tab:hover {
+        background-color: #2f2f2f;
+    }
+
+    QTabBar::tab:selected {
+        background-color: #232323;
+    }
+
+    QTextEdit {
+        background-color: #2a2a2a;
+        color: #FFFFFF;
+        border: 2px solid rgba(168, 168, 168, 0.5);
+        border-radius: 5px;
+        padding: 3px;
+    }
 """

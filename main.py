@@ -9,9 +9,9 @@ from PIL import Image
 import tempfile
 
 import polib
-from PyQt6.QtWidgets import QApplication, QDialog, QMessageBox, QMenu, QLayoutItem, QAbstractItemView, QListWidgetItem, QLineEdit, QCheckBox, QSlider, QLayout, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QPushButton, QComboBox, QLabel, QFileDialog, QListWidget
-from PyQt6.QtCore import Qt, QMimeData, QEvent
-from PyQt6.QtGui import QIcon, QDragEnterEvent, QDropEvent, QPalette, QColor, QPainter, QFontDatabase, QFont, QAction
+from PyQt6.QtWidgets import QApplication, QDialog, QMessageBox, QMenu, QTextEdit, QTabWidget, QLayoutItem, QAbstractItemView, QListWidgetItem, QLineEdit, QCheckBox, QSlider, QLayout, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QPushButton, QComboBox, QLabel, QFileDialog, QListWidget
+from PyQt6.QtCore import Qt, QMimeData, QEvent, QThread, pyqtSignal
+from PyQt6.QtGui import QIcon, QDragEnterEvent, QDropEvent, QPalette, QColor, QPainter, QFontDatabase, QFont, QAction, QTextCursor
 import threading
 import math
 import subprocess
@@ -261,6 +261,46 @@ class CustomVBoxLayout(QVBoxLayout):
         self.configName = None
 
 
+class SubprocessThread(QThread):
+    output_signal = pyqtSignal(str)
+    finished_signal = pyqtSignal()
+
+    def __init__(self, commands):
+        super().__init__()
+        self.commands = commands
+
+    def run(self):
+        total_files = len(self.commands)
+        for index, command in enumerate(self.commands, start=1):
+            message = _("Processing {index} of {total_files} files...").format(
+                index=index, total_files=total_files)
+            formatted_message = f"""
+                <p style='color: #4cc9f0;'>
+                    ===================================================<br>
+                    {message}<br>
+                    ===================================================
+                </p>
+            """
+            if index != 1:
+                self.output_signal.emit("\n")
+            self.output_signal.emit(formatted_message)
+            self.output_signal.emit("\n\n")
+
+            process = subprocess.Popen(
+                command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="utf-8")
+
+            while True:
+                line = process.stdout.readline()
+                if not line:
+                    break
+                self.output_signal.emit(line)
+
+            process.stdout.close()
+            process.wait()
+
+        self.finished_signal.emit()
+
+
 class SettingsDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -343,7 +383,7 @@ class UniversalConverter(QMainWindow):
         centralWidget = QWidget(self)
         self.setCentralWidget(centralWidget)
         mainLayout = QHBoxLayout(centralWidget)
-        mainLayout.setContentsMargins(20, 10, 20, 20)
+        mainLayout.setContentsMargins(30, 20, 30, 30)
         centralWidget.setLayout(mainLayout)
         self.init_settings()
 
@@ -364,6 +404,7 @@ class UniversalConverter(QMainWindow):
         # ===========================================================================
         leftWidget = QWidget()
         leftLayout = QVBoxLayout(leftWidget)
+        leftLayout.setContentsMargins(0, 0, 20, 0)
         leftLayout.setSpacing(15)
         leftWidget.setLayout(leftLayout)
         mainLayout.addWidget(leftWidget)
@@ -404,31 +445,42 @@ class UniversalConverter(QMainWindow):
         leftLayout.addLayout(formatLayout)
 
         # Convert button
-        convertButton = QPushButton(_("Convert"))
-        convertButton.clicked.connect(self.convert)
-        leftLayout.addWidget(convertButton)
+        self.convertButton = QPushButton(_("Convert"))
+        self.convertButton.clicked.connect(self.convert)
+        leftLayout.addWidget(self.convertButton)
 
         # ===========================================================================
         # RIGHT: format specific options
         # ===========================================================================
-        self.rightWidget = QWidget()
-        self.rightWidget.setMinimumWidth(500)
-        self.rightLayout = QVBoxLayout(self.rightWidget)
-        self.rightLayout.setSpacing(15)
-        self.rightWidget.setLayout(self.rightLayout)
-        mainLayout.addWidget(self.rightWidget)
+        rightTab = QTabWidget()
+        rightTab.setMinimumWidth(500)
+        mainLayout.addWidget(rightTab)
+
+        # First tab: conversion customization widgets
+        widgetsPanelTab = QWidget()
+        rightTab.addTab(widgetsPanelTab, _("Customization"))
+        widgetsPanelLayout = QVBoxLayout(widgetsPanelTab)
+        widgetsPanelTab.setLayout(widgetsPanelLayout)
 
         # Text to display when none showing
-        self.rightPanelText = QLabel(_("Customization Panel"))
-        self.rightPanelText.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        rightPanelFont = self.font()
-        rightPanelFont.setPointSize(20)
-        self.rightPanelText.setFont(rightPanelFont)
-        self.rightLayout.addWidget(self.rightPanelText)
+        self.widgetsPanelText = QLabel(_("Customization Panel"))
+        self.widgetsPanelText.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        widgetsPanelFont = self.font()
+        widgetsPanelFont.setPointSize(20)
+        self.widgetsPanelText.setFont(widgetsPanelFont)
+        widgetsPanelLayout.addWidget(self.widgetsPanelText)
 
-        # Main layout to display option widgets
-        self.rightWidgetsLayout = QGridLayout()
-        self.rightLayout.addLayout(self.rightWidgetsLayout)
+        # Main layout to display customization widgets
+        self.widgetsPanelGrid = QGridLayout()
+        widgetsPanelLayout.addLayout(self.widgetsPanelGrid)
+
+        # Second tab: terminal output
+        terminalTab = QWidget()
+        rightTab.addTab(terminalTab, _("Terminal"))
+        terminalLayout = QVBoxLayout(terminalTab)
+        self.terminalOutput = QTextEdit()
+        self.terminalOutput.setReadOnly(True)
+        terminalLayout.addWidget(self.terminalOutput)
 
     def onOutputFormatChange(self):
         """
@@ -438,13 +490,13 @@ class UniversalConverter(QMainWindow):
 
         cur_ext = self.formatCombo.currentText()
         if cur_ext == self.selectFormatText or not cur_ext:
-            self.clearContainer(self.rightWidgetsLayout)
-            self.rightPanelText.show()
+            self.clearContainer(self.widgetsPanelGrid)
+            self.widgetsPanelText.show()
             return
 
         cur_file_type = self.fileList.file_type
-        self.rightPanelText.hide()
-        self.clearContainer(self.rightWidgetsLayout)
+        self.widgetsPanelText.hide()
+        self.clearContainer(self.widgetsPanelGrid)
 
         if cur_file_type == "video":
             self.setVideoCodec()
@@ -456,7 +508,7 @@ class UniversalConverter(QMainWindow):
         elif cur_file_type == "image":
             container = QWidget()
             container.setMaximumWidth(250)
-            self.rightWidgetsLayout.addWidget(container, 0, 0)
+            self.widgetsPanelGrid.addWidget(container, 0, 0)
             layout = QVBoxLayout()
             layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
             layout.setSpacing(15)
@@ -563,7 +615,7 @@ class UniversalConverter(QMainWindow):
     def setVideoCodec(self):
         videoContainer = QWidget()
         videoContainer.setFixedWidth(250)
-        self.rightWidgetsLayout.addWidget(videoContainer, 0, 0)
+        self.widgetsPanelGrid.addWidget(videoContainer, 0, 0)
 
         # Main layout for all video widgets
         videoLayout = QVBoxLayout(videoContainer)
@@ -588,7 +640,7 @@ class UniversalConverter(QMainWindow):
     def setAudioCodec(self):
         audioContainer = QWidget()
         audioContainer.setFixedWidth(250)
-        self.rightWidgetsLayout.addWidget(audioContainer, 0, 1)
+        self.widgetsPanelGrid.addWidget(audioContainer, 0, 1)
 
         # Main layout for all audio widgets
         audioLayout = QVBoxLayout(audioContainer)
@@ -621,11 +673,14 @@ class UniversalConverter(QMainWindow):
         with corresponding tools
         """
 
+        self.convertButton.setDisabled(True)
         cur_file_type = self.fileList.file_type
         cur_ext = self.formatCombo.currentText()
         file_paths = self.fileList.getFilePaths()
         widget_args = {}
+        commands = []  # List of command lists
         if cur_ext == self.selectFormatText or not cur_ext:
+            self.onConversionFinished()
             return
 
         # loop through every CustomVBoxLayout
@@ -642,6 +697,8 @@ class UniversalConverter(QMainWindow):
                         if widgetConfigs["type"] == "combobox":
                             widgetValue = self.findWidgetInstance(
                                 cLayout, QComboBox).currentText()
+                            if widgetValue == self.selectionText:
+                                continue
                             value = widgetConfigs["options"][widgetValue]
                             widget_args[widgetConfigs["arg"]] = value
 
@@ -665,7 +722,7 @@ class UniversalConverter(QMainWindow):
                     if layoutItem.widget().layout():
                         loop_layouts(layoutItem.widget().layout())
 
-        loop_layouts(self.rightWidgetsLayout)
+        loop_layouts(self.widgetsPanelGrid)
 
         if cur_file_type == "video":
             if self.videoCodecCombo:
@@ -684,7 +741,8 @@ class UniversalConverter(QMainWindow):
                 command = self.constructFfmpegCommand(
                     inputFile, cur_ext, widget_args)
                 print(command)
-                process = subprocess.Popen(command, stderr=subprocess.PIPE, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
+                commands.append(command)
+            self.startSubprocess(commands)
 
         elif cur_file_type == "audio":
             if self.audioCodecCombo:
@@ -698,13 +756,14 @@ class UniversalConverter(QMainWindow):
                 command = self.constructFfmpegCommand(
                     inputFile, cur_ext, widget_args)
                 print(command)
-                process = subprocess.Popen(command, stderr=subprocess.PIPE, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
+                commands.append(command)
+            self.startSubprocess(commands)
 
     def constructFfmpegCommand(self, inputFile, outputExt, widget_args):
         outputFile = os.path.splitext(inputFile)[0] + "_converted" + outputExt
         command = [self.ffmpeg_path, "-i", inputFile]
         for arg, value in widget_args.items():
-            if value:
+            if value and arg != self.selectionText:
                 command.extend([arg, str(value)])
         command += ["-y", outputFile]
         return command
@@ -736,6 +795,25 @@ class UniversalConverter(QMainWindow):
 
         elif isinstance(container, QWidget):
             container.deleteLater()
+
+    def startSubprocess(self, commands):
+        self.terminalOutput.clear()
+        self.thread = SubprocessThread(commands)
+        self.thread.output_signal.connect(self.updateTerminalOutput)
+        self.thread.finished_signal.connect(self.onConversionFinished)
+        self.thread.start()
+
+    def updateTerminalOutput(self, text):
+        if text.strip().startswith('<p'):
+            self.terminalOutput.insertHtml(text)
+            # reset previous html color format
+            self.terminalOutput.insertHtml("<p style='color: #FFFFFF;'>&#8203;</p>")
+        else:
+            self.terminalOutput.insertPlainText(text)
+        self.terminalOutput.moveCursor(QTextCursor.MoveOperation.End)
+
+    def onConversionFinished(self):
+        self.convertButton.setEnabled(True)
 
     def init_settings(self):
         # Theme settings
