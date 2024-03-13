@@ -9,108 +9,108 @@ light = """
 """
 
 dark = """
-    QMainWindow {
+    QMainWindow {{
         background-color: #1c1c1c;
-    }
+    }}
 
-    QMenuBar {
+    QMenuBar {{
         background-color: #2e2e2e;
-    }
+    }}
 
-    QMenuBar::item {
+    QMenuBar::item {{
         background-color: #2e2e2e;
         color: #FFFFFF;
         padding: 5px;
-    }
+    }}
 
-    QMenuBar::item:selected {
+    QMenuBar::item:selected {{
         background-color: #484848;
-    }
+    }}
 
-    QMenu {
+    QMenu {{
         background-color: #1c1c1c;
         border: 2px solid #ffffff;
-    }
+    }}
 
-    QMenu::item {
+    QMenu::item {{
         background-color: #1c1c1c;
         color: #FFFFFF;
-    }
+    }}
 
-    QMenu::item:selected {
+    QMenu::item:selected {{
         background-color: #484848;
-    }
+    }}
 
-    QPushButton {
+    QPushButton {{
         padding: 10px;
         border-radius: 3px;
         background-color: #2a2a2a;
         color: #FFFFFF;
-    }
+    }}
 
-    QPushButton:hover {
+    QPushButton:hover {{
         background-color: #2f2f2f;
-    }
+    }}
 
-    QPushButton:pressed {
+    QPushButton:pressed {{
         background-color: #232323;
-    }
+    }}
 
-    QComboBox {
+    QComboBox {{
         padding: 9px;
         border-radius: 3px;
         background-color: #2a2a2a;
         color: #FFFFFF;
-    }
+    }}
 
-    QComboBox::drop-down {
+    QComboBox::drop-down {{
         border: 0px;
         padding-right: 10px;
-    }
+    }}
 
-    QComboBox::down-arrow {
-        image: url(assets/dropdown.png);
+    QComboBox::down-arrow {{
+        image: url({drop_down_arrow});
         width: 10px;
         height: 10px;
-    }
+    }}
 
-    QComboBox QAbstractItemView {
+    QComboBox QAbstractItemView {{
         background-color: #2a2a2a;
         color: #FFFFFF;
-    }
+    }}
 
-    QDialog {
+    QDialog {{
         background-color: #1c1c1c;
-    }
+    }}
 
-    QLabel {
+    QLabel {{
         color: #FFFFFF;
-    }
+    }}
 
-    QTabWidget::pane {
+    QTabWidget::pane {{
         border-top: 2px solid #2e2e2e;
-    }
+    }}
 
-    QTabBar::tab {
+    QTabBar::tab {{
         background-color: #2a2a2a;
         color: #FFFFFF;
         padding: 10px;
         border-radius: 3px;
-    }
+    }}
 
-    QTabBar::tab:hover {
+    QTabBar::tab:hover {{
         background-color: #2f2f2f;
-    }
+    }}
 
-    QTabBar::tab:selected {
+    QTabBar::tab:selected {{
         background-color: #232323;
-    }
+    }}
 
-    QTextEdit {
+    QTextEdit {{
         background-color: #2a2a2a;
         color: #FFFFFF;
         border: 2px solid rgba(168, 168, 168, 0.5);
         border-radius: 5px;
         padding: 3px;
-    }
+    }}
 """

@@ -14,11 +14,6 @@ ncm_output = [".mp3"]
 pdf_output = [".pdf", ".jpeg"]
 
 
-def ncm_convert(input_file):
-    ncm_path = resource_path("dependency/ncmdump.exe")
-    command = [ncm_path, input_file]
-    subprocess.run(command, creationflags=subprocess.CREATE_NO_WINDOW)
-
 
 def pdf_convert(input_paths, out_ext, combine, user_password, owner_password, access, extract, annotation, assembly, form, other, p_lower, p_higher, metadata, dpi, quality, optimize):
     _ = get_translator()

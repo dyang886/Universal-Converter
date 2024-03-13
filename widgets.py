@@ -186,9 +186,12 @@ widget_configs = {
     "sample_rate_v2": {"arg": "-ar", "label": _("Sample Rate:"), "type": "combobox", "options": widget_options["sample_rate"]["Nellymoser Asao"]},
 
     # image widgets (using imagemagick)
-    "img_quality": {"arg": "-q:v", "label": _("Image Quality:"), "type": "slider", "options": (0, 31)},
-    "img_scale": {"arg": "-vf scale={arg0}:{arg1}", "label": _("Image Scale:"), "type": "textinput_pair", "options": ("Image width", "Image height")},
-    "img_rotate": {"label": _("Image Rotation:"), "type": "textinput", "options": "Rotation angle (0-360°, clockwise)"},
+    "img_quality": {"arg": "-quality", "label": _("Image Quality:"), "type": "slider", "options": (0, 100)},
+    "img_resize": {"arg": "-resize", "value_template": "{arg0}x{arg1}", "label": _("Image Resize:"), "type": "textinput", "options": [_("Image width"), _("Image height")]},
+    "img_rotate": {"arg": "-rotate", "label": _("Image Rotation:"), "type": "textinput", "options": [_("Rotation angle (0-360°, clockwise)")]},
+    "img_sharpen": {"arg": "-sharpen", "value_template": "0x{arg0}", "label": _("Image Sharpness:"), "type": "slider", "options": (0, 100)},
+    "img_blur": {"arg": "-blur", "value_template": "0x{arg0}", "label": _("Image Blur:"), "type": "slider", "options": (0, 100)},
+    "img_brightness": {"arg": "-modulate", "label": _("Image Brightness (%):"), "type": "textinput", "options": [_("% of brightness (100 means no change)")]},
 }
 
 video_formats = {
@@ -776,21 +779,41 @@ image_formats = {
         "widgets":
         {
             "img_quality": widget_configs["img_quality"],
-            "img_scale": widget_configs["img_scale"],
+            "img_resize": widget_configs["img_resize"],
             "img_rotate": widget_configs["img_rotate"],
+            "img_sharpen": widget_configs["img_sharpen"],
+            "img_blur": widget_configs["img_blur"],
+            "img_brightness": widget_configs["img_brightness"],
         }
     },
     ".jxr":
     {
         "supports_alpha": True,
-        "widgets": {}
+        "widgets":
+        {
+            "img_quality": widget_configs["img_quality"],
+            "img_resize": widget_configs["img_resize"],
+            "img_rotate": widget_configs["img_rotate"],
+            "img_sharpen": widget_configs["img_sharpen"],
+            "img_blur": widget_configs["img_blur"],
+            "img_brightness": widget_configs["img_brightness"],
+        }
     },
     ".png":
     {
         "supports_alpha": True,
         "widgets":
         {
-            "img_scale": widget_configs["img_scale"],
+            "img_resize": widget_configs["img_resize"],
+            "img_rotate": widget_configs["img_rotate"],
+        }
+    },
+    ".svg":
+    {
+        "supports_alpha": True,
+        "widgets":
+        {
+            "img_resize": widget_configs["img_resize"],
             "img_rotate": widget_configs["img_rotate"],
         }
     },
@@ -799,14 +822,19 @@ image_formats = {
         "supports_alpha": True,
         "widgets":
         {
-            "img_scale": widget_configs["img_scale"],
+            "img_resize": widget_configs["img_resize"],
             "img_rotate": widget_configs["img_rotate"],
         }
     },
     ".heic":
     {
         "supports_alpha": True,
-        "widgets": {}
+        "widgets":
+        {
+            "img_quality": widget_configs["img_quality"],
+            "img_resize": widget_configs["img_resize"],
+            "img_rotate": widget_configs["img_rotate"],
+        }
     },
     ".bmp":
     {
@@ -816,6 +844,16 @@ image_formats = {
     ".tiff":
     {
         "supports_alpha": True,
+        "widgets": {}
+    },
+    ".eps":
+    {
+        "supports_alpha": False,
+        "widgets": {}
+    },
+    ".psd":
+    {
+        "supports_alpha": False,
         "widgets": {}
     },
     ".ico":
@@ -830,9 +868,27 @@ image_formats = {
     }
 }
 
-file_types = {
-    "video": video_formats.keys(),
-    "audio": audio_formats.keys(),
-    "image": image_formats.keys(),
+ncm_formats = {
+    ".ncm":
+    {
+        "widgets": {}
+    }
+}
+
+# For detecting and setting file type based on value lists
+detected_file_types = {
+    "video": list(video_formats.keys()),
+    "audio": list(audio_formats.keys()),
+    "image": list(image_formats.keys()) + [".jpg", ".tif"],
     "pdf": [],
+    "ncm": list(ncm_formats.keys()),
+}
+
+# For displaying output file extensions based on file type
+displayed_file_types = {
+    "video": list(video_formats.keys()),
+    "audio": list(audio_formats.keys()),
+    "image": list(image_formats.keys()),
+    "pdf": [],
+    "ncm": [".mp3"]
 }
