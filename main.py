@@ -5,15 +5,11 @@ import os
 import platform
 import sys
 import subprocess
-from PIL import Image
-import tempfile
 
 import polib
-from PyQt6.QtWidgets import QApplication, QDialog, QMessageBox, QMenu, QTextEdit, QTabWidget, QLayoutItem, QAbstractItemView, QListWidgetItem, QLineEdit, QCheckBox, QSlider, QLayout, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QPushButton, QComboBox, QLabel, QFileDialog, QListWidget
-from PyQt6.QtCore import Qt, QMimeData, QEvent, QThread, pyqtSignal
-from PyQt6.QtGui import QIcon, QDragEnterEvent, QDropEvent, QPalette, QColor, QPainter, QFontDatabase, QFont, QAction, QTextCursor
-import threading
-import math
+from PyQt6.QtWidgets import QApplication, QDialog, QColorDialog, QMessageBox, QTextEdit, QTabWidget, QListWidgetItem, QLineEdit, QCheckBox, QSlider, QLayout, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QPushButton, QComboBox, QLabel, QFileDialog, QListWidget
+from PyQt6.QtCore import Qt, QEvent, QThread, pyqtSignal, QByteArray, QSize
+from PyQt6.QtGui import QIcon, QDragEnterEvent, QDropEvent, QColor, QPainter, QFontDatabase, QFont, QAction, QTextCursor, QPixmap, QCursor
 import subprocess
 
 import style_sheet
@@ -128,7 +124,7 @@ class FileSelection(QListWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.parent = parent
-        self.setMinimumSize(400, 300)
+        self.setMinimumSize(400, 400)
         self.setAcceptDrops(True)
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.placeholderText = _("Drag and drop or click to select files")
@@ -249,6 +245,52 @@ class FileSelection(QListWidget):
         return [self.item(i).fullPath for i in range(self.count())]
 
 
+class ColorPicker:
+    def __init__(self, lineEdit, parent=None):
+        self.lineEdit = lineEdit
+        self.parent = parent
+        self.colorDialog = QColorDialog(self.parent)
+
+    def openDialog(self):
+        initial_color = QColor(self.lineEdit.text())
+        if not initial_color.isValid():
+            initial_color = QColor(Qt.GlobalColor.white)
+
+        self.colorDialog.setCurrentColor(initial_color)
+        self.changeLuminancePickerBackground()
+
+        if self.colorDialog.exec():
+            selected_color = self.colorDialog.currentColor()
+            self.lineEdit.setText(selected_color.name())
+
+    def changeLuminancePickerBackground(self):
+        for child in self.colorDialog.findChildren(QWidget):
+            if "QColorLuminancePicker" in child.metaObject().className():
+                child.setStyleSheet("QWidget { background-color: #bababa; }")
+                break
+
+
+class DynamicCursorButton(QPushButton):
+    def __init__(self, *args, **kwargs):
+        super(DynamicCursorButton, self).__init__(*args, **kwargs)
+
+    def setEnabled(self, enabled):
+        super().setEnabled(enabled)
+        if enabled:
+            self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        else:
+            self.setCursor(QCursor(Qt.CursorShape.ForbiddenCursor))
+
+    def enterEvent(self, event):
+        if not self.isEnabled():
+            QApplication.setOverrideCursor(QCursor(Qt.CursorShape.ForbiddenCursor))
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        QApplication.restoreOverrideCursor()
+        super().leaveEvent(event)
+
+
 class FileListItem(QListWidgetItem):
     def __init__(self, text, fullPath):
         super().__init__(text)
@@ -305,6 +347,8 @@ class SubprocessThread(QThread):
             process.wait()
 
         self.finished_signal.emit()
+        self.output_signal.emit("\n")
+        self.output_signal.emit("Conversion finished!")
 
 
 class SettingsDialog(QDialog):
@@ -379,8 +423,16 @@ class UniversalConverter(QMainWindow):
         # Paths and variable management
         self.selectFormatText = _("Select Output Format")
         self.selectionText = ""
+
         self.dropDownArrow_path = resource_path(
             "assets/dropdown.png").replace("\\", "/")
+        self.spinboxUpArrow_path = resource_path(
+            "assets/spinbox-up.png").replace("\\", "/")
+        self.spinboxDownArrow_path = resource_path(
+            "assets/spinbox-down.png").replace("\\", "/")
+        self.eyeDropper_path = resource_path("assets/eye-dropper.svg")
+        self.rocket_path = resource_path("assets/rocket.svg")
+
         self.ffmpeg_path = resource_path("dependency/ffmpeg.exe")
         self.imageMagick_path = resource_path(
             "dependency/imagemagick/magick.exe")
@@ -388,7 +440,8 @@ class UniversalConverter(QMainWindow):
 
         gs_directory = resource_path("dependency/ghostscript")
         jxrlib_directory = resource_path("dependency/jxrlib")
-        os.environ["PATH"] = gs_directory + os.pathsep + \
+        os.environ["PATH"] = \
+            gs_directory + os.pathsep + \
             jxrlib_directory + os.pathsep + \
             os.environ.get("PATH", "")
 
@@ -432,14 +485,17 @@ class UniversalConverter(QMainWindow):
 
         selectButton = QPushButton(_("Select Files"))
         selectButton.clicked.connect(lambda: self.fileList.selectFiles())
+        selectButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         buttonsLayout.addWidget(selectButton)
 
         clearButton = QPushButton(_("Clear Files"))
         clearButton.clicked.connect(lambda: self.fileList.clearFileList())
+        clearButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         buttonsLayout.addWidget(clearButton)
 
         metadataButton = QPushButton(_("File Metadata"))
         metadataButton.clicked.connect(self.init_settings)
+        metadataButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         buttonsLayout.addWidget(metadataButton)
 
         leftLayout.addLayout(buttonsLayout)
@@ -462,12 +518,15 @@ class UniversalConverter(QMainWindow):
         leftLayout.addLayout(formatLayout)
 
         # Convert button
-        self.convertButton = QPushButton(_("Convert"))
+        self.convertButton = DynamicCursorButton(" " + _("Convert"))
+        self.convertButton.setIcon(self.setFAIcon(self.rocket_path))
+        self.convertButton.setIconSize(QSize(15, 15))
+        self.convertButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.convertButton.clicked.connect(self.convert)
         leftLayout.addWidget(self.convertButton)
 
         # ===========================================================================
-        # RIGHT: format specific options
+        # RIGHT: options widgets tab and terminal output tab
         # ===========================================================================
         rightTab = QTabWidget()
         rightTab.setMinimumWidth(500)
@@ -610,6 +669,11 @@ class UniversalConverter(QMainWindow):
                 slider.valueChanged.connect(
                     lambda value, label=valueDisplayLabel: label.setText(str(value)))
 
+                def onRightClick(event, slider=slider, label=valueDisplayLabel):
+                    slider.setValue(0)
+                    label.setText("")
+                valueDisplayLabel.contextMenuEvent = onRightClick
+
             elif config["type"] == "checkbox":
                 checkboxLayout = QHBoxLayout()
                 checkboxLayout.setSpacing(10)
@@ -623,18 +687,40 @@ class UniversalConverter(QMainWindow):
                 checkboxLayout.addWidget(checkbox)
 
             elif config["type"] == "textinput":
-                label = QLabel(config["label"])
-                widgetLayout.addWidget(label)
+                if configName in ["alpha_fill"]:
+                    labelLayout = QHBoxLayout()
+                    widgetLayout.addLayout(labelLayout)
 
-                textinputLayout = QHBoxLayout()
-                textinputLayout.setSpacing(10)
-                widgetLayout.addLayout(textinputLayout)
+                    label = QLabel(config["label"])
+                    labelLayout.addWidget(label)
 
-                for index, placeholder in enumerate(config["options"]):
+                    colorPalette = QPushButton()
+                    colorPalette.setIcon(self.setFAIcon(self.eyeDropper_path))
+                    colorPalette.setIconSize(QSize(15, 15))
+                    colorPalette.setStyleSheet("padding: 5px;")
+                    labelLayout.addWidget(
+                        colorPalette, alignment=Qt.AlignmentFlag.AlignLeft)
+
                     textInput = QLineEdit()
-                    textInput.setPlaceholderText(placeholder)
-                    textInput.setObjectName(str(index))
-                    textinputLayout.addWidget(textInput)
+                    textInput.setPlaceholderText(config["options"][0])
+                    widgetLayout.addWidget(textInput)
+
+                    colorPalette.clicked.connect(
+                        lambda: ColorPicker(textInput, self).openDialog())
+
+                else:
+                    label = QLabel(config["label"])
+                    widgetLayout.addWidget(label)
+
+                    textinputLayout = QHBoxLayout()
+                    textinputLayout.setSpacing(10)
+                    widgetLayout.addLayout(textinputLayout)
+
+                    for index, placeholder in enumerate(config["options"]):
+                        textInput = QLineEdit()
+                        textInput.setPlaceholderText(placeholder)
+                        textInput.setObjectName(str(index))
+                        textinputLayout.addWidget(textInput)
 
     def setVideoCodec(self):
         videoContainer = QWidget()
@@ -722,6 +808,7 @@ class UniversalConverter(QMainWindow):
                         if widgetConfigs["type"] == "combobox":
                             widgetValue = self.findWidgetInstance(
                                 cLayout, QComboBox).currentText()
+
                             if not widgetValue:
                                 continue
                             value = widgetConfigs["options"][widgetValue]
@@ -730,12 +817,13 @@ class UniversalConverter(QMainWindow):
                         elif widgetConfigs["type"] == "slider":
                             widgetValue = self.findWidgetInstance(
                                 cLayout, QLabel, "sliderValueLabel").text()
-                            
+
                             if widgetValue:
                                 value_template = widgetConfigs.get(
                                     "value_template", "")
                                 if value_template:
-                                    widgetValue = value_template.format(arg0=widgetValue)
+                                    widgetValue = value_template.format(
+                                        arg0=widgetValue)
                                 widget_args[widgetConfigs["arg"]] = widgetValue
 
                         elif widgetConfigs["type"] == "checkbox":
@@ -869,10 +957,16 @@ class UniversalConverter(QMainWindow):
                 if isinstance(layoutItem.widget(), QInstance) and (widgetName is None or layoutItem.widget().objectName() == widgetName):
                     return layoutItem.widget()
                 elif layoutItem.widget().layout():
-                    return self.findWidgetInstance(layoutItem.widget().layout(), QInstance, widgetName)
+                    foundWidget = self.findWidgetInstance(
+                        layoutItem.widget().layout(), QInstance, widgetName)
+                    if foundWidget:
+                        return foundWidget
 
             elif layoutItem.layout():
-                return self.findWidgetInstance(layoutItem.layout(), QInstance, widgetName)
+                foundWidget = self.findWidgetInstance(
+                    layoutItem.layout(), QInstance, widgetName)
+                if foundWidget:
+                    return foundWidget
 
     def clearContainer(self, container):
         # Clears all widgets or layouts from a given container
@@ -909,6 +1003,21 @@ class UniversalConverter(QMainWindow):
     def onConversionFinished(self):
         self.convertButton.setEnabled(True)
 
+    def setFAIcon(self, iconPath):
+        with open(iconPath, 'r') as file:
+            svg_content = file.read()
+
+        if settings["theme"] == "dark":
+            svg_content = svg_content.replace(
+                '<path ', '<path fill="#FFFFFF" ', 1)
+        elif settings["theme"] == "light":
+            pass
+
+        byte_array = QByteArray(svg_content.encode('utf-8'))
+        pixmap = QPixmap()
+        pixmap.loadFromData(byte_array, format='SVG')
+        return QIcon(pixmap)
+
     def init_settings(self):
         # Theme settings
         if settings["theme"] == "dark":
@@ -916,7 +1025,11 @@ class UniversalConverter(QMainWindow):
         elif settings["theme"] == "light":
             style = style_sheet.light
 
-        style = style.format(drop_down_arrow=self.dropDownArrow_path)
+        style = style.format(
+            drop_down_arrow=self.dropDownArrow_path,
+            spin_box_up=self.spinboxUpArrow_path,
+            spin_box_down=self.spinboxDownArrow_path
+        )
         self.setStyleSheet(style)
 
     def open_settings(self):

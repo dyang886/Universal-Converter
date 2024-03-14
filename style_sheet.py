@@ -1,11 +1,15 @@
 light = """
-    QPushButton {
+    QPushButton {{
         padding: 8px;
-    }
+    }}
 
-    QComboBox {
-        padding: 7px;
-    }
+    QComboBox {{
+        padding: 5px;
+    }}
+
+    QLineEdit {{
+        padding: 5px;
+    }}
 """
 
 dark = """
@@ -57,7 +61,7 @@ dark = """
     }}
 
     QComboBox {{
-        padding: 9px;
+        padding: 7px;
         border-radius: 3px;
         background-color: #2a2a2a;
         color: #FFFFFF;
@@ -71,7 +75,6 @@ dark = """
     QComboBox::down-arrow {{
         image: url({drop_down_arrow});
         width: 10px;
-        height: 10px;
     }}
 
     QComboBox QAbstractItemView {{
@@ -112,5 +115,52 @@ dark = """
         border: 2px solid rgba(168, 168, 168, 0.5);
         border-radius: 5px;
         padding: 3px;
+    }}
+
+    QSlider::groove:horizontal {{
+        border: 1px solid #555555;
+        height: 3px;
+    }}
+
+    QSlider::handle:horizontal {{
+        background: #2e2e2e;
+        border: 1px solid #5c5c5c;
+        width: 12px;
+        margin: -6px -1px;
+        border-radius: 6px;
+    }}
+
+    QSlider::handle:horizontal:hover {{
+        background: #223e55;
+    }}
+
+    QSlider::add-page:horizontal {{
+        background: #555555;
+    }}
+
+    QSlider::sub-page:horizontal {{
+        background: #2e2e2e;
+    }}
+
+    QLineEdit, QSpinBox {{
+        background-color: #2a2a2a;
+        color: #FFFFFF;
+        border: 1px solid #555555;
+        border-radius: 3px;
+        padding: 5px;
+    }}
+
+    QSpinBox::up-button {{
+        image: url({spin_box_up});
+        width: 13px;
+    }}
+
+    QSpinBox::down-button {{
+        image: url({spin_box_down});
+        width: 13px;
+    }}
+
+    QLineEdit:focus, QSpinBox:focus {{
+        border-bottom: 2px solid #007ad9;
     }}
 """

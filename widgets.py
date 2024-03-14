@@ -192,6 +192,7 @@ widget_configs = {
     "img_sharpen": {"arg": "-sharpen", "value_template": "0x{arg0}", "label": _("Image Sharpness:"), "type": "slider", "options": (0, 100)},
     "img_blur": {"arg": "-blur", "value_template": "0x{arg0}", "label": _("Image Blur:"), "type": "slider", "options": (0, 100)},
     "img_brightness": {"arg": "-modulate", "label": _("Image Brightness (%):"), "type": "textinput", "options": [_("% of brightness (100 means no change)")]},
+    "alpha_fill": {"arg": "-", "label": _("Transparency Fill:"), "type": "textinput", "options": [_("Color hex value (defaults to white)")]},
 }
 
 video_formats = {
@@ -784,6 +785,7 @@ image_formats = {
             "img_sharpen": widget_configs["img_sharpen"],
             "img_blur": widget_configs["img_blur"],
             "img_brightness": widget_configs["img_brightness"],
+            "alpha_fill": widget_configs["alpha_fill"],
         }
     },
     ".jxr":
