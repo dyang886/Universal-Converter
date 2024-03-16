@@ -3,8 +3,10 @@ import json
 import locale
 import os
 import platform
+import re
 import sys
 import subprocess
+import tempfile
 
 import polib
 from PyQt6.QtWidgets import QApplication, QDialog, QColorDialog, QMessageBox, QTextEdit, QTabWidget, QListWidgetItem, QLineEdit, QCheckBox, QSlider, QLayout, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QPushButton, QComboBox, QLabel, QFileDialog, QListWidget
@@ -270,9 +272,9 @@ class ColorPicker:
                 break
 
 
-class DynamicCursorButton(QPushButton):
-    def __init__(self, *args, **kwargs):
-        super(DynamicCursorButton, self).__init__(*args, **kwargs)
+class CustomButton(QPushButton):
+    def __init__(self, text, parent=None):
+        super(CustomButton, self).__init__(text, parent)
 
     def setEnabled(self, enabled):
         super().setEnabled(enabled)
@@ -283,7 +285,8 @@ class DynamicCursorButton(QPushButton):
 
     def enterEvent(self, event):
         if not self.isEnabled():
-            QApplication.setOverrideCursor(QCursor(Qt.CursorShape.ForbiddenCursor))
+            QApplication.setOverrideCursor(
+                QCursor(Qt.CursorShape.ForbiddenCursor))
         super().enterEvent(event)
 
     def leaveEvent(self, event):
@@ -304,7 +307,7 @@ class CustomVBoxLayout(QVBoxLayout):
 
 
 class SubprocessThread(QThread):
-    output_signal = pyqtSignal(str)
+    output_signal = pyqtSignal(str, int)
     finished_signal = pyqtSignal()
 
     def __init__(self, commands):
@@ -324,9 +327,9 @@ class SubprocessThread(QThread):
                 </p>
             """
             if index != 1:
-                self.output_signal.emit("\n")
-            self.output_signal.emit(formatted_message)
-            self.output_signal.emit("\n\n")
+                self.output_signal.emit("\n", 0)
+            self.output_signal.emit(formatted_message, 1)
+            self.output_signal.emit("\n\n", 0)
 
             print(f"Command {index}/{total_files}: {command}\n")
 
@@ -341,14 +344,12 @@ class SubprocessThread(QThread):
                 line = process.stdout.readline()
                 if not line:
                     break
-                self.output_signal.emit(line)
+                self.output_signal.emit(line, 0)
 
             process.stdout.close()
             process.wait()
 
         self.finished_signal.emit()
-        self.output_signal.emit("\n")
-        self.output_signal.emit("Conversion finished!")
 
 
 class SettingsDialog(QDialog):
@@ -423,6 +424,7 @@ class UniversalConverter(QMainWindow):
         # Paths and variable management
         self.selectFormatText = _("Select Output Format")
         self.selectionText = ""
+        # self.temp_dir = os.path.join(tempfile.gettempdir(), "UCTemp")
 
         self.dropDownArrow_path = resource_path(
             "assets/dropdown.png").replace("\\", "/")
@@ -437,6 +439,7 @@ class UniversalConverter(QMainWindow):
         self.imageMagick_path = resource_path(
             "dependency/imagemagick/magick.exe")
         self.ncm_path = resource_path("dependency/ncmdump.exe")
+        self.exiftool_path = resource_path("dependency/exiftool.exe")
 
         gs_directory = resource_path("dependency/ghostscript")
         jxrlib_directory = resource_path("dependency/jxrlib")
@@ -493,10 +496,11 @@ class UniversalConverter(QMainWindow):
         clearButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         buttonsLayout.addWidget(clearButton)
 
-        metadataButton = QPushButton(_("File Metadata"))
-        metadataButton.clicked.connect(self.init_settings)
-        metadataButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        buttonsLayout.addWidget(metadataButton)
+        self.metadataButton = CustomButton(_("File Metadata"))
+        self.metadataButton.clicked.connect(self.extractMetadata)
+        self.metadataButton.setCursor(
+            QCursor(Qt.CursorShape.PointingHandCursor))
+        buttonsLayout.addWidget(self.metadataButton)
 
         leftLayout.addLayout(buttonsLayout)
 
@@ -518,23 +522,24 @@ class UniversalConverter(QMainWindow):
         leftLayout.addLayout(formatLayout)
 
         # Convert button
-        self.convertButton = DynamicCursorButton(" " + _("Convert"))
+        self.convertButton = CustomButton(" " + _("Convert"))
         self.convertButton.setIcon(self.setFAIcon(self.rocket_path))
         self.convertButton.setIconSize(QSize(15, 15))
-        self.convertButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.convertButton.setCursor(
+            QCursor(Qt.CursorShape.PointingHandCursor))
         self.convertButton.clicked.connect(self.convert)
         leftLayout.addWidget(self.convertButton)
 
         # ===========================================================================
         # RIGHT: options widgets tab and terminal output tab
         # ===========================================================================
-        rightTab = QTabWidget()
-        rightTab.setMinimumWidth(500)
-        mainLayout.addWidget(rightTab)
+        self.rightTab = QTabWidget()
+        self.rightTab.setMinimumWidth(500)
+        mainLayout.addWidget(self.rightTab)
 
         # First tab: conversion customization widgets
         widgetsPanelTab = QWidget()
-        rightTab.addTab(widgetsPanelTab, _("Customization"))
+        self.rightTab.addTab(widgetsPanelTab, _("Customization"))
         widgetsPanelLayout = QVBoxLayout(widgetsPanelTab)
         widgetsPanelTab.setLayout(widgetsPanelLayout)
 
@@ -552,7 +557,7 @@ class UniversalConverter(QMainWindow):
 
         # Second tab: terminal output
         terminalTab = QWidget()
-        rightTab.addTab(terminalTab, _("Terminal"))
+        self.rightTab.addTab(terminalTab, _("Terminal"))
         terminalLayout = QVBoxLayout(terminalTab)
         self.terminalOutput = QTextEdit()
         self.terminalOutput.setReadOnly(True)
@@ -564,6 +569,7 @@ class UniversalConverter(QMainWindow):
         set new ones based on current file type.
         """
 
+        self.rightTab.setCurrentIndex(0)
         cur_ext = self.formatCombo.currentText()
         if cur_ext == self.selectFormatText or not cur_ext:
             self.clearContainer(self.widgetsPanelGrid)
@@ -703,10 +709,11 @@ class UniversalConverter(QMainWindow):
 
                     textInput = QLineEdit()
                     textInput.setPlaceholderText(config["options"][0])
+                    textInput.setObjectName("0")
                     widgetLayout.addWidget(textInput)
 
                     colorPalette.clicked.connect(
-                        lambda: ColorPicker(textInput, self).openDialog())
+                        self.openColorPicker_lambda(textInput))
 
                 else:
                     label = QLabel(config["label"])
@@ -784,11 +791,11 @@ class UniversalConverter(QMainWindow):
         """
 
         self.convertButton.setDisabled(True)
+        self.rightTab.setCurrentIndex(1)
         cur_file_type = self.fileList.file_type
         cur_ext = self.formatCombo.currentText()
         file_paths = self.fileList.getFilePaths()
         widget_args = {}
-        commands = []  # List of command lists
         error_set = set()
         if cur_ext == self.selectFormatText or not cur_ext:
             self.onConversionFinished()
@@ -840,7 +847,7 @@ class UniversalConverter(QMainWindow):
                             if value_template:
                                 # Means more than one textinput exist
                                 all_values_present = True
-                                for index in range(len(widgetConfigs["options"])):
+                                for index in range(self.argsCount(value_template)):
                                     widgetValue = self.findWidgetInstance(
                                         cLayout, QLineEdit, str(index)).text()
                                     if widgetValue:
@@ -873,11 +880,8 @@ class UniversalConverter(QMainWindow):
                 aCodec = widgets.video_formats[cur_ext]["audio"][aCodecSelection]["value"]
                 widget_args["-c:a"] = aCodec
 
-            for inputFile in file_paths:
-                command = self.constructFfmpegCommand(
-                    inputFile, cur_ext, widget_args, error_set)
-                if command:
-                    commands.append(command)
+            commands = self.constructFfmpegCommand(
+                file_paths, cur_ext, widget_args, error_set)
             self.startSubprocess(commands)
 
         elif cur_file_type == "audio":
@@ -887,22 +891,17 @@ class UniversalConverter(QMainWindow):
                 aCodec = widgets.audio_formats[cur_ext][aCodecSelection]["value"]
                 widget_args["-c:a"] = aCodec
 
-            for inputFile in file_paths:
-                command = self.constructFfmpegCommand(
-                    inputFile, cur_ext, widget_args, error_set)
-                if command:
-                    commands.append(command)
+            commands = self.constructFfmpegCommand(
+                file_paths, cur_ext, widget_args, error_set)
             self.startSubprocess(commands)
 
         elif cur_file_type == "image":
-            for inputFile in file_paths:
-                command = self.constructImageMagickCommand(
-                    inputFile, cur_ext, widget_args, error_set)
-                if command:
-                    commands.append(command)
+            commands = self.constructImageMagickCommand(
+                file_paths, cur_ext, widget_args, error_set)
             self.startSubprocess(commands)
 
         elif cur_file_type == "ncm":
+            commands = []
             for inputFile in file_paths:
                 commands.append([self.ncm_path, inputFile])
             self.startSubprocess(commands)
@@ -910,44 +909,79 @@ class UniversalConverter(QMainWindow):
         for error in error_set:
             QMessageBox.critical(None, _("Error"), error)
 
-    def constructFfmpegCommand(self, inputFile, outputExt, widget_args, error_set):
-        outputFile = os.path.splitext(inputFile)[0] + "_converted" + outputExt
-        command = [self.ffmpeg_path, "-i", inputFile]
-        for arg, value in widget_args.items():
-            if arg and value:
-                command.extend([arg, str(value)])
+    def constructFfmpegCommand(self, inputFiles, outputExt, widget_args, error_set):
+        commands = []
 
-        # Special cases and checks
-        isError = False
-        if outputExt == ".m4a":
-            command.append("-vn")
-        if widget_args.get("-crf") and widget_args.get("-lossless"):
-            error_set.add(_("Lossless shouldn't be used with a CRF value"))
-            isError = True
-        if widget_args.get("-room_type") and not widget_args.get("-mixing_level"):
-            error_set.add("Mixing level must be set if room type is set")
-            isError = True
-        if widget_args.get("-c:a") in ["adpcm_swf", "nellymoser"] and not widget_args.get("-ar"):
-            error_set.add("Please select a sample rate")
-            isError = True
-        if isError:
-            return False
+        for inputFile in inputFiles:
+            outputFile = os.path.splitext(
+                inputFile)[0] + "_converted" + outputExt
+            command = [self.ffmpeg_path, "-i", inputFile]
+            for arg, value in widget_args.items():
+                if arg and value:
+                    command.extend([arg, str(value)])
 
-        command += ["-y", outputFile]
-        return command
+            # Special cases and checks
+            isError = False
+            if outputExt == ".m4a":
+                command.append("-vn")
+            if widget_args.get("-crf") and widget_args.get("-lossless"):
+                error_set.add(_("Lossless shouldn't be used with a CRF value"))
+                isError = True
+            if widget_args.get("-room_type") and not widget_args.get("-mixing_level"):
+                error_set.add("Mixing level must be set if room type is set")
+                isError = True
+            if widget_args.get("-c:a") in ["adpcm_swf", "nellymoser"] and not widget_args.get("-ar"):
+                error_set.add("Please select a sample rate")
+                isError = True
+            if isError:
+                return False
 
-    def constructImageMagickCommand(self, inputFile, outputExt, widget_args, error_set):
-        outputFile = os.path.splitext(inputFile)[0] + "_converted" + outputExt
-        command = [self.imageMagick_path, inputFile]
-        for arg, value in widget_args.items():
-            if arg and value:
-                command.extend([arg, str(value)])
+            command += ["-y", outputFile]
+            commands.append(command)
 
-        # if outputExt == ".png":
-        #     command.extend(["-define", "tiff:preserve-compression=true"])
+        return commands
 
-        command += [outputFile]
-        return command
+    def constructImageMagickCommand(self, inputFiles, outputExt, widget_args, error_set):
+        commands = []
+
+        if outputExt == ".gif":
+            outputFile = os.path.splitext(inputFiles[0])[
+                0] + "_converted" + outputExt
+            command = [self.imageMagick_path]
+
+            for inputFile in inputFiles:
+                delay_command = ["-delay", widget_args.get("-delay", "")]
+                if delay_command[1]:
+                    command.extend(delay_command)
+                command.append(inputFile)
+
+            for arg, value in widget_args.items():
+                if arg and value:
+                    if arg != "-delay":
+                        command.extend([arg, str(value)])
+
+            command += ["-alpha", "remove", outputFile]
+            commands.append(command)
+
+        else:
+            for inputFile in inputFiles:
+                outputFile = os.path.splitext(
+                    inputFile)[0] + "_converted" + outputExt
+                command = [self.imageMagick_path, inputFile]
+                for arg, value in widget_args.items():
+                    if arg and value:
+                        command.extend([arg, str(value)])
+
+                if not widgets.image_formats[outputExt]["supports_alpha"]:
+                    command.extend(["-alpha", "remove"])
+                if outputExt == ".ico":
+                    command.extend(
+                        ["-define", "icon:auto-resize=16,32,48,64,128,256"])
+
+                command += [outputFile]
+                commands.append(command)
+
+        return commands
 
     def findWidgetInstance(self, layout, QInstance, widgetName=None):
         for i in range(layout.count()):
@@ -990,18 +1024,28 @@ class UniversalConverter(QMainWindow):
         self.thread.finished_signal.connect(self.onConversionFinished)
         self.thread.start()
 
-    def updateTerminalOutput(self, text):
-        if text.strip().startswith('<p'):
+    def updateTerminalOutput(self, text, htmlStyle=0):
+        if htmlStyle == 0:
+            self.terminalOutput.insertPlainText(text)
+        elif htmlStyle == 1:
             self.terminalOutput.insertHtml(text)
             # reset html color format
             self.terminalOutput.insertHtml(
                 "<p style='color: #FFFFFF;'>&#8203;</p>")
-        else:
-            self.terminalOutput.insertPlainText(text)
+
         self.terminalOutput.moveCursor(QTextCursor.MoveOperation.End)
+
+    def argsCount(self, formattedString):
+        args = re.findall(r"\{arg(\d+)\}", formattedString)
+        unique_args = set(map(int, args))
+        return len(unique_args)
 
     def onConversionFinished(self):
         self.convertButton.setEnabled(True)
+        self.updateTerminalOutput("\n" + _("All files converted!"))
+
+    def openColorPicker_lambda(self, lineEdit):
+        return lambda: ColorPicker(lineEdit, self).openDialog()
 
     def setFAIcon(self, iconPath):
         with open(iconPath, 'r') as file:
@@ -1039,6 +1083,37 @@ class UniversalConverter(QMainWindow):
         else:
             self.settings_window = SettingsDialog(self)
             self.settings_window.show()
+
+    def extractMetadata(self):
+        self.metadataButton.setEnabled(False)
+        self.rightTab.setCurrentIndex(1)
+        self.terminalOutput.clear()
+        selectedItem = self.fileList.currentItem()
+
+        if selectedItem:
+            filePath = selectedItem.fullPath
+            command = [self.exiftool_path, filePath]
+
+            process = subprocess.Popen(
+                command, stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT, text=True,
+                creationflags=subprocess.CREATE_NO_WINDOW,
+                encoding="utf-8"
+            )
+            output = process.communicate()[0]
+
+            html_output = '<table>'
+            for line in output.split('\n'):
+                if ': ' in line:
+                    key, value = line.split(":", 1)
+                    key = key.strip()
+                    value = value.strip()
+                    translated_key = _(key) if _(key) != key else key
+                    html_output += f"<tr><td>{translated_key}</td><td>:</td><td>{value}</td></tr>"
+            html_output += '</table>'
+            self.updateTerminalOutput(html_output, 1)
+
+        self.metadataButton.setEnabled(True)
 
 
 if __name__ == "__main__":

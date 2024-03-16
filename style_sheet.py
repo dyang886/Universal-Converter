@@ -50,6 +50,7 @@ dark = """
         border-radius: 3px;
         background-color: #2a2a2a;
         color: #FFFFFF;
+        outline: none;
     }}
 
     QPushButton:hover {{

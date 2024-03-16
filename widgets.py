@@ -192,7 +192,9 @@ widget_configs = {
     "img_sharpen": {"arg": "-sharpen", "value_template": "0x{arg0}", "label": _("Image Sharpness:"), "type": "slider", "options": (0, 100)},
     "img_blur": {"arg": "-blur", "value_template": "0x{arg0}", "label": _("Image Blur:"), "type": "slider", "options": (0, 100)},
     "img_brightness": {"arg": "-modulate", "label": _("Image Brightness (%):"), "type": "textinput", "options": [_("% of brightness (100 means no change)")]},
-    "alpha_fill": {"arg": "-", "label": _("Transparency Fill:"), "type": "textinput", "options": [_("Color hex value (defaults to white)")]},
+    "alpha_fill": {"arg": "-background", "label": _("Transparency Fill:"), "type": "textinput", "options": [_("Color hex value (defaults to white)")]},
+    "gif_delay": {"arg": "-delay", "label": _("Frame Delay:"), "type": "textinput", "options": [_("Delay between frames (10 for 0.1s)")]},
+    "gif_loop": {"arg": "-loop", "label": _("Loop Count:"), "type": "textinput", "options": [_("Number of loops (0 for infinite)")]},
 }
 
 video_formats = {
@@ -790,6 +792,20 @@ image_formats = {
     },
     ".jxr":
     {
+        "supports_alpha": False,
+        "widgets":
+        {
+            "img_quality": widget_configs["img_quality"],
+            "img_resize": widget_configs["img_resize"],
+            "img_rotate": widget_configs["img_rotate"],
+            "img_sharpen": widget_configs["img_sharpen"],
+            "img_blur": widget_configs["img_blur"],
+            "img_brightness": widget_configs["img_brightness"],
+            "alpha_fill": widget_configs["alpha_fill"],
+        }
+    },
+    ".png":
+    {
         "supports_alpha": True,
         "widgets":
         {
@@ -801,22 +817,18 @@ image_formats = {
             "img_brightness": widget_configs["img_brightness"],
         }
     },
-    ".png":
-    {
-        "supports_alpha": True,
-        "widgets":
-        {
-            "img_resize": widget_configs["img_resize"],
-            "img_rotate": widget_configs["img_rotate"],
-        }
-    },
     ".svg":
     {
-        "supports_alpha": True,
+        "supports_alpha": False,
         "widgets":
         {
+            "img_quality": widget_configs["img_quality"],
             "img_resize": widget_configs["img_resize"],
             "img_rotate": widget_configs["img_rotate"],
+            "img_sharpen": widget_configs["img_sharpen"],
+            "img_blur": widget_configs["img_blur"],
+            "img_brightness": widget_configs["img_brightness"],
+            "alpha_fill": widget_configs["alpha_fill"],
         }
     },
     ".webp":
@@ -824,8 +836,12 @@ image_formats = {
         "supports_alpha": True,
         "widgets":
         {
+            "img_quality": widget_configs["img_quality"],
             "img_resize": widget_configs["img_resize"],
             "img_rotate": widget_configs["img_rotate"],
+            "img_sharpen": widget_configs["img_sharpen"],
+            "img_blur": widget_configs["img_blur"],
+            "img_brightness": widget_configs["img_brightness"],
         }
     },
     ".heic":
@@ -836,37 +852,91 @@ image_formats = {
             "img_quality": widget_configs["img_quality"],
             "img_resize": widget_configs["img_resize"],
             "img_rotate": widget_configs["img_rotate"],
+            "img_sharpen": widget_configs["img_sharpen"],
+            "img_blur": widget_configs["img_blur"],
+            "img_brightness": widget_configs["img_brightness"],
         }
     },
     ".bmp":
     {
-        "supports_alpha": False,
-        "widgets": {}
+        "supports_alpha": True,
+        "widgets":
+        {
+            "img_quality": widget_configs["img_quality"],
+            "img_resize": widget_configs["img_resize"],
+            "img_rotate": widget_configs["img_rotate"],
+            "img_sharpen": widget_configs["img_sharpen"],
+            "img_blur": widget_configs["img_blur"],
+            "img_brightness": widget_configs["img_brightness"],
+        }
     },
     ".tiff":
     {
         "supports_alpha": True,
-        "widgets": {}
+        "widgets":
+        {
+            "img_quality": widget_configs["img_quality"],
+            "img_resize": widget_configs["img_resize"],
+            "img_rotate": widget_configs["img_rotate"],
+            "img_sharpen": widget_configs["img_sharpen"],
+            "img_blur": widget_configs["img_blur"],
+            "img_brightness": widget_configs["img_brightness"],
+        }
     },
     ".eps":
     {
         "supports_alpha": False,
-        "widgets": {}
+        "widgets":
+        {
+            "img_quality": widget_configs["img_quality"],
+            "img_resize": widget_configs["img_resize"],
+            "img_rotate": widget_configs["img_rotate"],
+            "img_sharpen": widget_configs["img_sharpen"],
+            "img_blur": widget_configs["img_blur"],
+            "img_brightness": widget_configs["img_brightness"],
+            "alpha_fill": widget_configs["alpha_fill"],
+        }
     },
     ".psd":
     {
-        "supports_alpha": False,
-        "widgets": {}
+        "supports_alpha": True,
+        "widgets":
+        {
+            "img_quality": widget_configs["img_quality"],
+            "img_resize": widget_configs["img_resize"],
+            "img_rotate": widget_configs["img_rotate"],
+            "img_sharpen": widget_configs["img_sharpen"],
+            "img_blur": widget_configs["img_blur"],
+            "img_brightness": widget_configs["img_brightness"],
+        }
     },
     ".ico":
     {
         "supports_alpha": True,
-        "widgets": {}
+        "widgets":
+        {
+            "img_quality": widget_configs["img_quality"],
+            "img_rotate": widget_configs["img_rotate"],
+            "img_sharpen": widget_configs["img_sharpen"],
+            "img_blur": widget_configs["img_blur"],
+            "img_brightness": widget_configs["img_brightness"],
+        }
     },
     ".gif":
     {
-        "supports_alpha": True,
-        "widgets": {}
+        "supports_alpha": False,
+        "widgets":
+        {
+            "img_quality": widget_configs["img_quality"],
+            "img_resize": widget_configs["img_resize"],
+            "img_rotate": widget_configs["img_rotate"],
+            "img_sharpen": widget_configs["img_sharpen"],
+            "img_blur": widget_configs["img_blur"],
+            "img_brightness": widget_configs["img_brightness"],
+            "alpha_fill": widget_configs["alpha_fill"],
+            "gif_delay": widget_configs["gif_delay"],
+            "gif_loop": widget_configs["gif_loop"],
+        }
     }
 }
 
@@ -877,20 +947,20 @@ ncm_formats = {
     }
 }
 
-# For detecting and setting file type based on value lists
+# Using values to set keys
 detected_file_types = {
     "video": list(video_formats.keys()),
     "audio": list(audio_formats.keys()),
     "image": list(image_formats.keys()) + [".jpg", ".tif"],
-    "pdf": [],
     "ncm": list(ncm_formats.keys()),
+    "doc": [".pdf"],
 }
 
-# For displaying output file extensions based on file type
+# Using keys to set values
 displayed_file_types = {
     "video": list(video_formats.keys()),
     "audio": list(audio_formats.keys()),
     "image": list(image_formats.keys()),
-    "pdf": [],
-    "ncm": [".mp3"]
+    "ncm": [".mp3"],
+    "doc": [],
 }
