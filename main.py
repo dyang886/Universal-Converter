@@ -16,6 +16,7 @@ import subprocess
 
 import style_sheet
 import widgets
+import other
 
 
 def resource_path(relative_path):
@@ -33,6 +34,13 @@ def resource_path(relative_path):
         sys.exit(1)
 
     return full_path
+
+
+def find_dependency_path(possible_paths):
+    for path in possible_paths:
+        if os.path.exists(path):
+            return os.path.normpath(path)
+    return ""
 
 
 def apply_settings(settings):
@@ -58,6 +66,13 @@ def load_settings():
     default_settings = {
         "language": app_locale,
         "theme": "dark",
+        "pandocPath": find_dependency_path([
+            "C:/Program Files/Pandoc",
+            os.path.join(os.environ.get("LOCALAPPDATA"), "Pandoc")
+        ]),
+        "calibrePath": find_dependency_path([
+            "C:/Program Files/Calibre2"
+        ]),
     }
 
     try:
@@ -119,6 +134,12 @@ language_options = {
 theme_options = {
     _("Dark"): "dark",
     _("Light"): "light"
+}
+
+externalTools = {
+    "None": "",
+    "Pandoc": "pandoc",
+    "Calibre": "calibre",
 }
 
 
@@ -203,11 +224,16 @@ class FileSelection(QListWidget):
         self.parent.formatCombo.clear()
         self.parent.formatCombo.addItem(self.parent.selectFormatText)
 
+    def getFilePaths(self):
+        return [self.item(i).fullPath for i in range(self.count())]
+
     def displayFiles(self, files):
         error_messages = set()
 
         for file in files:
             cur_file_type = ""
+            external_tools = [
+                value for value in externalTools.values() if value]
             file_ext = os.path.splitext(file)[1].lower()
             currentFilePaths = [
                 self.item(i).fullPath for i in range(self.count())]
@@ -215,10 +241,14 @@ class FileSelection(QListWidget):
             if file in currentFilePaths:
                 continue
 
-            for type, list in widgets.detected_file_types.items():
-                if file_ext in list:
-                    cur_file_type = type
-                    break
+            if self.file_type in external_tools:
+                if file_ext in widgets.external_file_types[self.file_type]["input"]:
+                    cur_file_type = self.file_type
+            else:
+                for type, list in widgets.detected_file_types.items():
+                    if file_ext in list:
+                        cur_file_type = type
+                        break
 
             if not self.file_type and cur_file_type:
                 # if haven't determined file type, set file type and output formats
@@ -242,9 +272,6 @@ class FileSelection(QListWidget):
         if error_messages:
             QMessageBox.critical(
                 self, _("Error"), "\n".join(error_messages))
-
-    def getFilePaths(self):
-        return [self.item(i).fullPath for i in range(self.count())]
 
 
 class ColorPicker:
@@ -308,13 +335,17 @@ class CustomVBoxLayout(QVBoxLayout):
 
 class SubprocessThread(QThread):
     output_signal = pyqtSignal(str, int)
-    finished_signal = pyqtSignal()
+    finished_signal = pyqtSignal(int)
 
     def __init__(self, commands):
         super().__init__()
         self.commands = commands
 
     def run(self):
+        if not self.commands:
+            self.finished_signal.emit(2)
+            return
+
         total_files = len(self.commands)
         for index, command in enumerate(self.commands, start=1):
             message = _("Processing {index} of {total_files} files...").format(
@@ -349,7 +380,7 @@ class SubprocessThread(QThread):
             process.stdout.close()
             process.wait()
 
-        self.finished_signal.emit()
+        self.finished_signal.emit(0)
 
 
 class SettingsDialog(QDialog):
@@ -388,6 +419,36 @@ class SettingsDialog(QDialog):
             self.find_settings_key(settings["language"], language_options))
         languageLayout.addWidget(self.languageCombo)
 
+        # Pandoc path
+        pandocLayout = QVBoxLayout()
+        pandocLayout.setSpacing(2)
+        settingsWidgetsLayout.addLayout(pandocLayout)
+        pandocLayout.addWidget(QLabel(_("Pandoc Path:")))
+        pandocPathLayout = QHBoxLayout()
+        pandocPathLayout.setSpacing(5)
+        pandocLayout.addLayout(pandocPathLayout)
+        self.pandocLineEdit = QLineEdit()
+        self.pandocLineEdit.setText(settings["pandocPath"])
+        pandocPathLayout.addWidget(self.pandocLineEdit)
+        pandocPathButton = QPushButton("...")
+        pandocPathButton.clicked.connect(self.selectPandocPath)
+        pandocPathLayout.addWidget(pandocPathButton)
+
+        # Calibre path
+        calibreLayout = QVBoxLayout()
+        calibreLayout.setSpacing(2)
+        settingsWidgetsLayout.addLayout(calibreLayout)
+        calibreLayout.addWidget(QLabel(_("Calibre Path:")))
+        calibrePathLayout = QHBoxLayout()
+        calibrePathLayout.setSpacing(5)
+        calibreLayout.addLayout(calibrePathLayout)
+        self.calibreLineEdit = QLineEdit()
+        self.calibreLineEdit.setText(settings["calibrePath"])
+        calibrePathLayout.addWidget(self.calibreLineEdit)
+        calibrePathButton = QPushButton("...")
+        calibrePathButton.clicked.connect(self.selectCalibrePath)
+        calibrePathLayout.addWidget(calibrePathButton)
+
         # Apply button
         applyButtonLayout = QHBoxLayout()
         applyButtonLayout.setContentsMargins(0, 0, 10, 10)
@@ -401,12 +462,28 @@ class SettingsDialog(QDialog):
     def find_settings_key(self, value, dict):
         return next(key for key, val in dict.items() if val == value)
 
+    def selectPandocPath(self):
+        initialPath = self.pandocLineEdit.text() or os.path.expanduser("~")
+        directory = QFileDialog.getExistingDirectory(
+            self, _("Select Pandoc Installation Path"), initialPath)
+        if directory:
+            self.pandocLineEdit.setText(os.path.normpath(directory))
+
+    def selectCalibrePath(self):
+        initialPath = self.calibreLineEdit.text() or os.path.expanduser("~")
+        directory = QFileDialog.getExistingDirectory(
+            self, _("Select Calibre Installation Path"), initialPath)
+        if directory:
+            self.calibreLineEdit.setText(os.path.normpath(directory))
+
     def apply_settings_page(self):
         settings["theme"] = theme_options[self.themeCombo.currentText()]
         settings["language"] = language_options[self.languageCombo.currentText()]
+        settings["pandocPath"] = self.pandocLineEdit.text()
+        settings["calibrePath"] = self.calibreLineEdit.text()
         apply_settings(settings)
         QMessageBox.information(self, _("Attention"), _(
-            "Please restart the application to apply settings"))
+            "Please restart the application to apply theme and language settings."))
 
 
 class UniversalConverter(QMainWindow):
@@ -424,7 +501,7 @@ class UniversalConverter(QMainWindow):
         # Paths and variable management
         self.selectFormatText = _("Select Output Format")
         self.selectionText = ""
-        # self.temp_dir = os.path.join(tempfile.gettempdir(), "UCTemp")
+        self.temp_dir = os.path.join(tempfile.gettempdir(), "UCTemp")
 
         self.dropDownArrow_path = resource_path(
             "assets/dropdown.png").replace("\\", "/")
@@ -440,6 +517,8 @@ class UniversalConverter(QMainWindow):
             "dependency/imagemagick/magick.exe")
         self.ncm_path = resource_path("dependency/ncmdump.exe")
         self.exiftool_path = resource_path("dependency/exiftool.exe")
+        self.updatePandocPath()
+        self.updateCalibrePath()
 
         gs_directory = resource_path("dependency/ghostscript")
         jxrlib_directory = resource_path("dependency/jxrlib")
@@ -503,6 +582,19 @@ class UniversalConverter(QMainWindow):
         buttonsLayout.addWidget(self.metadataButton)
 
         leftLayout.addLayout(buttonsLayout)
+
+        # External tool selection
+        exToolLayout = QHBoxLayout()
+
+        exToolLayout.addWidget(QLabel(_("Select External Tool:")))
+        self.exToolCombo = QComboBox()
+        self.exToolCombo.addItems(externalTools.keys())
+        self.exToolCombo.currentIndexChanged.connect(
+            self.onExternalToolsChange)
+        exToolLayout.addWidget(self.exToolCombo)
+        exToolLayout.setStretchFactor(self.exToolCombo, 1)
+
+        leftLayout.addLayout(exToolLayout)
 
         # File selection window
         self.fileList = FileSelection(self)
@@ -602,8 +694,19 @@ class UniversalConverter(QMainWindow):
             widgetList = widgets.image_formats[cur_ext]["widgets"]
             self.setWidgets(widgetList, layout)
 
+        elif cur_file_type == "pdf":
+            pass
+
         elif cur_file_type == "ncm":
             pass
+
+        elif cur_file_type == "pandoc":
+            widgetList = widgets.pandoc_formats[cur_ext]["widgets"]
+            self.setWidgets(widgetList, layout)
+
+        elif cur_file_type == "calibre":
+            widgetList = widgets.calibre_formats[cur_ext]["widgets"]
+            self.setWidgets(widgetList, layout)
 
     def onCodecChange(self, codecCombo, layout, isVideo):
         """
@@ -797,8 +900,8 @@ class UniversalConverter(QMainWindow):
         file_paths = self.fileList.getFilePaths()
         widget_args = {}
         error_set = set()
-        if cur_ext == self.selectFormatText or not cur_ext:
-            self.onConversionFinished()
+        if not cur_ext.startswith("."):
+            self.onConversionFinished(1)
             return
 
         # loop through every CustomVBoxLayout
@@ -880,7 +983,7 @@ class UniversalConverter(QMainWindow):
                 aCodec = widgets.video_formats[cur_ext]["audio"][aCodecSelection]["value"]
                 widget_args["-c:a"] = aCodec
 
-            commands = self.constructFfmpegCommand(
+            commands = self.constructFfmpegCommands(
                 file_paths, cur_ext, widget_args, error_set)
             self.startSubprocess(commands)
 
@@ -891,14 +994,17 @@ class UniversalConverter(QMainWindow):
                 aCodec = widgets.audio_formats[cur_ext][aCodecSelection]["value"]
                 widget_args["-c:a"] = aCodec
 
-            commands = self.constructFfmpegCommand(
+            commands = self.constructFfmpegCommands(
                 file_paths, cur_ext, widget_args, error_set)
             self.startSubprocess(commands)
 
         elif cur_file_type == "image":
-            commands = self.constructImageMagickCommand(
+            commands = self.constructImageMagickCommands(
                 file_paths, cur_ext, widget_args, error_set)
             self.startSubprocess(commands)
+
+        elif cur_file_type == "pdf":
+            pass
 
         elif cur_file_type == "ncm":
             commands = []
@@ -906,10 +1012,20 @@ class UniversalConverter(QMainWindow):
                 commands.append([self.ncm_path, inputFile])
             self.startSubprocess(commands)
 
+        elif cur_file_type == "pandoc":
+            commands = self.constructPandocCommands(
+                file_paths, cur_ext, widget_args, error_set)
+            self.startSubprocess(commands)
+
+        elif cur_file_type == "calibre":
+            commands = self.constructCalibreCommands(
+                file_paths, cur_ext, widget_args, error_set)
+            self.startSubprocess(commands)
+
         for error in error_set:
             QMessageBox.critical(None, _("Error"), error)
 
-    def constructFfmpegCommand(self, inputFiles, outputExt, widget_args, error_set):
+    def constructFfmpegCommands(self, inputFiles, outputExt, widget_args, error_set):
         commands = []
 
         for inputFile in inputFiles:
@@ -941,7 +1057,7 @@ class UniversalConverter(QMainWindow):
 
         return commands
 
-    def constructImageMagickCommand(self, inputFiles, outputExt, widget_args, error_set):
+    def constructImageMagickCommands(self, inputFiles, outputExt, widget_args, error_set):
         commands = []
 
         if outputExt == ".gif":
@@ -972,7 +1088,7 @@ class UniversalConverter(QMainWindow):
                     if arg and value:
                         command.extend([arg, str(value)])
 
-                if not widgets.image_formats[outputExt]["supports_alpha"]:
+                if not widgets.image_formats[outputExt].get("supports_alpha"):
                     command.extend(["-alpha", "remove"])
                 if outputExt == ".ico":
                     command.extend(
@@ -982,6 +1098,54 @@ class UniversalConverter(QMainWindow):
                 commands.append(command)
 
         return commands
+
+    def constructPandocCommands(self, inputFiles, outputExt, widget_args, error_set):
+        if not self.updatePandocPath():
+            self.externalToolNotFound("Pandoc")
+            return []
+        commands = []
+
+        for inputFile in inputFiles:
+            outputFile = os.path.splitext(
+                inputFile)[0] + "_converted" + outputExt
+            command = [self.pandoc_path, "-s", inputFile]
+            for arg, value in widget_args.items():
+                if arg and value:
+                    command.extend([arg, str(value)])
+
+            command += ["-o", outputFile]
+            commands.append(command)
+
+        return commands
+
+    def constructCalibreCommands(self, inputFiles, outputExt, widget_args, error_set):
+        if not self.updateCalibrePath():
+            self.externalToolNotFound("Calibre")
+            return []
+        commands = []
+
+        for inputFile in inputFiles:
+            outputFile = os.path.splitext(
+                inputFile)[0] + "_converted" + outputExt
+            command = [self.calibre_path, inputFile]
+            for arg, value in widget_args.items():
+                if arg and value:
+                    command.extend([arg, str(value)])
+
+            command += [outputFile]
+            commands.append(command)
+
+        return commands
+    
+    def externalToolNotFound(self, toolName):
+        QMessageBox.critical(
+            self, _("Error"),
+            _("{toolName} not installed or invalid installation path.").format(toolName=toolName)
+            + "\n" +
+            _("Please navigate to 'Options -> Conversion Table' to install {toolName}").format(toolName=toolName)
+            + "\n" +
+            _("and make sure {toolName} path is correct in 'Options -> Settings'.").format(toolName=toolName)
+        )
 
     def findWidgetInstance(self, layout, QInstance, widgetName=None):
         for i in range(layout.count()):
@@ -1024,28 +1188,64 @@ class UniversalConverter(QMainWindow):
         self.thread.finished_signal.connect(self.onConversionFinished)
         self.thread.start()
 
-    def updateTerminalOutput(self, text, htmlStyle=0):
-        if htmlStyle == 0:
+    def updateTerminalOutput(self, text, textStyle=0, ScrollDown=1):
+        if textStyle == 0:
             self.terminalOutput.insertPlainText(text)
-        elif htmlStyle == 1:
+        elif textStyle == 1:
             self.terminalOutput.insertHtml(text)
             # reset html color format
             self.terminalOutput.insertHtml(
                 "<p style='color: #FFFFFF;'>&#8203;</p>")
+        elif textStyle == "success":
+            colored_text = f"<p style='color: green;'>{text}</p>"
+            self.updateTerminalOutput(colored_text, 1)
+        elif textStyle == "error":
+            colored_text = f"<p style='color: red;'>{text}</p>"
+            self.updateTerminalOutput(colored_text, 1)
 
-        self.terminalOutput.moveCursor(QTextCursor.MoveOperation.End)
+        if ScrollDown:
+            self.terminalOutput.moveCursor(QTextCursor.MoveOperation.End)
 
     def argsCount(self, formattedString):
         args = re.findall(r"\{arg(\d+)\}", formattedString)
         unique_args = set(map(int, args))
         return len(unique_args)
 
-    def onConversionFinished(self):
+    def onConversionFinished(self, exitCode):
         self.convertButton.setEnabled(True)
-        self.updateTerminalOutput("\n" + _("All files converted!"))
+        self.updateTerminalOutput("\n")
+
+        if exitCode == 0:
+            self.updateTerminalOutput(_("All files converted!"), "success")
+            self.updateTerminalOutput("\n")
+        elif exitCode == 1:
+            self.updateTerminalOutput(
+                _("Please select an output format."), "error")
+        elif exitCode == 2:
+            self.updateTerminalOutput(_("No files to convert."), "error")
+
+    def onExternalToolsChange(self):
+        self.fileList.clearFileList()
+        self.fileList.file_type = externalTools[self.exToolCombo.currentText()]
+        if self.fileList.file_type:
+            self.formatCombo.addItems(
+                widgets.external_file_types[self.fileList.file_type]["output"])
 
     def openColorPicker_lambda(self, lineEdit):
         return lambda: ColorPicker(lineEdit, self).openDialog()
+
+    def updatePandocPath(self):
+        self.pandoc_path = os.path.join(settings["pandocPath"], "pandoc.exe")
+        if os.path.exists(self.pandoc_path):
+            return True
+        return False
+
+    def updateCalibrePath(self):
+        self.calibre_path = os.path.join(
+            settings["calibrePath"], "ebook-convert.exe")
+        if os.path.exists(self.calibre_path):
+            return True
+        return False
 
     def setFAIcon(self, iconPath):
         with open(iconPath, 'r') as file:
@@ -1063,7 +1263,6 @@ class UniversalConverter(QMainWindow):
         return QIcon(pixmap)
 
     def init_settings(self):
-        # Theme settings
         if settings["theme"] == "dark":
             style = style_sheet.dark
         elif settings["theme"] == "light":
@@ -1091,27 +1290,76 @@ class UniversalConverter(QMainWindow):
         selectedItem = self.fileList.currentItem()
 
         if selectedItem:
-            filePath = selectedItem.fullPath
-            command = [self.exiftool_path, filePath]
+            os.makedirs(self.temp_dir, exist_ok=True)
+            originalFilePath = selectedItem.fullPath
+            tempFilePath = os.path.join(self.temp_dir, "tempfile")
+            if os.path.exists(tempFilePath):
+                os.unlink(tempFilePath)
 
-            process = subprocess.Popen(
-                command, stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT, text=True,
-                creationflags=subprocess.CREATE_NO_WINDOW,
-                encoding="utf-8"
-            )
-            output = process.communicate()[0]
+            try:
+                mklink_command = ["cmd", "/c", "mklink",
+                                  "/H", tempFilePath, originalFilePath]
+                subprocess.run(
+                    mklink_command, check=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    creationflags=subprocess.CREATE_NO_WINDOW
+                )
+            except subprocess.CalledProcessError as e:
+                self.updateTerminalOutput(
+                    _("Error creating hard link:"), "error")
+                self.updateTerminalOutput(f"\n{e.stderr.decode("utf-8")}")
+                self.metadataButton.setEnabled(True)
+                return
 
-            html_output = '<table>'
-            for line in output.split('\n'):
-                if ': ' in line:
+            try:
+                command = [self.exiftool_path, tempFilePath]
+                process = subprocess.run(
+                    command, check=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    creationflags=subprocess.CREATE_NO_WINDOW,
+                    encoding="utf-8"
+                )
+                output = process.stdout
+            except subprocess.CalledProcessError as e:
+                self.updateTerminalOutput(
+                    _("Error extracting metadata from file:"), "error")
+                self.updateTerminalOutput(f"\n{e.stderr}")
+                possibleErrorInStdout = re.search(r'^Error\s*:\s*(.*)', e.stdout, re.MULTILINE)
+                if possibleErrorInStdout:
+                    self.updateTerminalOutput(possibleErrorInStdout.group(1).strip())
+                self.metadataButton.setEnabled(True)
+                return
+
+            os.unlink(tempFilePath)
+
+            html_output = "<table>"
+            for line in output.split("\n"):
+                if ": " in line:
                     key, value = line.split(":", 1)
                     key = key.strip()
                     value = value.strip()
+                    if key == "ExifTool Version Number":
+                        continue
+                    if key == "File Name":
+                        value = os.path.basename(originalFilePath)
+                    elif key == "Directory":
+                        value = os.path.normpath(originalFilePath)
+
                     translated_key = _(key) if _(key) != key else key
-                    html_output += f"<tr><td>{translated_key}</td><td>:</td><td>{value}</td></tr>"
-            html_output += '</table>'
-            self.updateTerminalOutput(html_output, 1)
+                    html_output += f'''
+                        <tr>
+                        <td>{translated_key}</td>
+                        <td>:</td>
+                        <td>{value}</td>
+                        </tr>
+                    '''
+            html_output += "</table>"
+            self.updateTerminalOutput(html_output, 1, 0)
+
+        else:
+            self.updateTerminalOutput(_("No selected file."), "error")
 
         self.metadataButton.setEnabled(True)
 

@@ -140,18 +140,6 @@ widget_options = {
             "44100 Hz": "44100"
         }
     },
-
-    # image widgets
-    "image_preset":
-    {
-        "None": "-1",
-        "Default": "0",
-        "Picture": "1",
-        "Photo": "2",
-        "Drawing": "3",
-        "Icon": "4",
-        "Text": "5",
-    },
 }
 
 # format template: "": {"arg": "", "label": _(""), "type": "", "options": },
@@ -195,8 +183,11 @@ widget_configs = {
     "alpha_fill": {"arg": "-background", "label": _("Transparency Fill:"), "type": "textinput", "options": [_("Color hex value (defaults to white)")]},
     "gif_delay": {"arg": "-delay", "label": _("Frame Delay:"), "type": "textinput", "options": [_("Delay between frames (10 for 0.1s)")]},
     "gif_loop": {"arg": "-loop", "label": _("Loop Count:"), "type": "textinput", "options": [_("Number of loops (0 for infinite)")]},
+
+    # document widgets (using pandoc)
 }
 
+# <->
 video_formats = {
     ".mp4":
     {
@@ -651,6 +642,7 @@ video_formats = {
     }
 }
 
+# <->
 audio_formats = {
     ".mp3":
     {
@@ -775,6 +767,7 @@ audio_formats = {
     }
 }
 
+# <->
 image_formats = {
     ".jpeg":
     {
@@ -940,27 +933,251 @@ image_formats = {
     }
 }
 
-ncm_formats = {
-    ".ncm":
+# <-
+pdf_formats = {
+    ".pdf":
     {
-        "widgets": {}
+        ".pdf":
+        {
+            "widgets": {}
+        },
+        ".jpeg":
+        {
+            "widgets": {}
+        },
+        ".epub":
+        {
+            "widgets": {}
+        },
+        ".docx":
+        {
+            "widgets": {}
+        },
     }
 }
 
-# Using values to set keys
+# <-
+ncm_formats = {
+    ".ncm":
+    {
+        ".mp3":
+        {
+            "widgets": {}
+        },
+    },
+}
+
+# ===========================================================================
+# Below are formats requiring installing dependency
+# ===========================================================================
+
+# <->
+pandoc_formats = {
+    ".docx":
+    {
+        "widgets": {}
+    },
+    ".html":
+    {
+        "widgets": {}
+    },
+    ".epub":
+    {
+        "widgets": {}
+    },
+    ".txt":
+    {
+        "widgets": {}
+    },
+    ".md":
+    {
+        "widgets": {}
+    },
+    ".rst":
+    {
+        "widgets": {}
+    },
+    ".rtf":
+    {
+        "widgets": {}
+    },
+    ".odt":
+    {
+        "widgets": {}
+    },
+    ".docbook":
+    {
+        "widgets": {}
+    },
+    ".fb2":
+    {
+        "widgets": {}
+    },
+    ".org":
+    {
+        "widgets": {}
+    },
+    ".muse":
+    {
+        "widgets": {}
+    },
+    ".textile":
+    {
+        "widgets": {}
+    },
+    ".jats":
+    {
+        "widgets": {}
+    },
+    ".roff":
+    {
+        "widgets": {}
+    },
+    ".tex":
+    {
+        "widgets": {}
+    },
+    ".ipynb":
+    {
+        "widgets": {}
+    },
+    ".opml":
+    {
+        "widgets": {}
+    },
+    ".bibtex":
+    {
+        "widgets": {}
+    },
+    ".bib":
+    {
+        "widgets": {}
+    },
+    ".json":
+    {
+        "widgets": {}
+    },
+    ".yaml":
+    {
+        "widgets": {}
+    },
+    ".wiki":
+    {
+        "widgets": {}
+    },
+    ".dokuwiki":
+    {
+        "widgets": {}
+    },
+    ".jira":
+    {
+        "widgets": {}
+    },
+}
+
+# <->
+calibre_formats = {
+    ".pdf":
+    {
+        "widgets": {}
+    },
+    ".epub":
+    {
+        "widgets": {}
+    },
+    ".azw3":
+    {
+        "widgets": {}
+    },
+    ".mobi":
+    {
+        "widgets": {}
+    },
+    ".docx":
+    {
+        "widgets": {}
+    },
+    ".fb2":
+    {
+        "widgets": {}
+    },
+    ".htmlz":
+    {
+        "widgets": {}
+    },
+    ".lit":
+    {
+        "widgets": {}
+    },
+    ".lrf":
+    {
+        "widgets": {}
+    },
+    ".pdb":
+    {
+        "widgets": {}
+    },
+    ".pmlz":
+    {
+        "widgets": {}
+    },
+    ".rb":
+    {
+        "widgets": {}
+    },
+    ".rtf":
+    {
+        "widgets": {}
+    },
+    ".snb":
+    {
+        "widgets": {}
+    },
+    ".tcr":
+    {
+        "widgets": {}
+    },
+    ".txt":
+    {
+        "widgets": {}
+    },
+    ".txtz":
+    {
+        "widgets": {}
+    },
+    ".zip":
+    {
+        "widgets": {}
+    },
+}
+
+# Using values to set keys (detect inputs)
 detected_file_types = {
     "video": list(video_formats.keys()),
     "audio": list(audio_formats.keys()),
     "image": list(image_formats.keys()) + [".jpg", ".tif"],
+    "pdf": list(pdf_formats.keys()),
     "ncm": list(ncm_formats.keys()),
-    "doc": [".pdf"],
 }
 
-# Using keys to set values
+# Using keys to set values (set outputs)
 displayed_file_types = {
     "video": list(video_formats.keys()),
     "audio": list(audio_formats.keys()),
     "image": list(image_formats.keys()),
-    "ncm": [".mp3"],
-    "doc": [],
+    "pdf": list(pdf_formats[".pdf"].keys()),
+    "ncm": list(ncm_formats[".ncm"].keys()),
+}
+
+external_file_types = {
+    "pandoc":
+    {
+        "input": list(pandoc_formats.keys()) + [".doc", ".ppt"],
+        "output": list(pandoc_formats.keys()),
+    },
+    "calibre":
+    {
+        "input": list(calibre_formats.keys()),
+        "output": list(calibre_formats.keys()),
+    }
 }
