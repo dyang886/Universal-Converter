@@ -1,10 +1,10 @@
-light = """
+white = """
     QPushButton {{
-        padding: 8px;
+        padding: 6px;
     }}
 
     QComboBox {{
-        padding: 5px;
+        padding: 4px;
     }}
 
     QLineEdit {{
@@ -12,7 +12,7 @@ light = """
     }}
 """
 
-dark = """
+black = """
     QMainWindow {{
         background-color: #1c1c1c;
     }}
@@ -148,7 +148,7 @@ dark = """
         color: #FFFFFF;
         border: 1px solid #555555;
         border-radius: 3px;
-        padding: 5px;
+        padding: 6px;
     }}
 
     QSpinBox::up-button {{

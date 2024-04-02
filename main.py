@@ -16,7 +16,7 @@ import subprocess
 
 import style_sheet
 import widgets
-import other
+# import other
 
 
 def resource_path(relative_path):
@@ -65,13 +65,15 @@ def load_settings():
 
     default_settings = {
         "language": app_locale,
-        "theme": "dark",
+        "theme": "black",
         "pandocPath": find_dependency_path([
             "C:/Program Files/Pandoc",
-            os.path.join(os.environ.get("LOCALAPPDATA"), "Pandoc")
+            os.path.join(os.environ.get("LOCALAPPDATA", "/"), "Pandoc"),
+            "/usr/local/bin/pandoc",
         ]),
         "calibrePath": find_dependency_path([
-            "C:/Program Files/Calibre2"
+            "C:/Program Files/Calibre2",
+            "/Applications/calibre.app",
         ]),
     }
 
@@ -132,8 +134,8 @@ language_options = {
 }
 
 theme_options = {
-    _("Dark"): "dark",
-    _("Light"): "light"
+    _("Black"): "black",
+    _("White"): "white"
 }
 
 externalTools = {
@@ -153,12 +155,12 @@ class FileSelection(QListWidget):
         self.placeholderText = _("Drag and drop or click to select files")
         self.file_type = ""
         color_set = {
-            "dark": {
+            "black": {
                 "base_color": "#2a2a2a",
                 "drag_color": "#3f3f3f",
                 "text_color": "#ffffff"
             },
-            "light": {
+            "white": {
                 "base_color": "#ffffff",
                 "drag_color": "#e0e0e0",
                 "text_color": "#000000"
@@ -1235,14 +1237,22 @@ class UniversalConverter(QMainWindow):
         return lambda: ColorPicker(lineEdit, self).openDialog()
 
     def updatePandocPath(self):
-        self.pandoc_path = os.path.join(settings["pandocPath"], "pandoc.exe")
+        if current_os == "Windows":
+            self.pandoc_path = os.path.join(settings["pandocPath"], "pandoc.exe")
+        elif current_os == "Darwin":
+            self.pandoc_path = settings["pandocPath"]
+
         if os.path.exists(self.pandoc_path):
             return True
         return False
 
     def updateCalibrePath(self):
-        self.calibre_path = os.path.join(
-            settings["calibrePath"], "ebook-convert.exe")
+        if current_os == "Windows":
+            self.calibre_path = os.path.join(
+                settings["calibrePath"], "ebook-convert.exe")
+        elif current_os == "Darwin":
+            self.calibre_path = os.path.join(settings["calibrePath"], "Contents/MacOS/ebook-convert")
+
         if os.path.exists(self.calibre_path):
             return True
         return False
@@ -1251,10 +1261,10 @@ class UniversalConverter(QMainWindow):
         with open(iconPath, 'r') as file:
             svg_content = file.read()
 
-        if settings["theme"] == "dark":
+        if settings["theme"] == "black":
             svg_content = svg_content.replace(
                 '<path ', '<path fill="#FFFFFF" ', 1)
-        elif settings["theme"] == "light":
+        elif settings["theme"] == "white":
             pass
 
         byte_array = QByteArray(svg_content.encode('utf-8'))
@@ -1263,10 +1273,10 @@ class UniversalConverter(QMainWindow):
         return QIcon(pixmap)
 
     def init_settings(self):
-        if settings["theme"] == "dark":
-            style = style_sheet.dark
-        elif settings["theme"] == "light":
-            style = style_sheet.light
+        if settings["theme"] == "black":
+            style = style_sheet.black
+        elif settings["theme"] == "white":
+            style = style_sheet.white
 
         style = style.format(
             drop_down_arrow=self.dropDownArrow_path,
