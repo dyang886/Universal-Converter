@@ -1,0 +1,10 @@
+__pycache__
+.vscode
+.DS_Store
+build
+dependency
+dist
+*.bat
+Universal Converter.spec
+*.mo
+utility.py

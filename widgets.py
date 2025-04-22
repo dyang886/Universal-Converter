@@ -1,6 +1,5 @@
-from main import get_translator
+from config import tr
 
-_ = get_translator()
 
 widget_options = {
     # general widgets
@@ -142,47 +141,47 @@ widget_options = {
     },
 }
 
-# format template: "": {"arg": "", "label": _(""), "type": "", "options": },
+# format template: "": {"arg": "", "label": tr(""), "type": "", "options": },
 widget_configs = {
     # video widgets (using ffmpeg)
-    "crf_v1": {"arg": "-crf", "label": _("CRF (Constant Rate Factor):"), "type": "slider", "options": (0, 51)},
-    "crf_v2": {"arg": "-crf", "label": _("CRF (Constant Rate Factor):"), "type": "slider", "options": (0, 63)},
-    "preset": {"arg": "-preset", "label": _("Preset:"), "type": "combobox", "options": widget_options["preset"]},
-    "tune_h264": {"arg": "-tune", "label": _("Tune:"), "type": "combobox", "options": widget_options["tune"]["H.264/MPEG-4"]},
-    "tune_h265": {"arg": "-tune", "label": _("Tune:"), "type": "combobox", "options": widget_options["tune"]["H.265/HEVC"]},
-    "me_quality": {"arg": "-me_quality", "label": _("Motion Estimation Quality:"), "type": "slider", "options": (0, 6)},
-    "gmc": {"arg": "-gmc", "label": _("Global Motion Compensation:"), "type": "checkbox", "options": widget_options["checkbox"], "default": False},
-    "speed": {"arg": "-speed", "label": _("Speed:"), "type": "slider", "options": (-16, 16)},
-    "sharpness": {"arg": "-sharpness", "label": _("Sharpness:"), "type": "slider", "options": (-1, 7)},
-    "lossless": {"arg": "-lossless", "label": _("Lossless:"), "type": "checkbox", "options": widget_options["checkbox"], "default": False},
-    "aq-mode": {"arg": "-aq-mode", "label": _("Adaptive Quantization Mode:"), "type": "combobox", "options": widget_options["aq_mode"]},
-    "motion_est": {"arg": "-motion_est", "label": _("Motion Estimation Algorithm:"), "type": "combobox", "options": widget_options["motion_est"]},
+    "crf_v1": {"arg": "-crf", "label": tr("CRF (Constant Rate Factor):"), "type": "slider", "options": (0, 51)},
+    "crf_v2": {"arg": "-crf", "label": tr("CRF (Constant Rate Factor):"), "type": "slider", "options": (0, 63)},
+    "preset": {"arg": "-preset", "label": tr("Preset:"), "type": "combobox", "options": widget_options["preset"]},
+    "tune_h264": {"arg": "-tune", "label": tr("Tune:"), "type": "combobox", "options": widget_options["tune"]["H.264/MPEG-4"]},
+    "tune_h265": {"arg": "-tune", "label": tr("Tune:"), "type": "combobox", "options": widget_options["tune"]["H.265/HEVC"]},
+    "me_quality": {"arg": "-me_quality", "label": tr("Motion Estimation Quality:"), "type": "slider", "options": (0, 6)},
+    "gmc": {"arg": "-gmc", "label": tr("Global Motion Compensation:"), "type": "checkbox", "options": widget_options["checkbox"], "default": False},
+    "speed": {"arg": "-speed", "label": tr("Speed:"), "type": "slider", "options": (-16, 16)},
+    "sharpness": {"arg": "-sharpness", "label": tr("Sharpness:"), "type": "slider", "options": (-1, 7)},
+    "lossless": {"arg": "-lossless", "label": tr("Lossless:"), "type": "checkbox", "options": widget_options["checkbox"], "default": False},
+    "aq-mode": {"arg": "-aq-mode", "label": tr("Adaptive Quantization Mode:"), "type": "combobox", "options": widget_options["aq_mode"]},
+    "motion_est": {"arg": "-motion_est", "label": tr("Motion Estimation Algorithm:"), "type": "combobox", "options": widget_options["motion_est"]},
 
     # audio widgets (using ffmpeg)
-    "audio_bitrate": {"arg": "-b:a", "label": _("Bitrate:"), "type": "combobox", "options": widget_options["audio_bitrate"]},
-    "aac_coder": {"arg": "-aac_coder", "label": _("AAC Coding Algorithm:"), "type": "combobox", "options": widget_options["aac_coder"]},
-    "room_type": {"arg": "-room_type", "label": _("Room Type:"), "type": "combobox", "options": widget_options["room_type"]},
-    "mixing_level": {"arg": "-mixing_level", "label": _("Mixing Level:"), "type": "slider", "options": (80, 111)},
-    "dmix_mode": {"arg": "-dmix_mode", "label": _("preferred Stereo Downmix Mode:"), "type": "combobox", "options": widget_options["dmix_mode"]},
-    "dsur_mode": {"arg": "-dsur_mode", "label": _("Dolby Surround Mode:"), "type": "combobox", "options": widget_options["dsur_mode"]},
-    "dsurex_mode": {"arg": "-dsurex_mode", "label": _("Dolby Surround EX Mode:"), "type": "combobox", "options": widget_options["dsurex_mode"]},
-    "dheadphone_mode": {"arg": "-dheadphone_mode", "label": _("Dolby Headphone Mode:"), "type": "combobox", "options": widget_options["dheadphone_mode"]},
-    "vbr": {"arg": "-vbr", "label": _("Variable Bit Rate Mode:"), "type": "combobox", "options": widget_options["vbr"]},
-    "lpc_type": {"arg": "-lpc_type", "label": _("LPC Algorithm:"), "type": "combobox", "options": widget_options["lpc_type"]},
-    "ch_mode": {"arg": "-ch_mode", "label": _("Stereo Decorrelation Mode:"), "type": "combobox", "options": widget_options["ch_mode"]},
-    "sample_rate_v1": {"arg": "-ar", "label": _("Sample Rate:"), "type": "combobox", "options": widget_options["sample_rate"]["ADPCM"]},
-    "sample_rate_v2": {"arg": "-ar", "label": _("Sample Rate:"), "type": "combobox", "options": widget_options["sample_rate"]["Nellymoser Asao"]},
+    "audio_bitrate": {"arg": "-b:a", "label": tr("Bitrate:"), "type": "combobox", "options": widget_options["audio_bitrate"]},
+    "aac_coder": {"arg": "-aac_coder", "label": tr("AAC Coding Algorithm:"), "type": "combobox", "options": widget_options["aac_coder"]},
+    "room_type": {"arg": "-room_type", "label": tr("Room Type:"), "type": "combobox", "options": widget_options["room_type"]},
+    "mixing_level": {"arg": "-mixing_level", "label": tr("Mixing Level:"), "type": "slider", "options": (80, 111)},
+    "dmix_mode": {"arg": "-dmix_mode", "label": tr("preferred Stereo Downmix Mode:"), "type": "combobox", "options": widget_options["dmix_mode"]},
+    "dsur_mode": {"arg": "-dsur_mode", "label": tr("Dolby Surround Mode:"), "type": "combobox", "options": widget_options["dsur_mode"]},
+    "dsurex_mode": {"arg": "-dsurex_mode", "label": tr("Dolby Surround EX Mode:"), "type": "combobox", "options": widget_options["dsurex_mode"]},
+    "dheadphone_mode": {"arg": "-dheadphone_mode", "label": tr("Dolby Headphone Mode:"), "type": "combobox", "options": widget_options["dheadphone_mode"]},
+    "vbr": {"arg": "-vbr", "label": tr("Variable Bit Rate Mode:"), "type": "combobox", "options": widget_options["vbr"]},
+    "lpc_type": {"arg": "-lpc_type", "label": tr("LPC Algorithm:"), "type": "combobox", "options": widget_options["lpc_type"]},
+    "ch_mode": {"arg": "-ch_mode", "label": tr("Stereo Decorrelation Mode:"), "type": "combobox", "options": widget_options["ch_mode"]},
+    "sample_rate_v1": {"arg": "-ar", "label": tr("Sample Rate:"), "type": "combobox", "options": widget_options["sample_rate"]["ADPCM"]},
+    "sample_rate_v2": {"arg": "-ar", "label": tr("Sample Rate:"), "type": "combobox", "options": widget_options["sample_rate"]["Nellymoser Asao"]},
 
     # image widgets (using imagemagick)
-    "img_quality": {"arg": "-quality", "label": _("Image Quality:"), "type": "slider", "options": (0, 100)},
-    "img_resize": {"arg": "-resize", "value_template": "{arg0}x{arg1}", "label": _("Image Resize:"), "type": "textinput", "options": [_("Image width"), _("Image height")]},
-    "img_rotate": {"arg": "-rotate", "label": _("Image Rotation:"), "type": "textinput", "options": [_("Rotation angle (0-360°, clockwise)")]},
-    "img_sharpen": {"arg": "-sharpen", "value_template": "0x{arg0}", "label": _("Image Sharpness:"), "type": "slider", "options": (0, 100)},
-    "img_blur": {"arg": "-blur", "value_template": "0x{arg0}", "label": _("Image Blur:"), "type": "slider", "options": (0, 100)},
-    "img_brightness": {"arg": "-modulate", "label": _("Image Brightness (%):"), "type": "textinput", "options": [_("% of brightness (100 means no change)")]},
-    "alpha_fill": {"arg": "-background", "label": _("Transparency Fill:"), "type": "textinput", "options": [_("Color hex value (defaults to white)")]},
-    "gif_delay": {"arg": "-delay", "label": _("Frame Delay:"), "type": "textinput", "options": [_("Delay between frames (10 for 0.1s)")]},
-    "gif_loop": {"arg": "-loop", "label": _("Loop Count:"), "type": "textinput", "options": [_("Number of loops (0 for infinite)")]},
+    "img_quality": {"arg": "-quality", "label": tr("Image Quality:"), "type": "slider", "options": (0, 100)},
+    "img_resize": {"arg": "-resize", "value_template": "{arg0}x{arg1}", "label": tr("Image Resize:"), "type": "textinput", "options": [tr("Image width"), tr("Image height")]},
+    "img_rotate": {"arg": "-rotate", "label": tr("Image Rotation:"), "type": "textinput", "options": [tr("Rotation angle (0-360°, clockwise)")]},
+    "img_sharpen": {"arg": "-sharpen", "value_template": "0x{arg0}", "label": tr("Image Sharpness:"), "type": "slider", "options": (0, 100)},
+    "img_blur": {"arg": "-blur", "value_template": "0x{arg0}", "label": tr("Image Blur:"), "type": "slider", "options": (0, 100)},
+    "img_brightness": {"arg": "-modulate", "label": tr("Image Brightness (%):"), "type": "textinput", "options": [tr("% of brightness (100 means no change)")]},
+    "alpha_fill": {"arg": "-background", "label": tr("Transparency Fill:"), "type": "textinput", "options": [tr("Color hex value (defaults to white)")]},
+    "gif_delay": {"arg": "-delay", "label": tr("Frame Delay:"), "type": "textinput", "options": [tr("Delay between frames (10 for 0.1s)")]},
+    "gif_loop": {"arg": "-loop", "label": tr("Loop Count:"), "type": "textinput", "options": [tr("Number of loops (0 for infinite)")]},
 
     # document widgets (using pandoc)
 }
@@ -812,7 +811,7 @@ image_formats = {
     },
     ".svg":
     {
-        "supports_alpha": False,
+        "supports_alpha": True,
         "widgets":
         {
             "img_quality": widget_configs["img_quality"],
@@ -821,7 +820,6 @@ image_formats = {
             "img_sharpen": widget_configs["img_sharpen"],
             "img_blur": widget_configs["img_blur"],
             "img_brightness": widget_configs["img_brightness"],
-            "alpha_fill": widget_configs["alpha_fill"],
         }
     },
     ".webp":
