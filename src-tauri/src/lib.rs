@@ -5,14 +5,11 @@ use tauri::State;
 struct FilePathStore(Mutex<Vec<String>>);
 
 #[tauri::command]
-fn store_file_paths(
-    file_paths: Vec<String>,
-    state: State<FilePathStore>,
-) -> Result<Vec<String>, String> {
+fn store_file_paths(file_paths: Vec<String>, state: State<FilePathStore>) -> Result<(), String> {
     let mut store = state.0.lock().map_err(|e| format!("Mutex error: {}", e))?;
     store.extend(file_paths);
     println!("Stored file paths: {:?}", *store);
-    Ok(store.clone())
+    Ok(())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
