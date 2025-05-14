@@ -8,16 +8,17 @@ import { Select } from '@/components/select';
 import { Button } from '@/components/button';
 import DropZone from '@/components/dropzone';
 import './App.css';
-import { getPossibleOutputFormats, filterPaths, truncateMiddle } from './format-options';
-import { TrashIcon, InformationCircleIcon, PaperAirplaneIcon } from '@heroicons/react/16/solid';
+import { processFiles as processFiles, truncateMiddle } from './format-options';
+import { TrashIcon, InformationCircleIcon, PaperAirplaneIcon, MusicalNoteIcon, VideoCameraIcon, PhotoIcon } from '@heroicons/react/16/solid';
 import { usePrompt } from '@/components/prompt';
-import { Alert, AlertTitle, AlertBody, AlertActions } from '@/components/alert';
+import { Alert, AlertTitle, AlertDescription, AlertBody, AlertActions } from '@/components/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table';
 
 
 export default function App() {
     const [filePaths, setFilePaths] = useState([]);
-    const [fileExt, setOutput] = useState('');
+    const [fileType, setFileType] = useState('');
+    const [outputExt, setOutput] = useState('');
     const [darkMode, setDarkMode] = useState(false);
     const [isOverDropZone, setIsOverDropZone] = useState(false);
     const [outputOptions, setOutputOptions] = useState([]);
@@ -25,6 +26,12 @@ export default function App() {
 
     const dropZoneRef = useRef(null);
     const { showPrompt } = usePrompt();
+
+    const fileTypeIcons = {
+        audio: <span className="flex items-center"><MusicalNoteIcon className="h-5 w-5 mr-1" />Audio</span>,
+        video: <span className="flex items-center"><VideoCameraIcon className="h-5 w-5 mr-1" />Video</span>,
+        image: <span className="flex items-center"><PhotoIcon className="h-5 w-5 mr-1" />Image</span>,
+    }
 
     function MiddleEllipsis({ text }) {
         const ref = useRef(null);
@@ -73,7 +80,7 @@ export default function App() {
     const handleFileSelection = useCallback((paths) => {
         if (!paths) return;
         const newPaths = Array.isArray(paths) ? paths : [paths];
-        const { uniques, duplicates, unsupported } = filterPaths(newPaths, filePaths);
+        const { newFileType, outputFormats, uniques, duplicates, unsupported, nonMajorType } = processFiles(newPaths, filePaths, fileType);
 
         duplicates.forEach(p => {
             showPrompt('warning', `Duplicated file: ${truncateMiddle(p)}`);
@@ -83,10 +90,15 @@ export default function App() {
             showPrompt('warning', `Unsupported file: ${truncateMiddle(p)}`);
         });
 
+        nonMajorType.forEach(p => {
+            showPrompt('warning', `Please select files from the same type: ${truncateMiddle(p)}`);
+        });
+
         const updated = [...filePaths, ...uniques];
+        if (newFileType !== fileType) setFileType(newFileType);
         setFilePaths(updated);
-        setOutputOptions(getPossibleOutputFormats(updated));
-    }, [filePaths, showPrompt]);
+        setOutputOptions(outputFormats);
+    }, [filePaths, fileType, showPrompt]);
 
     const onClick = useCallback(async () => {
         try {
@@ -133,6 +145,10 @@ export default function App() {
         setAlertOpen(true);
     }, [filePaths]);
 
+    useEffect(() => {
+        if (!filePaths.length) setFileType('');
+    }, [filePaths]);
+
     return (
         <div className="main-container bg-white dark:bg-zinc-900 dark:text-gray-100 min-h-screen relative flex gap-8 p-8">
             <button
@@ -169,7 +185,7 @@ export default function App() {
 
                     <Field>
                         <Label>Output Format</Label>
-                        <Select name="output-format" value={fileExt} onChange={e => setOutput(e.target.value)} disabled={filePaths.length === 0}>
+                        <Select name="output-format" value={outputExt} onChange={e => setOutput(e.target.value)} disabled={filePaths.length === 0}>
                             {filePaths.length === 0
                                 ? <option value="">No Files Selected</option>
                                 : outputOptions.map(ext => (
@@ -190,7 +206,7 @@ export default function App() {
                     <Label>Project status</Label>
                     <Select
                         name="status"
-                        value={fileExt}
+                        value={outputExt}
                         onChange={e => setOutput(e.target.value)}
                     >
                         <option value="active">Active</option>
@@ -203,6 +219,12 @@ export default function App() {
 
             <Alert open={alertOpen} onClose={() => setAlertOpen(false)}>
                 <AlertTitle>Files Selected</AlertTitle>
+                {fileType ? (
+                    <AlertDescription className="flex items-center">
+                        <span className="mr-1">Current File Type:</span>
+                        {fileTypeIcons[fileType]}
+                    </AlertDescription>
+                ) : null}
                 <AlertBody>
                     <Table bleed compact="true">
                         <TableHead>
@@ -221,7 +243,7 @@ export default function App() {
                                         <TrashIcon
                                             className="h-5 w-5 text-red-400 cursor-pointer inline-block"
                                             onClick={() => {
-                                                setFilePaths(fp => fp.filter(f => f !== file))
+                                                setFilePaths(fp => fp.filter(f => f !== file));
                                             }}
                                         />
                                     </TableCell>

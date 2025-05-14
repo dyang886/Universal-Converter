@@ -53,7 +53,7 @@ const extToOutputs = {
     ogg: ['ogg', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'm4a', 'wma'],
     m4a: ['m4a', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'wma'],
     wma: ['wma', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'm4a'],
-    ncm: ['ncm', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma'],
+    ncm: ['mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma'],
 
     // All video formats: ['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'wmv']
     mp4: ['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'wmv'],
@@ -80,89 +80,108 @@ const extToOutputs = {
     ico: ['ico', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'jxr', 'svg', 'heic', 'eps', 'psd'],
 };
 
-/**
- * Extracts the lowercase file extension (without dot) from a path.
- * Returns '' if no extension found.
- */
 function getExtension(filePath) {
-    const idx = filePath.lastIndexOf('.')
-    if (idx === -1 || idx === filePath.length - 1) return ''
-    return filePath.slice(idx + 1).toLowerCase()
+    const idx = filePath.lastIndexOf('.');
+    if (idx === -1 || idx === filePath.length - 1) return '';
+    return filePath.slice(idx + 1).toLowerCase();
 }
 
-/**
- * Computes the intersection of multiple arrays of strings.
- */
 function intersect(arrays) {
-    if (!arrays.length) return []
-    return arrays.reduce((acc, arr) => acc.filter(x => arr.includes(x)))
+    if (!arrays.length) return [];
+    return arrays.reduce((acc, arr) => acc.filter(x => arr.includes(x)));
 }
 
-/**
- * Given an array of file paths, returns the majority group among supported files.
- * E.g. ['a.mp3','b.flac'] -> 'audio'.
- * Returns null if no supported file types found.
- */
-function determineMajorGroupFromExts(exts) {
-    const counts = {}
+function getMajorFileType(exts) {
+    const counts = {};
     exts.forEach(ext => {
         const grp = extToGroup[ext]
         if (grp) counts[grp] = (counts[grp] || 0) + 1
-    })
+    });
+
     return Object.entries(counts).reduce(
         (best, [grp, cnt]) => (cnt > best[1] ? [grp, cnt] : best),
         [null, 0]
     )[0]
 }
 
-/**
- * Given existingPaths and newly dropped paths, splits them into:
- * - uniques: files to keep
- * - duplicates: files already selected
- * - unsupported: files with no known extension
- */
-export function filterPaths(newPaths, existingPaths) {
-    const uniques = []
-    const duplicates = []
-    const unsupported = []
+function getOutputFormats(filePaths, fileType) {
+    const exts = filePaths.map(getExtension);
+    const inGroup = exts.filter(ext => extToGroup[ext] === fileType);
+    const common = intersect(inGroup.map(ext => extToOutputs[ext]));
+    return Array.from(new Set(common)).sort();
+}
 
-    newPaths.forEach(p => {
-        const ext = getExtension(p)
-        if (!ext || !extToOutputs[ext]) {
-            unsupported.push(p)
-        } else if (existingPaths.includes(p)) {
-            duplicates.push(p)
-        } else {
-            uniques.push(p)
+export function truncateMiddle(str, maxLen = 40) {
+    if (str.length <= maxLen) return str;
+    const keep = Math.floor((maxLen - 1) / 2);
+    return str.slice(0, keep) + '…' + str.slice(str.length - keep);
+}
+
+export function processFiles(newlySelectedPaths, currentFilePaths, currentFileType) {
+    const result = {
+        newFileType: currentFileType,
+        outputFormats: [],
+        uniques: [],
+        duplicates: [],
+        unsupported: [],
+        nonMajorType: [],
+    };
+
+    const candidates = []; // { path: string, ext: string, group: string }
+
+    for (const path of newlySelectedPaths) {
+        if (currentFilePaths.includes(path)) {
+            result.duplicates.push(path);
+            continue;
         }
-    })
 
-    return { uniques, duplicates, unsupported }
-}
+        const ext = getExtension(path);
+        if (!ext || !extToOutputs[ext]) {
+            result.unsupported.push(path);
+            continue;
+        }
 
-/**
- * Truncate long file paths in the middle, preserving start and end segments.
- * e.g. '/very/long/.../filename.ext'
- */
-export function truncateMiddle(str, maxLen = 30) {
-    if (str.length <= maxLen) return str
-    const keep = Math.floor((maxLen - 1) / 2)
-    return str.slice(0, keep) + '…' + str.slice(str.length - keep)
-}
+        const group = extToGroup[ext];
+        candidates.push({ path, ext, group });
+    }
 
-/**
- * Given an array of file paths, returns the possible output extensions.
- */
-export function getPossibleOutputFormats(filePaths) {
-    const exts = filePaths.map(getExtension)
-    const supportedExts = exts.filter(ext => ext && extToOutputs[ext])
-    if (!supportedExts.length) return []
+    if (candidates.length === 0) {
+        result.outputFormats = getOutputFormats(currentFilePaths, result.newFileType);
+        return result;
+    }
 
-    const group = determineMajorGroupFromExts(supportedExts)
-    if (!group) return []
+    if (currentFileType) {
+        // Subsequent selection: Enforce existing fileType
+        candidates.forEach(candidate => {
+            if (candidate.group === currentFileType) {
+                result.uniques.push(candidate.path);
+            } else {
+                result.nonMajorType.push(candidate.path);
+            }
+        });
 
-    const inGroup = supportedExts.filter(ext => extToGroup[ext] === group)
-    const common = intersect(inGroup.map(ext => extToOutputs[ext]))
+    } else {
+        // First selection: Determine major file type from candidates
+        const candidateExtensions = candidates.map(c => c.ext);
+        const majorFileType = getMajorFileType(candidateExtensions);
 
-    return Array.from(new Set(common)).sort()
+        if (majorFileType) {
+            result.newFileType = majorFileType;
+            candidates.forEach(candidate => {
+                if (candidate.group === majorFileType) {
+                    result.uniques.push(candidate.path);
+                } else {
+                    result.nonMajorType.push(candidate.path);
+                }
+            });
+        }
+        else {
+            console.warn('No major file type found for candidates:', candidates);
+        }
+    }
+
+    const finalFilePaths = [...currentFilePaths, ...result.uniques];
+    result.outputFormats = getOutputFormats(finalFilePaths, result.newFileType);
+
+    return result;
 }
