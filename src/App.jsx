@@ -13,6 +13,7 @@ import { TrashIcon, InformationCircleIcon, PaperAirplaneIcon, MusicalNoteIcon, V
 import { usePrompt } from '@/components/prompt';
 import { Alert, AlertTitle, AlertDescription, AlertBody, AlertActions } from '@/components/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table';
+import { Navbar, NavbarItem, NavbarSection } from '@/components/navbar'
 
 
 export default function App() {
@@ -149,16 +150,49 @@ export default function App() {
         if (!filePaths.length) setFileType('');
     }, [filePaths]);
 
+    const handleConvert = async () => {
+        try {
+            const advancedOptions = {
+                test: null, // Placeholder
+            };
+
+            const results = await invoke('convert_files', {
+                inputPaths: filePaths,
+                outputExt: outputExt,
+                options: advancedOptions,
+            });
+
+            for (const status of results) {
+                if (status.success) {
+                    showPrompt('success', `Converted: ${truncateMiddle(status.path)}`);
+                } else {
+                    showPrompt('error', `Failed: ${truncateMiddle(status.path)} - ${status.message}`);
+                }
+            }
+        } catch (error) {
+            console.error('Conversion failed:', error);
+            showPrompt('error', `Conversion failed: ${error}`);
+        }
+    };
+
     return (
-        <div className="main-container bg-white dark:bg-zinc-900 dark:text-gray-100 min-h-screen relative flex gap-8 p-8">
-            <button
+        <div className="main-container bg-white dark:bg-zinc-900 dark:text-gray-100 min-h-screen relative flex flex-col items-center p-8 pt-3">
+            {/* <button
                 className="absolute top-4 right-4 px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded"
                 onClick={() => setDarkMode(d => !d)}
             >
                 {darkMode ? 'Light Mode' : 'Dark Mode'}
-            </button>
+            </button> */}
 
-            <div className='left-container w-96 flex items-center justify-center'>
+            <Navbar className="self-stretch">
+                <NavbarSection>
+                    <NavbarItem href="/">File Selection</NavbarItem>
+                    <NavbarItem href="/events">Advanced Options</NavbarItem>
+                    <NavbarItem href="/orders">Terminal Output</NavbarItem>
+                </NavbarSection>
+            </Navbar>
+
+            <div className='w-96 flex grow items-center justify-center'>
                 <div className='dropzone-container flex flex-col gap-5'>
                     <DropZone ref={dropZoneRef} isOverDropZone={isOverDropZone} onClick={onClick}>
                         {filePaths.length === 0
@@ -197,24 +231,8 @@ export default function App() {
                         </Select>
                     </Field>
 
-                    <Button color="emerald" className="mt-2" disabled={filePaths.length === 0} onClick={() => showPrompt('success', "shit happens")}>Convert<PaperAirplaneIcon /></Button>
+                    <Button color="emerald" className="mt-2" disabled={filePaths.length === 0} onClick={handleConvert}>Convert<PaperAirplaneIcon /></Button>
                 </div>
-            </div>
-
-            <div className="right-container flex flex-col flex-1 space-y-6">
-                <Field>
-                    <Label>Project status</Label>
-                    <Select
-                        name="status"
-                        value={outputExt}
-                        onChange={e => setOutput(e.target.value)}
-                    >
-                        <option value="active">Active</option>
-                        <option value="paused">Paused</option>
-                        <option value="delayed">Delayed</option>
-                        <option value="canceled">Canceled</option>
-                    </Select>
-                </Field>
             </div>
 
             <Alert open={alertOpen} onClose={() => setAlertOpen(false)}>

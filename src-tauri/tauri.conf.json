@@ -23,7 +23,12 @@
   },
   "bundle": {
     "active": true,
+    "externalBin": [
+      "binaries/ffmpeg"
+    ],
     "targets": "all",
-    "icon": ["../assets/logo.ico"]
+    "icon": [
+      "../assets/logo.ico"
+    ]
   }
 }
