@@ -1,23 +1,17 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppProvider } from './contexts/AppContext';
 
 import FileSelection from './pages/FileSelection';
 import AdvancedOptions from './pages/AdvancedOptions';
 import TerminalOutput from './pages/TerminalOutput';
+import SettingsPage from './pages/Settings';
 
 import { Navbar, NavbarItem, NavbarSection } from '@/components/navbar';
 import { Sidebar, SidebarBody, SidebarItem, SidebarLabel, SidebarSection } from '@/components/sidebar';
 import { EllipsisHorizontalCircleIcon } from '@heroicons/react/24/outline';
 import { Cog6ToothIcon, InformationCircleIcon, WrenchIcon, CommandLineIcon, XMarkIcon, DocumentTextIcon } from '@heroicons/react/24/solid';
-
-
-// --- Placeholder Content for Full-Screen Pages ---
-const SettingsPageContent = () => (
-    <div className="text-center">
-        <p className="text-gray-500">Application settings will be configured here.</p>
-    </div>
-);
 
 const AboutPageContent = () => (
     <div className="text-center">
@@ -50,6 +44,7 @@ const FullScreenPageLayout = ({ title, children }) => {
 
 
 export default function App() {
+    const { t } = useTranslation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const location = useLocation();
     const isFullScreenPage = ['/settings', '/about'].includes(location.pathname);
@@ -65,9 +60,9 @@ export default function App() {
 
                 <Navbar className="flex justify-between self-stretch">
                     <NavbarSection>
-                        <NavbarItem as={Link} to="/"><DocumentTextIcon className="h-6 w-6" />File Selection</NavbarItem>
-                        <NavbarItem as={Link} to="/advanced"><WrenchIcon className="h-6 w-6" />Advanced Options</NavbarItem>
-                        <NavbarItem as={Link} to="/terminal"><CommandLineIcon className="h-6 w-6" />Terminal Output</NavbarItem>
+                        <NavbarItem as={Link} to="/"><DocumentTextIcon className="h-6 w-6" />{t('main.file_selection')}</NavbarItem>
+                        <NavbarItem as={Link} to="/advanced"><WrenchIcon className="h-6 w-6" />{t('main.advanced_options')}</NavbarItem>
+                        <NavbarItem as={Link} to="/terminal"><CommandLineIcon className="h-6 w-6" />{t('main.terminal_output')}</NavbarItem>
                     </NavbarSection>
 
                     {!isFullScreenPage && (
@@ -86,8 +81,8 @@ export default function App() {
                     <Route path="/" element={<FileSelection />} />
                     <Route path="/advanced" element={<AdvancedOptions />} />
                     <Route path="/terminal" element={<TerminalOutput />} />
-                    <Route path="/settings" element={<FullScreenPageLayout title="Settings"><SettingsPageContent /></FullScreenPageLayout>} />
-                    <Route path="/about" element={<FullScreenPageLayout title="About"><AboutPageContent /></FullScreenPageLayout>} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/about" element={<FullScreenPageLayout title={t('main.about')}><AboutPageContent /></FullScreenPageLayout>} />
                 </Routes>
 
                 <div
@@ -102,11 +97,11 @@ export default function App() {
                             <SidebarSection>
                                 <SidebarItem as={Link} to="/settings">
                                     <Cog6ToothIcon className="h-6 w-6" />
-                                    <SidebarLabel>Settings</SidebarLabel>
+                                    <SidebarLabel>{t('main.settings')}</SidebarLabel>
                                 </SidebarItem>
                                 <SidebarItem as={Link} to="/about">
                                     <InformationCircleIcon className="h-6 w-6" />
-                                    <SidebarLabel>About</SidebarLabel>
+                                    <SidebarLabel>{t('main.about')}</SidebarLabel>
                                 </SidebarItem>
                             </SidebarSection>
                         </SidebarBody>

@@ -1,22 +1,45 @@
-import { createContext, useState, useContext, useCallback } from 'react';
+import { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { invoke } from '@tauri-apps/api/core';
 import { processFiles, truncateMiddle } from './format-options';
+import i18n from './i18n';
 
 const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
+    const { t } = useTranslation();
     const [filePaths, setFilePaths] = useState([]);
     const [fileType, setFileType] = useState('');
     const [outputExt, setOutputExt] = useState('');
     const [outputOptions, setOutputOptions] = useState([]);
+    const [settings, setSettings] = useState(null);
 
-    // You can add state for advanced options and terminal output here later
-    // const [advancedOptions, setAdvancedOptions] = useState({});
-    // const [terminalLogs, setTerminalLogs] = useState([]);
+    useEffect(() => {
+        const initializeApp = async () => {
+            try {
+                const loadedSettings = await invoke('load_settings');
+                setSettings(loadedSettings);
 
-    // useEffect(() => {
-    //     document.documentElement.classList.toggle('dark', darkMode);
-    // }, [darkMode]);
+                if (loadedSettings.language) {
+                    await i18n.changeLanguage(loadedSettings.language);
+                }
+
+                document.documentElement.classList.toggle('dark', loadedSettings.theme === 'dark');
+
+            } catch (error) {
+                console.error("Failed to initialize app:", error);
+            }
+        };
+
+        initializeApp();
+    }, []);
+
+    // This effect saves settings to Rust whenever they change
+    useEffect(() => {
+        if (settings !== null) {
+            invoke('save_settings', { settings });
+        }
+    }, [settings]);
 
     const handleFileSelection = useCallback((paths, showPrompt) => {
         if (!paths || paths.length === 0) return;
@@ -24,9 +47,9 @@ export function AppProvider({ children }) {
         const { newFileType, outputFormats, uniques, duplicates, unsupported, nonMajorType } = processFiles(newPaths, filePaths, fileType);
 
         // Use the passed-in showPrompt function
-        duplicates.forEach(p => showPrompt('warning', `Duplicated file: ${truncateMiddle(p)}`));
-        unsupported.forEach(p => showPrompt('warning', `Unsupported file: ${truncateMiddle(p)}`));
-        nonMajorType.forEach(p => showPrompt('warning', `Please select files from the same type: ${truncateMiddle(p)}`));
+        duplicates.forEach(p => showPrompt('warning', `${t('prompt.duplicated_file')}: ${truncateMiddle(p)}`));
+        unsupported.forEach(p => showPrompt('warning', `${t('prompt.unsupported_file')}: ${truncateMiddle(p)}`));
+        nonMajorType.forEach(p => showPrompt('warning', `${t('prompt.select_same_type')}: ${truncateMiddle(p)}`));
 
         const updated = [...filePaths, ...uniques];
         if (newFileType !== fileType) setFileType(newFileType);
@@ -45,18 +68,20 @@ export function AppProvider({ children }) {
 
             for (const status of results) {
                 if (status.success) {
-                    showPrompt('success', `Converted: ${truncateMiddle(status.path)}`);
+                    showPrompt('success', `${t('prompt.converted')}: ${truncateMiddle(status.path)}`);
                 } else {
-                    showPrompt('error', `Failed: ${truncateMiddle(status.path)} - ${status.message}`);
+                    showPrompt('error', `${t('prompt.failed')}: ${truncateMiddle(status.path)} - ${status.message}`);
                 }
             }
         } catch (error) {
             console.error('Conversion failed:', error);
-            showPrompt('error', `Conversion failed: ${error}`);
+            showPrompt('error', `${t('prompt.conversion_failed')}: ${error}`);
         }
     }, [filePaths, outputExt]);
 
     const value = {
+        settings,
+        setSettings,
         filePaths,
         setFilePaths,
         fileType,

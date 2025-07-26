@@ -1,0 +1,40 @@
+{
+  "main": {
+    "file_selection": "File Selection",
+    "advanced_options": "Advanced Options",
+    "terminal_output": "Terminal Output",
+    "settings": "Settings",
+    "about": "About"
+  },
+  "settings": {
+    "title": "Settings",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "language": "Language",
+    "auto_update": "Check software update automatically"
+  },
+  "file_selection": {
+    "audio": "Audio",
+    "video": "Video",
+    "image": "Image",
+    "all_files": "All Files",
+    "drop_files_here": "Drop/Select files here",
+    "files": "File(s)",
+    "output_format": "Output Format",
+    "no_files_selected": "No Files Selected",
+    "convert": "Convert",
+    "files_selected": "Files Selected",
+    "current_file_type": "Current File Type",
+    "file_path": "File Path",
+    "action": "Action"
+  },
+  "prompt": {
+    "duplicated_file": "Duplicated file",
+    "unsupported_file": "Unsupported file",
+    "select_same_type": "Please select files from the same type",
+    "converted": "Converted",
+    "failed": "Failed",
+    "conversion_failed": "Conversion failed"
+  }
+}

@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef, useLayoutEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { usePrompt } from '@/components/prompt';
+import { useTranslation } from 'react-i18next';
 import { open } from '@tauri-apps/plugin-dialog';
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 
@@ -54,6 +55,8 @@ function MiddleEllipsis({ text }) {
 }
 
 export default function FileSelection() {
+    const { t } = useTranslation();
+
     const {
         filePaths, setFilePaths, fileType, setFileType,
         outputExt, setOutputExt, outputOptions,
@@ -66,9 +69,9 @@ export default function FileSelection() {
     const dropZoneRef = useRef(null);
 
     const fileTypeIcons = {
-        audio: <span className="flex items-center"><MusicalNoteIcon className="h-5 w-5 mr-1" />Audio</span>,
-        video: <span className="flex items-center"><VideoCameraIcon className="h-5 w-5 mr-1" />Video</span>,
-        image: <span className="flex items-center"><PhotoIcon className="h-5 w-5 mr-1" />Image</span>,
+        audio: <span className="flex items-center"><MusicalNoteIcon className="h-5 w-5 mr-1" />{t('file_selection.audio')}</span>,
+        video: <span className="flex items-center"><VideoCameraIcon className="h-5 w-5 mr-1" />{t('file_selection.video')}</span>,
+        image: <span className="flex items-center"><PhotoIcon className="h-5 w-5 mr-1" />{t('file_selection.image')}</span>,
     };
 
     // Clear file type if all files are removed
@@ -82,7 +85,7 @@ export default function FileSelection() {
         try {
             const selected = await open({
                 multiple: true,
-                filters: [{ name: 'All Files', extensions: ['*'] }],
+                filters: [{ name: t('file_selection.all_files'), extensions: ['*'] }],
             });
             handleFileSelection(selected, showPrompt);
         } catch (error) {
@@ -107,7 +110,7 @@ export default function FileSelection() {
             if (event.payload.type === 'over') {
                 setIsOverDropZone(isOver);
             } else if (event.payload.type === 'drop' && isOver) {
-                handleFileSelection(event.payload.paths);
+                handleFileSelection(event.payload.paths, showPrompt);
                 setIsOverDropZone(false);
             } else if (event.payload.type === 'cancel') {
                 setIsOverDropZone(false);
@@ -125,10 +128,10 @@ export default function FileSelection() {
                 <div className='dropzone-container flex flex-col gap-5'>
                     <DropZone ref={dropZoneRef} isOverDropZone={isOverDropZone} onClick={onClick}>
                         {filePaths.length === 0
-                            ? 'Drop/Select files here'
+                            ? t('file_selection.drop_files_here')
                             : <span className="inline-flex items-center">
                                 <span className='mr-3'>
-                                    {filePaths.length} file{filePaths.length > 1 ? 's' : ''}
+                                    {filePaths.length} {t('file_selection.files')}
                                 </span>
                                 <InformationCircleIcon className="h-5 w-5 mr-1 text-blue-400 cursor-pointer"
                                     onClick={e => {
@@ -147,10 +150,10 @@ export default function FileSelection() {
                     </DropZone>
 
                     <Field>
-                        <Label>Output Format</Label>
+                        <Label>{t('file_selection.output_format')}</Label>
                         <Select name="output-format" value={outputExt} onChange={e => setOutputExt(e.target.value)} disabled={filePaths.length === 0}>
                             {filePaths.length === 0
-                                ? <option value="">No Files Selected</option>
+                                ? <option value="">{t('file_selection.no_files_selected')}</option>
                                 : outputOptions.map(ext => (
                                     <option key={ext} value={ext}>.{ext}</option>
                                 ))
@@ -159,16 +162,16 @@ export default function FileSelection() {
                     </Field>
 
                     <Button color="emerald" className="mt-2" disabled={filePaths.length === 0} onClick={() => handleConvert(showPrompt)}>
-                        Convert<PaperAirplaneIcon />
+                        {t('file_selection.convert')}<PaperAirplaneIcon />
                     </Button>
                 </div>
             </div>
 
             <Alert open={alertOpen} onClose={() => setAlertOpen(false)}>
-                <AlertTitle>Files Selected</AlertTitle>
+                <AlertTitle>{t('file_selection.files_selected')}</AlertTitle>
                 {fileType && (
                     <AlertDescription className="flex items-center">
-                        <span className="mr-1">Current File Type:</span>
+                        <span className="mr-1">{t('file_selection.current_file_type')}:</span>
                         {fileTypeIcons[fileType]}
                     </AlertDescription>
                 )}
@@ -176,8 +179,8 @@ export default function FileSelection() {
                     <Table bleed compact="true">
                         <TableHead>
                             <TableRow>
-                                <TableHeader>File Path</TableHeader>
-                                <TableHeader>Action</TableHeader>
+                                <TableHeader>{t('file_selection.file_path')}</TableHeader>
+                                <TableHeader>{t('file_selection.action')}</TableHeader>
                             </TableRow>
                         </TableHead>
                         <TableBody>

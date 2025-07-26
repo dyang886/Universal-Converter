@@ -1,0 +1,40 @@
+{
+  "main": {
+    "file_selection": "文件选择",
+    "advanced_options": "高级选项",
+    "terminal_output": "终端输出",
+    "settings": "设置",
+    "about": "关于"
+  },
+  "settings": {
+    "title": "设置",
+    "theme": "主题",
+    "light": "浅色",
+    "dark": "深色",
+    "language": "语言",
+    "auto_update": "自动检查更新"
+  },
+  "file_selection": {
+    "audio": "音频",
+    "video": "视频",
+    "image": "图像",
+    "all_files": "所有文件",
+    "drop_files_here": "在此拖放/选择文件",
+    "files": "个文件",
+    "output_format": "输出格式",
+    "no_files_selected": "未选择文件",
+    "convert": "转换",
+    "files_selected": "已选择文件",
+    "current_file_type": "当前文件类型",
+    "file_path": "文件路径",
+    "action": "操作"
+  },
+  "prompt": {
+    "duplicated_file": "重复文件",
+    "unsupported_file": "不支持的文件",
+    "select_same_type": "请选择相同类型的文件",
+    "converted": "已转换",
+    "failed": "失败",
+    "conversion_failed": "转换失败"
+  }
+}
