@@ -1,46 +1,18 @@
 import { useState, useEffect } from 'react';
+import { Link, Route, Routes, useLocation } from 'react-router-dom';
+
+import { EllipsisHorizontalCircleIcon } from '@heroicons/react/24/outline';
+import { Cog6ToothIcon, CommandLineIcon, DocumentTextIcon, InformationCircleIcon, WrenchIcon } from '@heroicons/react/24/solid';
 import { useTranslation } from 'react-i18next';
-import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
-import { AppProvider } from './contexts/AppContext';
 
-import FileSelection from './pages/FileSelection';
-import AdvancedOptions from './pages/AdvancedOptions';
-import TerminalOutput from './pages/TerminalOutput';
-import SettingsPage from './pages/Settings';
-
+import { AppProvider } from '@/contexts/AppContext';
 import { Navbar, NavbarItem, NavbarSection } from '@/components/navbar';
 import { Sidebar, SidebarBody, SidebarItem, SidebarLabel, SidebarSection } from '@/components/sidebar';
-import { EllipsisHorizontalCircleIcon } from '@heroicons/react/24/outline';
-import { Cog6ToothIcon, InformationCircleIcon, WrenchIcon, CommandLineIcon, XMarkIcon, DocumentTextIcon } from '@heroicons/react/24/solid';
-
-const AboutPageContent = () => (
-    <div className="text-center">
-        <p className="text-gray-500">Information about the application.</p>
-    </div>
-);
-
-
-// --- Layout for Full-Screen Modal Pages ---
-const FullScreenPageLayout = ({ title, children }) => {
-    const navigate = useNavigate();
-    return (
-        <div className="fixed inset-0 z-50 flex flex-col bg-white p-8 dark:bg-zinc-900">
-            <header className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold">{title}</h1>
-                <button
-                    onClick={() => navigate('/')}
-                    className="rounded-full p-2 transition-colors hover:bg-gray-200 dark:hover:bg-zinc-800"
-                    aria-label="Close page"
-                >
-                    <XMarkIcon className="h-6 w-6" />
-                </button>
-            </header>
-            <main className="flex flex-1 items-center justify-center">
-                {children}
-            </main>
-        </div>
-    );
-};
+import AboutPage from '@/pages/About';
+import AdvancedOptions from '@/pages/AdvancedOptions';
+import FileSelection from '@/pages/FileSelection';
+import SettingsPage from '@/pages/Settings';
+import TerminalOutput from '@/pages/TerminalOutput';
 
 
 export default function App() {
@@ -82,7 +54,7 @@ export default function App() {
                     <Route path="/advanced" element={<AdvancedOptions />} />
                     <Route path="/terminal" element={<TerminalOutput />} />
                     <Route path="/settings" element={<SettingsPage />} />
-                    <Route path="/about" element={<FullScreenPageLayout title={t('main.about')}><AboutPageContent /></FullScreenPageLayout>} />
+                    <Route path="/about" element={<AboutPage />} />
                 </Routes>
 
                 <div

@@ -1,11 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from 'react-router-dom';
+
 import { I18nextProvider } from 'react-i18next';
-import App from "./App";
-import './App.css'
-import i18n from './contexts/i18n';
-import { PromptProvider } from '@/components/prompt'
+
+import '@/App.css';
+import App from "@/App";
+import i18n from '@/contexts/i18n';
+import { PromptProvider } from '@/components/prompt';
+
 
 ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>

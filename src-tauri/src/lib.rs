@@ -1,15 +1,20 @@
-// Prevents additional console window on Windows in release, DO NOT REMOVE!!
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-
 use directories::BaseDirs;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
+use std::time::Duration;
+use tauri::AppHandle;
+use tauri_plugin_shell::ShellExt;
 
-// --- Module from your existing code ---
 mod converter;
+mod secret_config;
 
-// --- Structs from both versions ---
+#[derive(Deserialize, Debug)]
+struct UpdateInfo {
+    latest_version: String,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(default)]
 struct AppSettings {
@@ -20,7 +25,7 @@ struct AppSettings {
 
 #[derive(Deserialize, Debug)]
 pub struct AdvancedOptions {
-    // codec: Option<String>,
+    options: HashMap<String, String>,
 }
 
 #[derive(Serialize, Clone)]
@@ -40,15 +45,13 @@ impl Default for AppSettings {
         };
 
         let language = match sys_locale::get_locale() {
-            Some(locale) => {
-                match locale.as_str() {
-                    "zh-CN" => "zh_CN".to_string(),
-                    "zh-HK" | "zh-TW" => "zh_TW".to_string(),
-                    s if s.starts_with("en") => "en_US".to_string(),
-                    _ => "en_US".to_string(),
-                }
-            }
-            None => "en_US".to_string()
+            Some(locale) => match locale.as_str() {
+                "zh-CN" => "zh_CN".to_string(),
+                "zh-HK" | "zh-TW" => "zh_TW".to_string(),
+                s if s.starts_with("en") => "en_US".to_string(),
+                _ => "en_US".to_string(),
+            },
+            None => "en_US".to_string(),
         };
 
         Self {
@@ -59,28 +62,23 @@ impl Default for AppSettings {
     }
 }
 
-// --- Helper function for settings path ---
 fn get_settings_path() -> Option<PathBuf> {
     BaseDirs::new().map(|dirs| dirs.data_dir().join("UCT Settings").join("settings.json"))
 }
 
-// --- All Tauri Commands ---
-
+// --- Tauri Commands ---
 #[tauri::command]
 fn load_settings() -> AppSettings {
     let settings = if let Some(path) = get_settings_path() {
         fs::read_to_string(path)
-            .ok() // Convert Result<String, Error> to Option<String>
-            .and_then(|content| serde_json::from_str(&content).ok()) // Convert Result<T, E> to Option<T>
-            .unwrap_or_else(AppSettings::default) // If any step failed, create new default settings
+            .ok()
+            .and_then(|content| serde_json::from_str(&content).ok())
+            .unwrap_or_else(AppSettings::default)
     } else {
-        AppSettings::default() // If we can't even get the path, create defaults
+        AppSettings::default()
     };
 
-    // Save the potentially updated settings back to the file.
-    // This ensures that if a new field was added, it gets written to disk.
     let _ = save_settings(settings.clone());
-
     settings
 }
 
@@ -99,8 +97,47 @@ fn save_settings(settings: AppSettings) -> Result<(), String> {
 }
 
 #[tauri::command]
+async fn check_for_updates(app_name: String) -> Result<String, String> {
+    let client = reqwest::Client::new();
+
+    let response = client
+        .get(secret_config::VERSION_CHECKER_API_GATEWAY_ENDPOINT.as_str())
+        .header("x-api-key", secret_config::CLIENT_API_KEY.as_str())
+        .query(&[("appName", app_name)])
+        .timeout(Duration::from_secs(15))
+        .send()
+        .await
+        .map_err(|e| format!("Error sending request: {}", e))?;
+
+    if response.status().is_success() {
+        match response.json::<UpdateInfo>().await {
+            Ok(data) => Ok(data.latest_version),
+            Err(e) => Err(format!("Error parsing JSON response: {}", e)),
+        }
+    } else {
+        Err(format!("Server responded with status: {}", response.status()))
+    }
+}
+
+#[tauri::command]
+async fn launch_updater(app_handle: AppHandle, latest_version: String, theme: String, language: String) -> Result<(), String> {
+    let pid = std::process::id().to_string();
+    let s3_path = format!("UCT/Universal Converter Setup {}.exe", latest_version);
+    let args = vec!["--pid", &pid, "--s3-path", &s3_path, "--theme", &theme, "--language", &language];
+
+    app_handle
+        .shell()
+        .command("Updater")
+        .args(args)
+        .spawn()
+        .map_err(|e| format!("Failed to spawn updater: {}", e))?;
+
+    Ok(())
+}
+
+#[tauri::command]
 async fn convert_files(
-    handle: tauri::AppHandle, input_paths: Vec<String>, output_ext: String, options: AdvancedOptions,
+    handle: AppHandle, input_paths: Vec<String>, output_ext: String, options: AdvancedOptions,
 ) -> Result<Vec<FileConversionStatus>, String> {
     println!("Received request to convert {} files to .{}", input_paths.len(), output_ext);
     println!("Options: {:?}", options);
@@ -111,10 +148,17 @@ async fn convert_files(
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![convert_files, load_settings, save_settings])
+        .invoke_handler(tauri::generate_handler![
+            load_settings,
+            save_settings,
+            check_for_updates,
+            launch_updater,
+            convert_files,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -1,8 +1,11 @@
-import { createContext, useState, useContext, useEffect, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import { processFiles, truncateMiddle } from './format-options';
-import i18n from './i18n';
+
+import { useTranslation } from 'react-i18next';
+
+import { processFiles, truncateMiddle } from '@/contexts/format-options';
+import i18n from '@/contexts/i18n';
+
 
 const AppContext = createContext(null);
 
@@ -34,7 +37,6 @@ export function AppProvider({ children }) {
         initializeApp();
     }, []);
 
-    // This effect saves settings to Rust whenever they change
     useEffect(() => {
         if (settings !== null) {
             invoke('save_settings', { settings });
@@ -46,7 +48,6 @@ export function AppProvider({ children }) {
         const newPaths = Array.isArray(paths) ? paths : [paths];
         const { newFileType, outputFormats, uniques, duplicates, unsupported, nonMajorType } = processFiles(newPaths, filePaths, fileType);
 
-        // Use the passed-in showPrompt function
         duplicates.forEach(p => showPrompt('warning', `${t('prompt.duplicated_file')}: ${truncateMiddle(p)}`));
         unsupported.forEach(p => showPrompt('warning', `${t('prompt.unsupported_file')}: ${truncateMiddle(p)}`));
         nonMajorType.forEach(p => showPrompt('warning', `${t('prompt.select_same_type')}: ${truncateMiddle(p)}`));
@@ -59,7 +60,12 @@ export function AppProvider({ children }) {
 
     const handleConvert = useCallback(async (showPrompt) => {
         try {
-            const advancedOptions = { test: null }; // Placeholder
+            const advancedOptions = {
+                options: {
+                    "-v": "quiet", // Your actual options go inside this nested object
+                    // Add other future options here, e.g., "-crf": "23"
+                }
+            };
             const results = await invoke('convert_files', {
                 inputPaths: filePaths,
                 outputExt: outputExt,

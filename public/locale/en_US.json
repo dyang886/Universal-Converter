@@ -14,6 +14,16 @@
     "language": "Language",
     "auto_update": "Check software update automatically"
   },
+  "about": {
+    "title": "About",
+    "app_name": "Universal Converter",
+    "current_version": "Current version",
+    "latest_version": "Latest version",
+    "loading": "Loading...",
+    "load_failed": "Failed to load",
+    "update_now": "Update Now",
+    "bilibili": "Bilibili"
+  },
   "file_selection": {
     "audio": "Audio",
     "video": "Video",

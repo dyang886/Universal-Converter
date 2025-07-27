@@ -1,19 +1,21 @@
-import { useState, useCallback, useEffect, useRef, useLayoutEffect } from 'react';
-import { useApp } from '../contexts/AppContext';
-import { usePrompt } from '@/components/prompt';
-import { useTranslation } from 'react-i18next';
-import { open } from '@tauri-apps/plugin-dialog';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { getCurrentWebview } from "@tauri-apps/api/webview";
+import { open } from '@tauri-apps/plugin-dialog';
 
-import { Field, Label } from '@/components/fieldset';
-import { Select } from '@/components/select';
+import { InformationCircleIcon, MusicalNoteIcon, PaperAirplaneIcon, PhotoIcon, TrashIcon, VideoCameraIcon } from '@heroicons/react/24/solid';
+import { useTranslation } from 'react-i18next';
+
+import { useApp } from '@/contexts/AppContext';
+import { usePrompt } from '@/components/prompt';
+import { Alert, AlertActions, AlertBody, AlertDescription, AlertTitle } from '@/components/alert';
 import { Button } from '@/components/button';
 import DropZone from '@/components/dropzone';
-import { Alert, AlertTitle, AlertDescription, AlertBody, AlertActions } from '@/components/alert';
+import { Field, Label } from '@/components/fieldset';
+import { Select } from '@/components/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table';
-import { TrashIcon, InformationCircleIcon, PaperAirplaneIcon, MusicalNoteIcon, VideoCameraIcon, PhotoIcon } from '@heroicons/react/24/solid';
 
-// Helper component for text truncation
+
+// Text truncation
 function MiddleEllipsis({ text }) {
     const ref = useRef(null);
     const [display, setDisplay] = useState(text);

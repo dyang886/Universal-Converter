@@ -1,13 +1,14 @@
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { useApp } from '../contexts/AppContext';
 
-// --- UI Components ---
-import { Field, Label } from '@/components/fieldset';
-import { Switch } from '@/components/switch';
-import { Select } from '@/components/select';
-import * as Headless from '@headlessui/react'
+import * as Headless from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
+
+import { useApp } from '@/contexts/AppContext';
+import { Field, Label } from '@/components/fieldset';
+import { Select } from '@/components/select';
+import { Switch } from '@/components/switch';
+
 
 export default function SettingsPage() {
     const navigate = useNavigate();
