@@ -39,12 +39,18 @@
     "file_path": "File Path",
     "action": "Action"
   },
+  "terminal": {
+    "waiting_for_conversion": "Waiting for conversion to start...",
+    "converting": "Converting {{file}}",
+    "success": "Successfully converted {{file}}",
+    "failure": "Failed to convert {{file}}"
+  },
   "prompt": {
     "duplicated_file": "Duplicated file",
     "unsupported_file": "Unsupported file",
     "select_same_type": "Please select files from the same type",
-    "converted": "Converted",
-    "failed": "Failed",
-    "conversion_failed": "Conversion failed"
+    "conversion_success": "Conversion successful",
+    "conversion_failed": "Some files failed to convert",
+    "conversion_unexpected_error": "An unexpected error occurred during conversion"
   }
 }

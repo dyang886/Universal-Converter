@@ -1,103 +1,110 @@
-use crate::{AdvancedOptions, FileConversionStatus};
-use std::path::{PathBuf};
-use tauri::AppHandle;
+use std::collections::HashMap;
+use std::path::PathBuf;
+
+use tauri::{AppHandle, Emitter};
 use tauri_plugin_shell::{ShellExt, process::CommandEvent};
 
-pub async fn run_conversion(
-    handle: AppHandle, input_paths: Vec<String>, output_ext: String, options: AdvancedOptions,
-) -> Result<Vec<FileConversionStatus>, String> {
+use crate::{AdvancedOptions, ConversionLogPayload, LocalizedText};
+
+pub async fn run_conversion(handle: AppHandle, input_paths: Vec<String>, output_ext: String, options: AdvancedOptions) -> Result<bool, String> {
     let shell = handle.shell();
-    let mut statuses = Vec::new();
+    let mut all_files_converted_successfully = true;
 
     for path_str in input_paths {
         let input_path = PathBuf::from(&path_str);
-        let mut output_path = input_path.clone();
-        output_path.set_extension(&output_ext);
-
+        let file_stem = input_path.file_stem().unwrap_or_default().to_string_lossy();
+        let new_file_name = format!("{}_UCT.{}", file_stem, output_ext);
+        let output_path = input_path.with_file_name(new_file_name);
         let original_path_str = path_str.clone();
+        let display_path = input_path.display().to_string();
 
-        // --- Argument Building Logic ---
-        let mut args: Vec<String> = Vec::new();
+        let create_vars = |file_path: String| -> HashMap<String, String> {
+            let mut vars = HashMap::new();
+            vars.insert("file".to_string(), file_path);
+            vars
+        };
 
-        // 1. Add the mandatory input and output files
-        args.push("-i".to_string());
-        args.push(input_path.to_string_lossy().to_string());
+        handle
+            .emit(
+                "conversion-log",
+                &ConversionLogPayload {
+                    file_path: original_path_str.clone(),
+                    status_message: LocalizedText {
+                        key: "terminal.converting".to_string(),
+                        vars: create_vars(display_path.clone()),
+                    },
+                    terminal_output: None,
+                    success: None,
+                },
+            )
+            .unwrap();
 
-        // 2. Add all the user-defined advanced options from the frontend
+        let mut args: Vec<String> = vec!["-i".to_string(), input_path.to_string_lossy().to_string()];
         for (key, value) in &options.options {
-            // This handles both flags (like "-vcodec") and options with values ("libx264")
             args.push(key.clone());
             if !value.is_empty() {
                 args.push(value.clone());
             }
         }
-
-        // 3. Add format-specific or mandatory arguments
-        // This is where you can add special logic. For example, always overwrite.
-        args.push("-stats".to_string()); // Overwrite output file if it exists
-
-        // Example: Add a specific metadata tag for mp3 files
-
-        // 4. Finally, add the output path argument
+        args.push("-y".to_string());
         args.push(output_path.to_string_lossy().to_string());
 
-        println!("Executing ffmpeg with args: {:?}", &args);
-
-        // --- Modern Command Execution ---
-        let (mut rx, _child) = shell
-            .command("ffmpeg") // Use .command() for sidecars in v2
-            .args(&args) // Pass the constructed argument vector
-            .spawn()
-            .map_err(|e| e.to_string())?;
+        let (mut rx, _child) = shell.command("ffmpeg").args(&args).spawn().map_err(|e| e.to_string())?;
 
         let mut final_code: Option<i32> = None;
-        let mut error_output = String::new();
+        let mut terminal_output = String::new();
 
         while let Some(event) = rx.recv().await {
             match event {
-                CommandEvent::Stderr(line) => {
-                    let line_str = String::from_utf8_lossy(&line).to_string();
-                    println!("[FFmpeg Stdout]: {}", &line_str);
-                    // error_output.push_str(&line_str);
-                    // error_output.push('\n');
+                CommandEvent::Stderr(line) | CommandEvent::Stdout(line) => {
+                    let line_str = String::from_utf8_lossy(&line);
+                    terminal_output.push_str(&line_str);
+                    handle
+                        .emit(
+                            "conversion-log",
+                            &ConversionLogPayload {
+                                file_path: original_path_str.clone(),
+                                status_message: LocalizedText {
+                                    key: "terminal.converting".to_string(),
+                                    vars: create_vars(display_path.clone()),
+                                },
+                                terminal_output: Some(terminal_output.clone()),
+                                success: None,
+                            },
+                        )
+                        .unwrap();
                 }
                 CommandEvent::Terminated(payload) => {
                     final_code = payload.code;
                 }
-                CommandEvent::Stdout(line) => {
-                    println!("[FFmpeg Stdout]: {}", String::from_utf8_lossy(&line));
-                }
-                _ => {} // Ignore other events
+                _ => {}
             }
         }
 
-        // You can also use child.wait() to get the final status if you don't need to stream output
-        // let status = child.wait().await.map_err(|e| e.to_string())?;
-
-        match final_code {
-            Some(0) => {
-                statuses.push(FileConversionStatus {
-                    path: original_path_str,
-                    success: true,
-                    message: format!("Successfully converted to {}", output_ext),
-                });
-            }
-            Some(code) => {
-                statuses.push(FileConversionStatus {
-                    path: original_path_str,
-                    success: false,
-                    message: format!("FFmpeg failed with exit code {}. Details: {}", code, error_output.trim()),
-                });
-            }
-            None => {
-                statuses.push(FileConversionStatus {
-                    path: original_path_str,
-                    success: false,
-                    message: "FFmpeg process did not terminate correctly or was killed.".to_string(),
-                });
-            }
+        let success = final_code == Some(0);
+        if !success {
+            all_files_converted_successfully = false;
         }
+
+        handle
+            .emit(
+                "conversion-log",
+                &ConversionLogPayload {
+                    file_path: original_path_str.clone(),
+                    status_message: LocalizedText {
+                        key: if success {
+                            "terminal.success".to_string()
+                        } else {
+                            "terminal.failure".to_string()
+                        },
+                        vars: create_vars(display_path.clone()),
+                    },
+                    terminal_output: Some(terminal_output),
+                    success: Some(success),
+                },
+            )
+            .unwrap();
     }
 
-    Ok(statuses)
+    Ok(all_files_converted_successfully)
 }

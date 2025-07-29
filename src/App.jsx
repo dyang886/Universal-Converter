@@ -21,14 +21,13 @@ export default function App() {
     const location = useLocation();
     const isFullScreenPage = ['/settings', '/about'].includes(location.pathname);
 
-    // Close sidebar on route change
     useEffect(() => {
         setIsSidebarOpen(false);
     }, [location.pathname]);
 
     return (
         <AppProvider>
-            <div className="bg-white dark:bg-zinc-900 dark:text-gray-100 min-h-screen relative flex flex-col items-center p-8 pt-3">
+            <div className="bg-white dark:bg-zinc-900 dark:text-gray-100 h-screen relative flex flex-col items-center p-8 pt-3">
 
                 <Navbar className="flex justify-between self-stretch">
                     <NavbarSection>
@@ -41,7 +40,7 @@ export default function App() {
                         <NavbarSection>
                             <button
                                 onClick={() => setIsSidebarOpen(true)}
-                                className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-800 transition-colors"
+                                className="p-2 rounded-full hover:bg-zinc-950/5 dark:hover:bg-white/5 transition-colors"
                             >
                                 <EllipsisHorizontalCircleIcon className="h-6 w-6" />
                             </button>

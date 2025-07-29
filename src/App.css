@@ -52,3 +52,43 @@
         }
     }
 }
+
+/* Light Theme Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #e4e4e7;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #a1a1aa;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #71717a;
+}
+
+/* Dark Theme Scrollbar */
+.dark ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+    background: #27272a;
+    border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: #52525b;
+    border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: #71717a;
+}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { open } from '@tauri-apps/plugin-dialog';
 
@@ -15,55 +15,10 @@ import { Select } from '@/components/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table';
 
 
-// Text truncation
-function MiddleEllipsis({ text }) {
-    const ref = useRef(null);
-    const [display, setDisplay] = useState(text);
-
-    useLayoutEffect(() => {
-        const el = ref.current;
-        if (!el) return;
-        const style = window.getComputedStyle(el);
-        const font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        ctx.font = font;
-        const available = el.offsetWidth;
-        if (ctx.measureText(text).width <= available) {
-            setDisplay(text);
-            return;
-        }
-        let low = 0;
-        let high = text.length;
-        let best = text;
-        while (low < high) {
-            const mid = Math.floor((low + high) / 2);
-            const keepFront = Math.ceil(mid / 2);
-            const keepBack = Math.floor(mid / 2);
-            const candidate = text.slice(0, keepFront) + '…' + text.slice(text.length - keepBack);
-            if (ctx.measureText(candidate).width <= available) {
-                best = candidate;
-                low = mid + 1;
-            } else {
-                high = mid;
-            }
-        }
-        setDisplay(best);
-    }, [text, ref.current?.offsetWidth]);
-
-    return (
-        <span ref={ref} className="block truncate" title={text}>{display}</span>
-    );
-}
-
 export default function FileSelection() {
     const { t } = useTranslation();
 
-    const {
-        filePaths, setFilePaths, fileType, setFileType,
-        outputExt, setOutputExt, outputOptions,
-        handleFileSelection, handleConvert
-    } = useApp();
+    const { MiddleEllipsis, filePaths, setFilePaths, fileType, outputExt, setOutputExt, outputOptions, handleFileSelection, handleConvert } = useApp();
     const { showPrompt } = usePrompt();
 
     const [isOverDropZone, setIsOverDropZone] = useState(false);
@@ -76,14 +31,7 @@ export default function FileSelection() {
         image: <span className="flex items-center"><PhotoIcon className="h-5 w-5 mr-1" />{t('file_selection.image')}</span>,
     };
 
-    // Clear file type if all files are removed
-    useEffect(() => {
-        if (filePaths.length === 0) {
-            setFileType('');
-        }
-    }, [filePaths, setFileType]);
-
-    const onClick = useCallback(async () => {
+    const dropZoneOnClick = useCallback(async () => {
         try {
             const selected = await open({
                 multiple: true,
@@ -128,7 +76,7 @@ export default function FileSelection() {
         <>
             <div className='w-96 flex grow items-center justify-center'>
                 <div className='dropzone-container flex flex-col gap-5'>
-                    <DropZone ref={dropZoneRef} isOverDropZone={isOverDropZone} onClick={onClick}>
+                    <DropZone ref={dropZoneRef} isOverDropZone={isOverDropZone} onClick={dropZoneOnClick}>
                         {filePaths.length === 0
                             ? t('file_selection.drop_files_here')
                             : <span className="inline-flex items-center">
@@ -182,7 +130,7 @@ export default function FileSelection() {
                         <TableHead>
                             <TableRow>
                                 <TableHeader>{t('file_selection.file_path')}</TableHeader>
-                                <TableHeader>{t('file_selection.action')}</TableHeader>
+                                <TableHeader className="w-20 text-center">{t('file_selection.action')}</TableHeader>
                             </TableRow>
                         </TableHead>
                         <TableBody>

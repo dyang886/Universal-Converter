@@ -32,7 +32,7 @@ export default function SettingsPage() {
                 <h1 className="text-2xl font-bold">{t('settings.title')}</h1>
                 <button
                     onClick={() => navigate('/')}
-                    className="rounded-full p-2 transition-colors hover:bg-gray-200 dark:hover:bg-zinc-800"
+                    className="rounded-full p-2 transition-colors hover:bg-zinc-950/5 dark:hover:bg-white/5"
                     aria-label="Close page"
                 >
                     <XMarkIcon className="h-6 w-6" />

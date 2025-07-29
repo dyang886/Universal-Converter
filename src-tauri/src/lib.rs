@@ -1,9 +1,10 @@
-use directories::BaseDirs;
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
 use std::time::Duration;
+
+use directories::BaseDirs;
+use serde::{Deserialize, Serialize};
 use tauri::AppHandle;
 use tauri_plugin_shell::ShellExt;
 
@@ -16,23 +17,29 @@ struct UpdateInfo {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(default)]
 struct AppSettings {
     theme: String,
     language: String,
     auto_update: bool,
 }
 
-#[derive(Deserialize, Debug)]
-pub struct AdvancedOptions {
-    options: HashMap<String, String>,
+#[derive(Serialize, Clone, Debug)]
+pub struct LocalizedText {
+    key: String,
+    vars: HashMap<String, String>,
 }
 
 #[derive(Serialize, Clone)]
-struct FileConversionStatus {
-    path: String,
-    success: bool,
-    message: String,
+struct ConversionLogPayload {
+    file_path: String,
+    status_message: LocalizedText,
+    terminal_output: Option<String>,
+    success: Option<bool>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct AdvancedOptions {
+    options: HashMap<String, String>,
 }
 
 impl Default for AppSettings {
@@ -136,9 +143,7 @@ async fn launch_updater(app_handle: AppHandle, latest_version: String, theme: St
 }
 
 #[tauri::command]
-async fn convert_files(
-    handle: AppHandle, input_paths: Vec<String>, output_ext: String, options: AdvancedOptions,
-) -> Result<Vec<FileConversionStatus>, String> {
+async fn convert_files(handle: AppHandle, input_paths: Vec<String>, output_ext: String, options: AdvancedOptions) -> Result<bool, String> {
     println!("Received request to convert {} files to .{}", input_paths.len(), output_ext);
     println!("Options: {:?}", options);
     converter::run_conversion(handle, input_paths, output_ext, options).await

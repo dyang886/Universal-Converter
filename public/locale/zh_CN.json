@@ -39,12 +39,18 @@
     "file_path": "文件路径",
     "action": "操作"
   },
+  "terminal": {
+    "waiting_for_conversion": "等待转换开始...",
+    "converting": "正在转换 {{file}}",
+    "success": "成功转换 {{file}}",
+    "failure": "转换失败 {{file}}"
+  },
   "prompt": {
     "duplicated_file": "重复文件",
     "unsupported_file": "不支持的文件",
     "select_same_type": "请选择相同类型的文件",
-    "converted": "已转换",
-    "failed": "失败",
-    "conversion_failed": "转换失败"
+    "conversion_success": "转换成功",
+    "conversion_failed": "部分文件转换失败",
+    "conversion_unexpected_error": "转换过程中发生意外错误"
   }
 }
