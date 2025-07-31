@@ -52,5 +52,58 @@
     "conversion_success": "Conversion successful",
     "conversion_failed": "Some files failed to convert",
     "conversion_unexpected_error": "An unexpected error occurred during conversion"
+  },
+  "advanced": {
+    "not_selected": "Not Selected",
+    "input_file": "InputFile",
+    "output_file": "OutputFile",
+    "please_select_files": "Please select files...",
+    "command": "Generated Command",
+    "video": {
+      "codec": "Video Codec",
+      "crf": "CRF (Constant Rate Factor)",
+      "preset": "Preset",
+      "tune": "Tune",
+      "me_quality": "Motion Estimation Quality",
+      "gmc": "Global Motion Compensation",
+      "speed": "Speed",
+      "sharpness": "Sharpness",
+      "lossless": "Lossless",
+      "aq_mode": "AQ Mode",
+      "motion_est": "Motion Estimation"
+    },
+    "audio": {
+      "codec": "Audio Codec",
+      "bitrate": "Bitrate",
+      "aac_coder": "AAC Coder",
+      "room_type": "Room Type",
+      "mixing_level": "Mixing Level",
+      "dmix_mode": "Downmix Mode",
+      "dsur_mode": "Dolby Surround Mode",
+      "dsurex_mode": "Dolby Surround EX Mode",
+      "dheadphone_mode": "Dolby Headphone Mode",
+      "vbr": "VBR (Variable Bitrate)",
+      "lpc_type": "LPC Type",
+      "ch_mode": "Channel Mode",
+      "sample_rate": "Sample Rate"
+    },
+    "image": {
+      "quality": "Quality",
+      "resize": "Resize",
+      "width": "Width",
+      "height": "Height",
+      "rotate": "Rotate",
+      "angle": "Angle",
+      "sharpen": "Sharpen",
+      "blur": "Blur",
+      "brightness": "Brightness",
+      "brightness_percent": "Brightness (%)",
+      "alpha_fill": "Alpha Fill",
+      "color_hex": "Color (HEX, e.g., #FFFFFF)",
+      "gif_delay": "Frame Delay",
+      "frame_delay": "Delay (1/100s)",
+      "gif_loop": "Loop Count",
+      "loop_count": "Loops (0 = infinite)"
+    }
   }
 }

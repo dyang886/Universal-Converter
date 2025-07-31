@@ -27,7 +27,7 @@ export default function App() {
 
     return (
         <AppProvider>
-            <div className="bg-white dark:bg-zinc-900 dark:text-gray-100 h-screen relative flex flex-col items-center p-8 pt-3">
+            <div className="bg-white dark:bg-zinc-900 dark:text-gray-100 overflow-clip h-screen relative flex flex-col items-center p-8 pt-3">
 
                 <Navbar className="flex justify-between self-stretch">
                     <NavbarSection>

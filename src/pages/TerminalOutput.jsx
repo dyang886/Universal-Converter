@@ -44,9 +44,9 @@ export default function TerminalOutput() {
     };
 
     return (
-        <div ref={scrollContainerRef} className="w-full flex-1 overflow-y-auto mt-6 pl-4 pr-2 font-mono text-sm dark:custom-scrollbar">
+        <div ref={scrollContainerRef} className="w-full flex-1 overflow-y-auto mt-6 pl-4 pr-2 text-sm">
             {terminalLogs.length === 0 ? (
-                <div className="flex h-full items-center justify-center text-lg text-zinc-500">
+                <div className="font-mono flex h-full items-center justify-center text-lg text-zinc-500 -translate-y-[0.73rem] -translate-x-1">
                     {t('terminal.waiting_for_conversion')}
                 </div>
             ) : (

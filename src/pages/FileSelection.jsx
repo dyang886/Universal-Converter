@@ -11,24 +11,29 @@ import { Alert, AlertActions, AlertBody, AlertDescription, AlertTitle } from '@/
 import { Button } from '@/components/button';
 import DropZone from '@/components/dropzone';
 import { Field, Label } from '@/components/fieldset';
-import { Select } from '@/components/select';
+import { Listbox, ListboxOption, ListboxHeading, ListboxDivider } from '@/components/listbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table';
 
 
 export default function FileSelection() {
     const { t } = useTranslation();
 
-    const { MiddleEllipsis, filePaths, setFilePaths, fileType, outputExt, setOutputExt, outputOptions, handleFileSelection, handleConvert } = useApp();
+    const { MiddleEllipsis, filePaths, setFilePaths, fileType, outputExt, setOutputExt, outputOptions, handleFileSelection, handleConvert, isConverting } = useApp();
     const { showPrompt } = usePrompt();
 
     const [isOverDropZone, setIsOverDropZone] = useState(false);
     const [alertOpen, setAlertOpen] = useState(false);
     const dropZoneRef = useRef(null);
+    const outputGroups = Object.keys(outputOptions);
 
-    const fileTypeIcons = {
-        audio: <span className="flex items-center"><MusicalNoteIcon className="h-5 w-5 mr-1" />{t('file_selection.audio')}</span>,
-        video: <span className="flex items-center"><VideoCameraIcon className="h-5 w-5 mr-1" />{t('file_selection.video')}</span>,
-        image: <span className="flex items-center"><PhotoIcon className="h-5 w-5 mr-1" />{t('file_selection.image')}</span>,
+    const fileTypeIcons = (type, size) => {
+        const iconClass = `h-${size} w-${size} mr-1`;
+        const icons = {
+            audio: <span className="flex items-center"><MusicalNoteIcon className={iconClass} />{t('file_selection.audio')}</span>,
+            video: <span className="flex items-center"><VideoCameraIcon className={iconClass} />{t('file_selection.video')}</span>,
+            image: <span className="flex items-center"><PhotoIcon className={iconClass} />{t('file_selection.image')}</span>,
+        };
+        return icons[type] || null;
     };
 
     const dropZoneOnClick = useCallback(async () => {
@@ -74,7 +79,7 @@ export default function FileSelection() {
 
     return (
         <>
-            <div className='w-96 flex grow items-center justify-center'>
+            <div className='w-96 flex grow items-center justify-center mb-10'>
                 <div className='dropzone-container flex flex-col gap-5'>
                     <DropZone ref={dropZoneRef} isOverDropZone={isOverDropZone} onClick={dropZoneOnClick}>
                         {filePaths.length === 0
@@ -99,19 +104,22 @@ export default function FileSelection() {
                         }
                     </DropZone>
 
-                    <Field>
+                    <Field disabled={filePaths.length === 0}>
                         <Label>{t('file_selection.output_format')}</Label>
-                        <Select name="output-format" value={outputExt} onChange={e => setOutputExt(e.target.value)} disabled={filePaths.length === 0}>
-                            {filePaths.length === 0
-                                ? <option value="">{t('file_selection.no_files_selected')}</option>
-                                : outputOptions.map(ext => (
-                                    <option key={ext} value={ext}>.{ext}</option>
-                                ))
-                            }
-                        </Select>
+                        <Listbox className="mt-1" value={outputExt} onChange={setOutputExt} placeholder={t('file_selection.no_files_selected')}>
+                            {outputGroups.map((groupName, index) => (
+                                <Field key={groupName}>
+                                    <ListboxHeading>{fileTypeIcons(groupName, 4)}</ListboxHeading>
+                                    {outputOptions[groupName].map(ext => (
+                                        <ListboxOption key={ext} value={ext}>.{ext}</ListboxOption>
+                                    ))}
+                                    {index < outputGroups.length - 1 && <ListboxDivider />}
+                                </Field>
+                            ))}
+                        </Listbox>
                     </Field>
 
-                    <Button color="emerald" className="mt-2" disabled={filePaths.length === 0} onClick={() => handleConvert(showPrompt)}>
+                    <Button color="emerald" className="mt-2" disabled={filePaths.length === 0 || isConverting} onClick={() => handleConvert(showPrompt)}>
                         {t('file_selection.convert')}<PaperAirplaneIcon />
                     </Button>
                 </div>
@@ -122,7 +130,7 @@ export default function FileSelection() {
                 {fileType && (
                     <AlertDescription className="flex items-center">
                         <span className="mr-1">{t('file_selection.current_file_type')}:</span>
-                        {fileTypeIcons[fileType]}
+                        {fileTypeIcons(fileType, 5)}
                     </AlertDescription>
                 )}
                 <AlertBody>

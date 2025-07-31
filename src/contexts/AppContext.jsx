@@ -5,7 +5,7 @@ import { listen } from '@tauri-apps/api/event';
 
 import { useTranslation } from 'react-i18next';
 
-import { processFiles, truncateMiddle } from '@/contexts/format-options';
+import { formats, processFiles, truncateMiddle } from '@/contexts/format-options';
 import i18n from '@/contexts/i18n';
 
 
@@ -17,9 +17,14 @@ export function AppProvider({ children }) {
     const [filePaths, setFilePaths] = useState([]);
     const [fileType, setFileType] = useState('');
     const [outputExt, setOutputExt] = useState('');
-    const [outputOptions, setOutputOptions] = useState([]);
+    const [outputOptions, setOutputOptions] = useState({});
     const [settings, setSettings] = useState(null);
     const [terminalLogs, setTerminalLogs] = useState([]);
+    const [isConverting, setIsConverting] = useState(false);
+
+    const [selectedVideoCodec, setSelectedVideoCodec] = useState('');
+    const [selectedAudioCodec, setSelectedAudioCodec] = useState('');
+    const [advancedOptionValues, setAdvancedOptionValues] = useState({});
 
     // Text truncation
     function MiddleEllipsis({ text }) {
@@ -71,6 +76,12 @@ export function AppProvider({ children }) {
     }, [filePaths]);
 
     useEffect(() => {
+        setSelectedVideoCodec('');
+        setSelectedAudioCodec('');
+        setAdvancedOptionValues({});
+    }, [outputExt]);
+
+    useEffect(() => {
         const initializeApp = async () => {
             try {
                 const loadedSettings = await invoke('load_settings');
@@ -105,31 +116,58 @@ export function AppProvider({ children }) {
         unsupported.forEach(p => showPrompt('warning', `${t('prompt.unsupported_file')}: ${truncateMiddle(p)}`));
         nonMajorType.forEach(p => showPrompt('warning', `${t('prompt.select_same_type')}: ${truncateMiddle(p)}`));
 
-        const updated = [...filePaths, ...uniques];
-        if (newFileType !== fileType) setFileType(newFileType);
-        setFilePaths(updated);
-        setOutputOptions(outputFormats);
-        if (outputFormats.length > 0 && !outputFormats.includes(outputExt)) {
-            setOutputExt(outputFormats[0]);
+        if (uniques.length > 0) {
+            const updated = [...filePaths, ...uniques];
+            setFilePaths(updated);
+
+            if (newFileType !== fileType) {
+                setFileType(newFileType);
+            }
+
+            setOutputOptions(outputFormats);
+
+            const firstGroup = Object.keys(outputFormats)[0];
+            if (firstGroup && outputFormats[firstGroup].length > 0) {
+                const firstOption = outputFormats[firstGroup][0];
+                if (!Object.values(outputFormats).flat().includes(outputExt)) {
+                    setOutputExt(firstOption);
+                }
+            }
         }
     }, [filePaths, fileType, outputExt]);
 
     const handleConvert = useCallback(async (showPrompt) => {
         try {
-            const advancedOptions = {
-                options: {
-                    // "-v": "quiet", // Your actual options go inside this nested object
-                    // Add other future options here, e.g., "-crf": "23"
-                }
-            };
+            const config = formats[outputExt] || {};
+            const videoCodecInfo = config.videoCodecs?.[selectedVideoCodec];
+            const audioCodecInfo = config.audioCodecs?.[selectedAudioCodec] || config.codecs?.[selectedAudioCodec];
 
+            const finalOptions = { ...advancedOptionValues };
+            if (selectedVideoCodec && videoCodecInfo) {
+                finalOptions['-c:v'] = videoCodecInfo.value;
+            }
+            if (selectedAudioCodec && audioCodecInfo) {
+                finalOptions['-c:a'] = audioCodecInfo.value;
+            }
+
+            for (const key in finalOptions) {
+                const value = finalOptions[key];
+                if (value !== '' && value !== null && value !== undefined) {
+                    finalOptions[key] = value.toString();
+                } else {
+                    console.log(`Removed empty option: ${key}: ${value}`);
+                    delete finalOptions[key];
+                }
+            }
+
+            setIsConverting(true);
             setTerminalLogs([]);
             navigate('/terminal');
 
             const result = await invoke('convert_files', {
                 inputPaths: filePaths,
                 outputExt: outputExt,
-                options: advancedOptions,
+                options: { options: finalOptions },
             });
 
             if (result) {
@@ -137,11 +175,14 @@ export function AppProvider({ children }) {
             } else {
                 showPrompt('error', `${t('prompt.conversion_failed')}`);
             }
+
         } catch (error) {
             console.error('Conversion failed:', error);
             showPrompt('error', `${t('prompt.conversion_unexpected_error')}: ${error}`);
+        } finally {
+            setIsConverting(false);
         }
-    }, [filePaths, outputExt]);
+    }, [filePaths, outputExt, advancedOptionValues, selectedVideoCodec, selectedAudioCodec]);
 
     useEffect(() => {
         const unlisten = listen('conversion-log', (event) => {
@@ -178,19 +219,18 @@ export function AppProvider({ children }) {
 
     const value = {
         MiddleEllipsis,
-        settings,
-        setSettings,
-        filePaths,
-        setFilePaths,
-        fileType,
-        setFileType,
-        outputExt,
-        setOutputExt,
+        settings, setSettings,
+        filePaths, setFilePaths,
+        fileType, setFileType,
+        outputExt, setOutputExt,
         outputOptions,
         handleFileSelection,
         handleConvert,
-        terminalLogs,
-        setTerminalLogs
+        terminalLogs, setTerminalLogs,
+        isConverting, setIsConverting,
+        selectedVideoCodec, setSelectedVideoCodec,
+        selectedAudioCodec, setSelectedAudioCodec,
+        advancedOptionValues, setAdvancedOptionValues
     };
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
