@@ -59,7 +59,19 @@
     "output_file": "OutputFile",
     "please_select_files": "Please select files...",
     "command": "Generated Command",
+    "general": "General Options",
+    "codec": "Codec Options",
     "video": {
+      "disable_video": "Disable Video",
+      "disable_subtitle": "Disable Subtitles",
+      "pass": "Encoding Pass",
+      "aspect_ratio": "Aspect Ratio",
+      "vframes": "Total Video Frames",
+      "video_bitrate": "Video Bitrate (kbps)",
+      "video_rotate": "Rotate Video",
+      "video_flip": "Flip Video",
+      "framerate": "Framerate (fps)",
+      "pixel_format": "Pixel Format",
       "codec": "Video Codec",
       "crf": "CRF (Constant Rate Factor)",
       "preset": "Preset",
@@ -73,8 +85,17 @@
       "motion_est": "Motion Estimation"
     },
     "audio": {
+      "disable_audio": "Disable Audio",
+      "audio_volume": "Volume",
+      "audio_speed": "Speed (Tempo)",
+      "audio_quality": "Audio Quality",
+      "audio_bitrate": "Audio Bitrate",
+      "channels": "Audio Channels",
+      "aframes": "Total Audio Frames",
       "codec": "Audio Codec",
-      "bitrate": "Bitrate",
+      "sample_rate": "Sample Rate (Hz)",
+      "sample_format": "Sample Format",
+      "channel_layout": "Channel Layout",
       "aac_coder": "AAC Coder",
       "room_type": "Room Type",
       "mixing_level": "Mixing Level",
@@ -84,8 +105,7 @@
       "dheadphone_mode": "Dolby Headphone Mode",
       "vbr": "VBR (Variable Bitrate)",
       "lpc_type": "LPC Type",
-      "ch_mode": "Channel Mode",
-      "sample_rate": "Sample Rate"
+      "ch_mode": "Channel Mode"
     },
     "image": {
       "quality": "Quality",

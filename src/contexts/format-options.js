@@ -3,13 +3,15 @@
 // Centralized, reusable option sets for UI widgets like dropdowns.
 // ===========================================================================
 export const widgetOptions = {
-    checkbox: { true: 1, false: 0 },
+    aspect_ratio: { "3:2": "3:2", "4:3": "4:3", "5:4": "5:4", "16:10": "16:10", "16:9": "16:9", "37:20 (1.85:1)": "37:20", "21:9 (2.35:1)": "21:9", "69:25 (2.76:1)": "69:25", "9:16": "9:16" },
+    video_rotate: { "90° Clockwise": "transpose=1", "90° Counterclockwise": "transpose=2", "180°": "transpose=1,transpose=1" },
+    video_flip: { "Horizontal Flip": "hflip", "Vertical Flip": "vflip" },
     preset: { "Ultrafast": "ultrafast", "Superfast": "superfast", "Veryfast": "veryfast", "Faster": "faster", "Fast": "fast", "Medium": "medium", "Slow": "slow", "Slower": "slower", "Veryslow": "veryslow" },
     tune_h264: { "Film": "film", "Animation": "animation", "Grain": "grain", "Still Image": "stillimage", "Fast Decode": "fastdecode", "Zero Latency": "zerolatency" },
     tune_h265: { "Animation": "animation", "Grain": "grain", "Fast Decode": "fastdecode", "Zero Latency": "zerolatency" },
     aq_mode: { "None": "0", "Variance": "1", "Complexity": "2", "Cyclic": "3" },
     motion_est: { "Zero": "0", "EPZS": "1", "Xone": "2" },
-    audio_bitrate: { "64 kbps": "64k", "128 kbps": "128k", "192 kbps": "192k", "256 kbps": "256k", "320 kbps": "320k" },
+    audio_bitrate: { "8 kbps": "8k", "16 kbps": "16k", "24 kbps": "24k", "32 kbps": "32k", "40 kbps": "40k", "48 kbps": "48k", "64 kbps": "64k", "80 kbps": "80k", "96 kbps": "96k", "112 kbps": "112k", "128 kbps": "128k", "160 kbps": "160k", "192 kbps": "192k", "224 kbps": "224k", "256 kbps": "256k", "320 kbps": "320k" },
     aac_coder: { "Two Loop": "1", "Fast": "2" },
     lpc_type: { "None": "0", "Fixed": "1", "Levinson": "2", "Cholesky": "3" },
     ch_mode: { "Auto": "-1", "Independent": "0", "Left Side": "1", "Right Side": "2", "Mid Side": "3" },
@@ -19,8 +21,6 @@ export const widgetOptions = {
     dsur_mode: { "Not Indicated": "0", "Not Dolby Surround Encoded": "1", "Dolby Surround Encoded": "2" },
     dsurex_mode: { "Not Indicated": "0", "Not Dolby Surround EX Encoded": "1", "Dolby Surround EX Encoded": "2", "Dolby Pro Logic IIz-Encoded": "3" },
     dheadphone_mode: { "Not Indicated": "0", "Not Dolby Headphone Encoded": "1", "Dolby Headphone Encoded": "2" },
-    sample_rate_adpcm: { "11025 Hz": "11025", "22050 Hz": "22050", "44100 Hz": "44100" },
-    sample_rate_nellymoser: { "8000 Hz": "8000", "16000 Hz": "16000", "11025 Hz": "11025", "22050 Hz": "22050", "44100 Hz": "44100" },
 };
 
 // ===========================================================================
@@ -28,24 +28,47 @@ export const widgetOptions = {
 // Blueprints for each UI widget, defining its type, label, and options.
 // ===========================================================================
 export const widgetDefinitions = {
-    // Video
-    crf_v1: { arg: "-crf", labelKey: "advanced.video.crf", type: "input", options: [0, 51] },
-    crf_v2: { arg: "-crf", labelKey: "advanced.video.crf", type: "input", options: [0, 63] },
+    // video.general
+    disable_video: { arg: "-vn", labelKey: "advanced.video.disable_video", type: "checkbox" },
+    disable_subtitle: { arg: "-sn", labelKey: "advanced.video.disable_subtitle", type: "checkbox" },
+    pass: { arg: "-pass", labelKey: "advanced.video.pass", type: "input-int", options: [1, 3] },
+    aspect_ratio: { arg: "-aspect", labelKey: "advanced.video.aspect_ratio", type: "select", options: widgetOptions.aspect_ratio },
+    vframes: { arg: "-vframes", labelKey: "advanced.video.vframes", type: "input-int", options: [-9223372036854775808, 9223372036854775808] },
+    video_bitrate: { arg: "-b:v", labelKey: "advanced.video.video_bitrate", type: "input-int", options: [0, 9.22337e+18] },
+    video_rotate: { arg: "-vf", labelKey: "advanced.video.video_rotate", type: "select", options: widgetOptions.video_rotate },
+    video_flip: { arg: "-vf", labelKey: "advanced.video.video_flip", type: "select", options: widgetOptions.video_flip },
+    // video.codec_specific
+    framerate: { arg: "-r", labelKey: "advanced.video.framerate", type: "input-int", options: [0, Infinity] },
+    framerate_DYN: { arg: "-r", labelKey: "advanced.video.framerate", type: "select", options: 'dynamic' },
+    pixel_format: { arg: "-pix_fmt", labelKey: "advanced.video.pixel_format", type: "select", options: 'dynamic' },
+    crf_v1: { arg: "-crf", labelKey: "advanced.video.crf", type: "input-int", options: [0, 51] },
+    crf_v2: { arg: "-crf", labelKey: "advanced.video.crf", type: "input-int", options: [0, 63] },
     preset: { arg: "-preset", labelKey: "advanced.video.preset", type: "select", options: widgetOptions.preset },
     tune_h264: { arg: "-tune", labelKey: "advanced.video.tune", type: "select", options: widgetOptions.tune_h264 },
     tune_h265: { arg: "-tune", labelKey: "advanced.video.tune", type: "select", options: widgetOptions.tune_h265 },
-    me_quality: { arg: "-me_quality", labelKey: "advanced.video.me_quality", type: "input", options: [0, 6] },
-    gmc: { arg: "-gmc", labelKey: "advanced.video.gmc", type: "checkbox", options: widgetOptions.checkbox },
-    speed: { arg: "-speed", labelKey: "advanced.video.speed", type: "input", options: [-16, 16] },
-    sharpness: { arg: "-sharpness", labelKey: "advanced.video.sharpness", type: "input", options: [-1, 7] },
-    lossless: { arg: "-lossless", labelKey: "advanced.video.lossless", type: "checkbox", options: widgetOptions.checkbox },
+    me_quality: { arg: "-me_quality", labelKey: "advanced.video.me_quality", type: "input-int", options: [0, 6] },
+    gmc: { arg: "-gmc", labelKey: "advanced.video.gmc", type: "checkbox" },
+    speed: { arg: "-speed", labelKey: "advanced.video.speed", type: "input-int", options: [-16, 16] },
+    sharpness: { arg: "-sharpness", labelKey: "advanced.video.sharpness", type: "input-int", options: [-1, 7] },
+    lossless: { arg: "-lossless", labelKey: "advanced.video.lossless", type: "checkbox" },
     aq_mode: { arg: "-aq-mode", labelKey: "advanced.video.aq_mode", type: "select", options: widgetOptions.aq_mode },
     motion_est: { arg: "-motion_est", labelKey: "advanced.video.motion_est", type: "select", options: widgetOptions.motion_est },
-    // Audio
-    audio_bitrate: { arg: "-b:a", labelKey: "advanced.audio.bitrate", type: "select", options: widgetOptions.audio_bitrate },
+
+    // audio.general
+    disable_audio: { arg: "-an", labelKey: "advanced.audio.disable_audio", type: "checkbox" },
+    audio_volume: { arg: "-af", labelKey: "advanced.audio.audio_volume", type: "input-flt", options: [-Infinity, Infinity], prefix: 'volume=' },
+    audio_speed: { arg: "-af", labelKey: "advanced.audio.audio_speed", type: "input-flt", options: [0, Infinity], prefix: 'atempo=' },
+    audio_quality: { arg: "-aq", labelKey: "advanced.audio.audio_quality", type: "input-int", options: [-Infinity, Infinity] },
+    audio_bitrate: { arg: "-b:a", labelKey: "advanced.audio.audio_bitrate", type: "select", options: widgetOptions.audio_bitrate },
+    audio_channels: { arg: "-ac", labelKey: "advanced.audio.channels", type: "input-int", options: [-2147483648, 2147483647] },
+    aframes: { arg: "-aframes", labelKey: "advanced.audio.aframes", type: "input-int", options: [-9223372036854775808, 9223372036854775808] },
+    // audio.codec_specific
+    sample_rate: { arg: "-ar", labelKey: "advanced.audio.sample_rate", type: "select", options: 'dynamic' },
+    sample_format: { arg: "-sample_fmt", labelKey: "advanced.audio.sample_format", type: "select", options: 'dynamic' },
+    channel_layout: { arg: "-ch_layout", labelKey: "advanced.audio.channel_layout", type: "select", options: 'dynamic' },
     aac_coder: { arg: "-aac_coder", labelKey: "advanced.audio.aac_coder", type: "select", options: widgetOptions.aac_coder },
     room_type: { arg: "-room_type", labelKey: "advanced.audio.room_type", type: "select", options: widgetOptions.room_type },
-    mixing_level: { arg: "-mixing_level", labelKey: "advanced.audio.mixing_level", type: "input", options: [80, 111] },
+    mixing_level: { arg: "-mixing_level", labelKey: "advanced.audio.mixing_level", type: "input-int", options: [80, 111] },
     dmix_mode: { arg: "-dmix_mode", labelKey: "advanced.audio.dmix_mode", type: "select", options: widgetOptions.dmix_mode },
     dsur_mode: { arg: "-dsur_mode", labelKey: "advanced.audio.dsur_mode", type: "select", options: widgetOptions.dsur_mode },
     dsurex_mode: { arg: "-dsurex_mode", labelKey: "advanced.audio.dsurex_mode", type: "select", options: widgetOptions.dsurex_mode },
@@ -53,14 +76,13 @@ export const widgetDefinitions = {
     vbr: { arg: "-vbr", labelKey: "advanced.audio.vbr", type: "select", options: widgetOptions.vbr },
     lpc_type: { arg: "-lpc_type", labelKey: "advanced.audio.lpc_type", type: "select", options: widgetOptions.lpc_type },
     ch_mode: { arg: "-ch_mode", labelKey: "advanced.audio.ch_mode", type: "select", options: widgetOptions.ch_mode },
-    sample_rate_v1: { arg: "-ar", labelKey: "advanced.audio.sample_rate", type: "select", options: widgetOptions.sample_rate_adpcm },
-    sample_rate_v2: { arg: "-ar", labelKey: "advanced.audio.sample_rate", type: "select", options: widgetOptions.sample_rate_nellymoser },
-    // Image
-    img_quality: { arg: "-quality", labelKey: "advanced.image.quality", type: "input", options: [0, 100] },
+
+    // image
+    img_quality: { arg: "-quality", labelKey: "advanced.image.quality", type: "input-int", options: [0, 100] },
     img_resize: { arg: "-resize", valueTemplate: "{arg0}x{arg1}", labelKey: "advanced.image.resize", type: "textinput", options: ["advanced.image.width", "advanced.image.height"] },
     img_rotate: { arg: "-rotate", labelKey: "advanced.image.rotate", type: "textinput", options: ["advanced.image.angle"] },
-    img_sharpen: { arg: "-sharpen", valueTemplate: "0x{arg0}", labelKey: "advanced.image.sharpen", type: "input", options: [0, 100] },
-    img_blur: { arg: "-blur", valueTemplate: "0x{arg0}", labelKey: "advanced.image.blur", type: "input", options: [0, 100] },
+    img_sharpen: { arg: "-sharpen", valueTemplate: "0x{arg0}", labelKey: "advanced.image.sharpen", type: "input-int", options: [0, 100] },
+    img_blur: { arg: "-blur", valueTemplate: "0x{arg0}", labelKey: "advanced.image.blur", type: "input-int", options: [0, 100] },
     img_brightness: { arg: "-modulate", labelKey: "advanced.image.brightness", type: "textinput", options: ["advanced.image.brightness_percent"] },
     alpha_fill: { arg: "-background", labelKey: "advanced.image.alpha_fill", type: "textinput", options: ["advanced.image.color_hex"] },
     gif_delay: { arg: "-delay", labelKey: "advanced.image.gif_delay", type: "textinput", options: ["advanced.image.frame_delay"] },
@@ -71,26 +93,234 @@ export const widgetDefinitions = {
 // 3. FORMATS
 // The main format-centric configuration.
 // ===========================================================================
+const generalVideoWidgets = ['disable_video', 'disable_subtitle', 'pass', 'aspect_ratio', 'vframes', 'video_bitrate', 'video_rotate', 'video_flip'];
+const generalAudioWidgets = ['audio_volume', 'audio_speed', 'audio_quality', 'audio_bitrate', 'audio_channels', 'aframes'];
 export const formats = {
     // --- Audio Formats ---
-    mp3: { group: 'audio', outputs: ['mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma'], codecs: { 'MP3': { value: 'libmp3lame', widgets: ['audio_bitrate'] } } },
-    mpeg: { group: 'audio', outputs: ['mpeg', 'mp3', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma'], codecs: { 'MP2': { value: 'mp2', widgets: ['audio_bitrate'] }, 'MP3': { value: 'libmp3lame', widgets: ['audio_bitrate'] } } },
-    flac: { group: 'audio', outputs: ['flac', 'mp3', 'mpeg', 'wav', 'aac', 'ogg', 'm4a', 'wma'], codecs: { 'FLAC': { value: 'flac', widgets: ['audio_bitrate', 'lpc_type', 'ch_mode'] } } },
-    wav: { group: 'audio', outputs: ['wav', 'mp3', 'mpeg', 'flac', 'aac', 'ogg', 'm4a', 'wma'], codecs: { 'PCM 16-bit': { value: 'pcm_s16le', widgets: [] }, 'PCM 24-bit': { value: 'pcm_s24le', widgets: [] }, 'PCM 32-bit': { value: 'pcm_s32le', widgets: [] } } },
-    aac: { group: 'audio', outputs: ['aac', 'mp3', 'mpeg', 'flac', 'wav', 'ogg', 'm4a', 'wma'], codecs: { 'AAC': { value: 'aac', widgets: ['audio_bitrate', 'aac_coder'] } } },
-    ogg: { group: 'audio', outputs: ['ogg', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'm4a', 'wma'], codecs: { 'Opus': { value: 'libopus', widgets: ['audio_bitrate', 'vbr'] }, 'Vorbis': { value: 'libvorbis', widgets: ['audio_bitrate'] } } },
-    m4a: { group: 'audio', outputs: ['m4a', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'wma'], codecs: { 'AAC': { value: 'aac', widgets: ['audio_bitrate', 'aac_coder'] }, 'ALAC': { value: 'alac', widgets: [] } } },
-    wma: { group: 'audio', outputs: ['wma', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'm4a'], codecs: { 'WMA': { value: 'wmav2', widgets: ['audio_bitrate'] } } },
-    ncm: { group: 'audio', outputs: ['mp3', 'flac', 'wav'], tool: 'ncm', widgets: {} },
+    mp3: {
+        group: 'audio',
+        outputs: ['mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'aiff', 'opus'],
+        widgets: generalAudioWidgets,
+        codecs: {
+            'MP3': { value: 'libmp3lame', widgets: [] }
+        }
+    },
+    mpeg: {
+        group: 'audio',
+        outputs: ['mpeg', 'mp3', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'aiff', 'opus'],
+        widgets: generalAudioWidgets,
+        codecs: {
+            'MP2': { value: 'mp2', widgets: [] },
+            'MP3': { value: 'libmp3lame', widgets: [] }
+        }
+    },
+    flac: {
+        group: 'audio',
+        outputs: ['flac', 'mp3', 'mpeg', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'aiff', 'opus'],
+        widgets: generalAudioWidgets,
+        codecs: {
+            'FLAC': { value: 'flac', widgets: ['lpc_type', 'ch_mode'] }
+        }
+    },
+    wav: {
+        group: 'audio',
+        outputs: ['wav', 'mp3', 'mpeg', 'flac', 'aac', 'ogg', 'm4a', 'wma', 'aiff', 'opus'],
+        widgets: generalAudioWidgets, // Note: Bitrate is not applicable for PCM
+        codecs: {
+            'PCM 16-bit': { value: 'pcm_s16le', widgets: [] },
+            'PCM 24-bit': { value: 'pcm_s24le', widgets: [] },
+            'PCM 32-bit': { value: 'pcm_s32le', widgets: [] }
+        }
+    },
+    aac: {
+        group: 'audio',
+        outputs: ['aac', 'mp3', 'mpeg', 'flac', 'wav', 'ogg', 'm4a', 'wma', 'aiff', 'opus'],
+        widgets: generalAudioWidgets,
+        codecs: {
+            'AAC': { value: 'aac', widgets: ['aac_coder'] }
+        }
+    },
+    ogg: {
+        group: 'audio',
+        outputs: ['ogg', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'm4a', 'wma', 'aiff', 'opus'],
+        widgets: generalAudioWidgets,
+        codecs: {
+            'Opus': { value: 'libopus', widgets: ['vbr'] },
+            'Vorbis': { value: 'libvorbis', widgets: [] }
+        }
+    },
+    m4a: {
+        group: 'audio',
+        outputs: ['m4a', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'wma', 'aiff', 'opus'],
+        widgets: generalAudioWidgets,
+        codecs: {
+            'AAC': { value: 'aac', widgets: ['aac_coder'] },
+            'ALAC': { value: 'alac', widgets: ['sample_rate', 'channels'] } // Note: Bitrate is not applicable for ALAC
+        }
+    },
+    wma: {
+        group: 'audio',
+        outputs: ['wma', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'aiff', 'opus'],
+        widgets: generalAudioWidgets,
+        codecs: {
+            'WMA': { value: 'wmav2', widgets: [] }
+        }
+    },
+    aiff: {
+        group: 'audio',
+        outputs: ['aiff', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'opus'],
+        widgets: ['sample_rate', 'channels'], // Note: Bitrate is not applicable for PCM
+        codecs: {
+            'PCM 16-bit': { value: 'pcm_s16be', widgets: [] },
+            'PCM 24-bit': { value: 'pcm_s24be', widgets: [] }
+        }
+    },
+    opus: {
+        group: 'audio',
+        outputs: ['opus', 'ogg', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'm4a', 'wma', 'aiff'],
+        widgets: generalAudioWidgets,
+        codecs: {
+            'Opus': { value: 'libopus', widgets: ['vbr'] }
+        }
+    },
+    ncm: {
+        group: 'audio',
+        outputs: ['mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'aiff', 'opus'],
+        tool: 'ncm',
+        widgets: [] // No configurable widgets for this tool
+    },
 
     // --- Video Formats ---
-    mp4: { group: 'video', outputs: ['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'wmv', 'mp3', 'wav'], videoCodecs: { 'H.264/MPEG-4': { value: 'libx264', widgets: ['crf_v1', 'preset', 'tune_h264'] }, 'H.265/HEVC': { value: 'libx265', widgets: ['crf_v1', 'preset', 'tune_h265'] } }, audioCodecs: { 'AAC': { value: 'aac', widgets: ['audio_bitrate', 'aac_coder'] }, 'MP3': { value: 'libmp3lame', widgets: ['audio_bitrate'] }, 'AC-3': { value: 'ac3', widgets: ['audio_bitrate', 'room_type', 'mixing_level', 'dmix_mode', 'dsur_mode', 'dsurex_mode', 'dheadphone_mode'] } } },
-    mov: { group: 'video', outputs: ['mov', 'mp4', 'avi', 'mkv', 'webm', 'flv', 'wmv', 'mp3', 'wav'], videoCodecs: { 'H.264/MPEG-4': { value: 'libx264', widgets: ['crf_v1', 'preset', 'tune_h264'] }, 'ProRes': { value: 'prores', widgets: [] }, 'H.265/HEVC': { value: 'libx265', widgets: ['crf_v1', 'preset', 'tune_h265'] } }, audioCodecs: { 'AAC': { value: 'aac', widgets: ['audio_bitrate', 'aac_coder'] }, 'ALAC': { value: 'alac', widgets: [] }, 'AC-3': { value: 'ac3', widgets: ['audio_bitrate', 'room_type', 'mixing_level', 'dmix_mode', 'dsur_mode', 'dsurex_mode', 'dheadphone_mode'] } } },
-    avi: { group: 'video', outputs: ['avi', 'mp4', 'mov', 'mkv', 'webm', 'flv', 'wmv', 'mp3', 'wav'], videoCodecs: { 'Xvid': { value: 'libxvid', widgets: ['me_quality', 'gmc'] }, 'H.264/MPEG-4': { value: 'libx264', widgets: ['crf_v1', 'preset', 'tune_h264'] }, 'H.265/HEVC': { value: 'libx265', widgets: ['crf_v1', 'preset', 'tune_h265'] } }, audioCodecs: { 'MP3': { value: 'libmp3lame', widgets: ['audio_bitrate'] }, 'AC-3': { value: 'ac3', widgets: ['audio_bitrate', 'room_type', 'mixing_level', 'dmix_mode', 'dsur_mode', 'dsurex_mode', 'dheadphone_mode'] }, 'WMA': { value: 'wmav2', widgets: ['audio_bitrate'] } } },
-    mkv: { group: 'video', outputs: ['mkv', 'mp4', 'mov', 'avi', 'webm', 'flv', 'wmv', 'mp3', 'wav'], videoCodecs: { 'H.264/MPEG-4': { value: 'libx264', widgets: ['crf_v1', 'preset', 'tune_h264'] }, 'H.265/HEVC': { value: 'libx265', widgets: ['crf_v1', 'preset', 'tune_h265'] }, 'VP9': { value: 'libvpx-vp9', widgets: ['crf_v2', 'speed', 'sharpness', 'lossless'] }, 'VP8': { value: 'libvpx', widgets: ['crf_v2', 'speed', 'sharpness'] }, 'AV1': { value: 'libaom-av1', widgets: ['crf_v2', 'aq_mode'] } }, audioCodecs: { 'AAC': { value: 'aac', widgets: ['audio_bitrate', 'aac_coder'] }, 'MP3': { value: 'libmp3lame', widgets: ['audio_bitrate'] }, 'Opus': { value: 'libopus', widgets: ['audio_bitrate', 'vbr'] }, 'Vorbis': { value: 'libvorbis', widgets: ['audio_bitrate'] }, 'FLAC': { value: 'flac', widgets: ['audio_bitrate', 'lpc_type', 'ch_mode'] }, 'ALAC': { value: 'alac', widgets: [] }, 'AC-3': { value: 'ac3', widgets: ['audio_bitrate', 'room_type', 'mixing_level', 'dmix_mode', 'dsur_mode', 'dsurex_mode', 'dheadphone_mode'] } } },
-    webm: { group: 'video', outputs: ['webm', 'mp4', 'mov', 'avi', 'mkv', 'flv', 'wmv', 'mp3', 'wav'], videoCodecs: { 'VP9': { value: 'libvpx-vp9', widgets: ['crf_v2', 'speed', 'sharpness', 'lossless'] }, 'VP8': { value: 'libvpx', widgets: ['crf_v2', 'speed', 'sharpness'] }, 'AV1': { value: 'libaom-av1', widgets: ['crf_v2', 'aq_mode'] } }, audioCodecs: { 'Opus': { value: 'libopus', widgets: ['audio_bitrate', 'vbr'] }, 'Vorbis': { value: 'libvorbis', widgets: ['audio_bitrate'] } } },
-    flv: { group: 'video', outputs: ['flv', 'mp4', 'mov', 'avi', 'mkv', 'webm', 'wmv', 'mp3', 'wav'], videoCodecs: { 'H.263': { value: 'flv1', widgets: ['motion_est'] } }, audioCodecs: { 'MP3': { value: 'libmp3lame', widgets: ['audio_bitrate'] }, 'ADPCM': { value: 'adpcm_swf', widgets: ['audio_bitrate', 'sample_rate_v1'] }, 'Nellymoser Asao': { value: 'nellymoser', widgets: ['audio_bitrate', 'sample_rate_v2'] } } },
-    wmv: { group: 'video', outputs: ['wmv', 'mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'mp3', 'wav'], videoCodecs: { 'MPEG-4 pt.2 MS v.3': { value: 'msmpeg4', widgets: ['motion_est'] }, 'Windows Media Video 8': { value: 'wmv2', widgets: ['motion_est'] }, 'Windows Media Video 7': { value: 'wmv1', widgets: ['motion_est'] } }, audioCodecs: { 'WMA': { value: 'wmav2', widgets: ['audio_bitrate'] } } },
+    mp4: {
+        group: 'video',
+        outputs: ['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'wmv', 'mpg', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'aiff', 'opus'],
+        videoWidgets: generalVideoWidgets,
+        audioWidgets: ['disable_audio', ...generalAudioWidgets],
+        videoCodecs: {
+            'H.264/MPEG-4': { value: 'libx264', widgets: ['crf_v1', 'preset', 'tune_h264'] },
+            'H.265/HEVC': { value: 'libx265', widgets: ['crf_v1', 'preset', 'tune_h265'] }
+        },
+        audioCodecs: {
+            'AAC': { value: 'aac', widgets: ['aac_coder'] },
+            'MP3': { value: 'libmp3lame', widgets: [] },
+            'AC-3': { value: 'ac3', widgets: ['room_type', 'mixing_level', 'dmix_mode', 'dsur_mode', 'dsurex_mode', 'dheadphone_mode'] }
+        }
+    },
+    mov: {
+        group: 'video',
+        outputs: ['mov', 'mp4', 'avi', 'mkv', 'webm', 'flv', 'wmv', 'mpg', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'aiff', 'opus'],
+        videoWidgets: generalVideoWidgets,
+        audioWidgets: ['disable_audio', ...generalAudioWidgets],
+        videoCodecs: {
+            'H.264/MPEG-4': { value: 'libx264', widgets: ['crf_v1', 'preset', 'tune_h264'] },
+            'ProRes': { value: 'prores', widgets: [] },
+            'H.265/HEVC': { value: 'libx265', widgets: ['crf_v1', 'preset', 'tune_h265'] }
+        },
+        audioCodecs: {
+            'AAC': { value: 'aac', widgets: ['aac_coder'] },
+            'ALAC': { value: 'alac', widgets: [] },
+            'AC-3': { value: 'ac3', widgets: ['room_type', 'mixing_level', 'dmix_mode', 'dsur_mode', 'dsurex_mode', 'dheadphone_mode'] }
+        }
+    },
+    avi: {
+        group: 'video',
+        outputs: ['avi', 'mp4', 'mov', 'mkv', 'webm', 'flv', 'wmv', 'mpg', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'aiff', 'opus'],
+        videoWidgets: generalVideoWidgets,
+        audioWidgets: ['disable_audio', ...generalAudioWidgets],
+        videoCodecs: {
+            'Xvid': { value: 'libxvid', widgets: ['me_quality', 'gmc'] },
+            'H.264/MPEG-4': { value: 'libx264', widgets: ['crf_v1', 'preset', 'tune_h264'] },
+            'H.265/HEVC': { value: 'libx265', widgets: ['crf_v1', 'preset', 'tune_h265'] }
+        },
+        audioCodecs: {
+            'MP3': { value: 'libmp3lame', widgets: [] },
+            'AC-3': { value: 'ac3', widgets: ['room_type', 'mixing_level', 'dmix_mode', 'dsur_mode', 'dsurex_mode', 'dheadphone_mode'] },
+            'WMA': { value: 'wmav2', widgets: [] }
+        }
+    },
+    mkv: {
+        group: 'video',
+        outputs: ['mkv', 'mp4', 'mov', 'avi', 'webm', 'flv', 'wmv', 'mpg', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'aiff', 'opus'],
+        videoWidgets: generalVideoWidgets,
+        audioWidgets: ['disable_audio', ...generalAudioWidgets],
+        videoCodecs: {
+            'H.264/MPEG-4': { value: 'libx264', widgets: ['crf_v1', 'preset', 'tune_h264'] },
+            'H.265/HEVC': { value: 'libx265', widgets: ['crf_v1', 'preset', 'tune_h265'] },
+            'VP9': { value: 'libvpx-vp9', widgets: ['crf_v2', 'speed', 'sharpness', 'lossless'] },
+            'VP8': { value: 'libvpx', widgets: ['crf_v2', 'speed', 'sharpness'] },
+            'AV1': { value: 'libaom-av1', widgets: ['crf_v2', 'aq_mode'] }
+        },
+        audioCodecs: {
+            'AAC': { value: 'aac', widgets: ['aac_coder'] },
+            'MP3': { value: 'libmp3lame', widgets: [] },
+            'Opus': { value: 'libopus', widgets: ['vbr'] },
+            'Vorbis': { value: 'libvorbis', widgets: [] },
+            'FLAC': { value: 'flac', widgets: ['lpc_type', 'ch_mode'] },
+            'ALAC': { value: 'alac', widgets: [] },
+            'AC-3': { value: 'ac3', widgets: ['room_type', 'mixing_level', 'dmix_mode', 'dsur_mode', 'dsurex_mode', 'dheadphone_mode'] }
+        }
+    },
+    webm: {
+        group: 'video',
+        outputs: ['webm', 'mp4', 'mov', 'avi', 'mkv', 'flv', 'wmv', 'mpg', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'aiff', 'opus'],
+        videoWidgets: generalVideoWidgets,
+        audioWidgets: ['disable_audio', ...generalAudioWidgets],
+        videoCodecs: {
+            'VP9': { value: 'libvpx-vp9', widgets: ['crf_v2', 'speed', 'sharpness', 'lossless'] },
+            'VP8': { value: 'libvpx', widgets: ['crf_v2', 'speed', 'sharpness'] },
+            'AV1': { value: 'libaom-av1', widgets: ['crf_v2', 'aq_mode'] }
+        },
+        audioCodecs: {
+            'Opus': { value: 'libopus', widgets: ['vbr'] },
+            'Vorbis': { value: 'libvorbis', widgets: [] }
+        }
+    },
+    flv: {
+        group: 'video',
+        outputs: ['flv', 'mp4', 'mov', 'avi', 'mkv', 'webm', 'wmv', 'mpg', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'aiff', 'opus'],
+        videoWidgets: generalVideoWidgets,
+        audioWidgets: ['disable_audio', ...generalAudioWidgets],
+        videoCodecs: {
+            'H.263': { value: 'flv1', widgets: ['motion_est'] }
+        },
+        audioCodecs: {
+            'MP3': { value: 'libmp3lame', widgets: [] },
+            'ADPCM': { value: 'adpcm_swf', widgets: ['sample_rate_adpcm'] },
+            'Nellymoser Asao': { value: 'nellymoser', widgets: ['sample_rate_nellymoser'] }
+        }
+    },
+    wmv: {
+        group: 'video',
+        outputs: ['wmv', 'mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'mpg', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'aiff', 'opus'],
+        videoWidgets: generalVideoWidgets,
+        audioWidgets: ['disable_audio', ...generalAudioWidgets],
+        videoCodecs: {
+            'MPEG-4 pt.2 MS v.3': { value: 'msmpeg4', widgets: ['motion_est'] },
+            'Windows Media Video 8': { value: 'wmv2', widgets: ['motion_est'] },
+            'Windows Media Video 7': { value: 'wmv1', widgets: ['motion_est'] }
+        },
+        audioCodecs: {
+            'WMA': { value: 'wmav2', widgets: [] }
+        }
+    },
+    mpg: {
+        group: 'video',
+        outputs: ['mpg', 'mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'wmv', 'mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'aiff', 'opus'],
+        videoWidgets: generalVideoWidgets,
+        audioWidgets: ['disable_audio', ...generalAudioWidgets],
+        videoCodecs: {
+            'MPEG-1': { value: 'mpeg1video', widgets: ['pixel_format', 'framerate_DYN'] },
+            'MPEG-2': { value: 'mpeg2video', widgets: ['pixel_format', 'framerate_DYN'] }
+        },
+        audioCodecs: {
+            'MP2': { value: 'mp2', widgets: ['sample_rate', 'sample_format', 'channel_layout'] },
+            'MP3': { value: 'libmp3lame', widgets: ['sample_rate', 'sample_format', 'channel_layout'] },
+            'PCM Signed 16-bit Big-endian for DVD Media': { value: 'pcm_dvd', widgets: ['sample_rate', 'sample_format', 'channel_layout'] },
+            'PCM Signed 16-bit Big-endian': { value: 'pcm_s16be', widgets: ['sample_format'] },
+            'AC-3': { value: 'ac3', widgets: ['sample_rate', 'sample_format', 'channel_layout', 'room_type', 'mixing_level', 'dmix_mode', 'dsur_mode', 'dsurex_mode', 'dheadphone_mode'] },
+            'DCA (DTS Coherent Acoustics)': { value: 'dca', widgets: ['sample_rate', 'sample_format', 'channel_layout'] },
+        }
+    },
 
     // --- Image Formats ---
     jpg: { group: 'image', outputs: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'jxr', 'svg', 'heic', 'eps', 'psd', 'ico'], supportsAlpha: false, widgets: ['img_quality', 'img_resize', 'img_rotate', 'img_sharpen', 'img_blur', 'img_brightness', 'alpha_fill'] },

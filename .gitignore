@@ -32,4 +32,5 @@ target/
 **/gen/schemas/
 
 legacy/
+compile.ps1
 secret_config.rs

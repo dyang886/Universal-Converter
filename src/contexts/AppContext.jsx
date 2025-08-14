@@ -5,7 +5,7 @@ import { listen } from '@tauri-apps/api/event';
 
 import { useTranslation } from 'react-i18next';
 
-import { formats, processFiles, truncateMiddle } from '@/contexts/format-options';
+import { formats, widgetDefinitions, processFiles, truncateMiddle } from '@/contexts/format-options';
 import i18n from '@/contexts/i18n';
 
 
@@ -25,6 +25,7 @@ export function AppProvider({ children }) {
     const [selectedVideoCodec, setSelectedVideoCodec] = useState('');
     const [selectedAudioCodec, setSelectedAudioCodec] = useState('');
     const [advancedOptionValues, setAdvancedOptionValues] = useState({});
+    const [activeTab, setActiveTab] = useState('general');
 
     // Text truncation
     function MiddleEllipsis({ text }) {
@@ -142,7 +143,29 @@ export function AppProvider({ children }) {
             const videoCodecInfo = config.videoCodecs?.[selectedVideoCodec];
             const audioCodecInfo = config.audioCodecs?.[selectedAudioCodec] || config.codecs?.[selectedAudioCodec];
 
-            const finalOptions = { ...advancedOptionValues };
+            const groupedArgs = {};
+            for (const widgetKey in advancedOptionValues) {
+                const value = advancedOptionValues[widgetKey];
+                const definition = widgetDefinitions[widgetKey];
+
+                if (definition && value !== '' && value !== null && value !== undefined) {
+                    const arg = definition.arg;
+                    if (!groupedArgs[arg]) {
+                        groupedArgs[arg] = [];
+                    }
+                    let finalValue = value;
+                    if (definition.prefix) {
+                        finalValue = `${definition.prefix}${finalValue}`;
+                    }
+                    if (definition.suffix) {
+                        finalValue = `${finalValue}${definition.suffix}`;
+                    }
+
+                    groupedArgs[arg].push(finalValue);
+                }
+            }
+
+            const finalOptions = {};
             if (selectedVideoCodec && videoCodecInfo) {
                 finalOptions['-c:v'] = videoCodecInfo.value;
             }
@@ -150,14 +173,9 @@ export function AppProvider({ children }) {
                 finalOptions['-c:a'] = audioCodecInfo.value;
             }
 
-            for (const key in finalOptions) {
-                const value = finalOptions[key];
-                if (value !== '' && value !== null && value !== undefined) {
-                    finalOptions[key] = value.toString();
-                } else {
-                    console.log(`Removed empty option: ${key}: ${value}`);
-                    delete finalOptions[key];
-                }
+            for (const arg in groupedArgs) {
+                const combinedValue = groupedArgs[arg].join(',');
+                finalOptions[arg] = combinedValue;
             }
 
             setIsConverting(true);
@@ -230,7 +248,8 @@ export function AppProvider({ children }) {
         isConverting, setIsConverting,
         selectedVideoCodec, setSelectedVideoCodec,
         selectedAudioCodec, setSelectedAudioCodec,
-        advancedOptionValues, setAdvancedOptionValues
+        advancedOptionValues, setAdvancedOptionValues,
+        activeTab, setActiveTab
     };
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

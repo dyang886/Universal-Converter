@@ -1,13 +1,14 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "universal-converter",
-  "version": "0.0.0",
+  "productName": "Universal Converter",
+  "version": "2.0.0",
   "identifier": "com.universal-converter.app",
+  "mainBinaryName": "Universal Converter.exe",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "npm run build",
-    "frontendDist": "../dist"
+    "frontendDist": "../dist/frontend.build"
   },
   "app": {
     "windows": [
@@ -22,7 +23,9 @@
     }
   },
   "bundle": {
-    "active": true,
+    "active": false,
+    "copyright": "Copyright © 2025 Yongcan Yang",
+    "publisher": "Yongcan Yang",
     "externalBin": [
       "binaries/ffmpeg",
       "binaries/Updater"

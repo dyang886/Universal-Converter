@@ -1,10 +1,12 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
+use std::time::{Duration, Instant};
 
 use tauri::{AppHandle, Emitter};
 use tauri_plugin_shell::{ShellExt, process::CommandEvent};
 
 use crate::{AdvancedOptions, ConversionLogPayload, LocalizedText};
+const THROTTLE_INTERVAL: Duration = Duration::from_millis(500);
 
 pub async fn run_conversion(handle: AppHandle, input_paths: Vec<String>, output_ext: String, options: AdvancedOptions) -> Result<bool, String> {
     let shell = handle.shell();
@@ -40,6 +42,18 @@ pub async fn run_conversion(handle: AppHandle, input_paths: Vec<String>, output_
             .unwrap();
 
         let mut args: Vec<String> = vec!["-i".to_string(), input_path.to_string_lossy().to_string()];
+
+        // Special cases
+        if output_ext == "m4a" {
+            args.push("-vn".to_string());
+        }
+        if let Some(codec) = options.options.get("-c:a") {
+            if codec == "dca" {
+                args.push("-strict".to_string());
+                args.push("-2".to_string());
+            }
+        }
+
         for (key, value) in &options.options {
             args.push(key.clone());
             if !value.is_empty() {
@@ -47,32 +61,39 @@ pub async fn run_conversion(handle: AppHandle, input_paths: Vec<String>, output_
             }
         }
         args.push("-y".to_string());
+        args.push("-hide_banner".to_string());
         args.push(output_path.to_string_lossy().to_string());
 
         let (mut rx, _child) = shell.command("ffmpeg").args(&args).spawn().map_err(|e| e.to_string())?;
 
         let mut final_code: Option<i32> = None;
         let mut terminal_output = String::new();
+        let mut last_update = Instant::now();
 
         while let Some(event) = rx.recv().await {
             match event {
                 CommandEvent::Stderr(line) | CommandEvent::Stdout(line) => {
                     let line_str = String::from_utf8_lossy(&line);
                     terminal_output.push_str(&line_str);
-                    handle
-                        .emit(
-                            "conversion-log",
-                            &ConversionLogPayload {
-                                file_path: original_path_str.clone(),
-                                status_message: LocalizedText {
-                                    key: "terminal.converting".to_string(),
-                                    vars: create_vars(display_path.clone()),
+
+                    if last_update.elapsed() >= THROTTLE_INTERVAL {
+                        handle
+                            .emit(
+                                "conversion-log",
+                                &ConversionLogPayload {
+                                    file_path: original_path_str.clone(),
+                                    status_message: LocalizedText {
+                                        key: "terminal.converting".to_string(),
+                                        vars: create_vars(display_path.clone()),
+                                    },
+                                    terminal_output: Some(terminal_output.clone()),
+                                    success: None,
                                 },
-                                terminal_output: Some(terminal_output.clone()),
-                                success: None,
-                            },
-                        )
-                        .unwrap();
+                            )
+                            .unwrap();
+
+                        last_update = Instant::now();
+                    }
                 }
                 CommandEvent::Terminated(payload) => {
                     final_code = payload.code;

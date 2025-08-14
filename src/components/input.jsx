@@ -1,6 +1,6 @@
 import * as Headless from '@headlessui/react'
 import clsx from 'clsx'
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useState, useEffect } from 'react'
 import { PlusIcon, MinusIcon } from '@heroicons/react/24/solid'
 
 export function InputGroup({ children }) {
@@ -92,31 +92,61 @@ export const IntegerInput = forwardRef(function IntegerInput(
   { min, max, onChange, value, className, ...props },
   ref
 ) {
+  const [internalValue, setInternalValue] = useState(value ?? '');
+
+  useEffect(() => {
+    setInternalValue(value ?? '');
+  }, [value]);
+
   const handleChange = (e) => {
-    onChange(e.target.value);
+    const strValue = e.target.value;
+    setInternalValue(strValue);
+    if (strValue === '' || strValue === '-') {
+      onChange('');
+      return;
+    }
+    if (/^-?\d*$/.test(strValue)) {
+      onChange(strValue);
+    }
   };
 
   const handleStep = (step) => {
-    const parsedValue = value ? parseInt(value, 10) : (step < 0 ? max : min);
-    const newValue = parsedValue + step;
-    onChange(Math.max(min, Math.min(max, newValue)));
+    const safeMin = isFinite(min) ? BigInt(min) : null;
+    const safeMax = isFinite(max) ? BigInt(max) : null;
+
+    const currentValue = (value && value !== '-') ? BigInt(value) : BigInt(0);
+    let newValue = currentValue + BigInt(step);
+
+    if (safeMin !== null && newValue < safeMin) newValue = safeMin;
+    if (safeMax !== null && newValue > safeMax) newValue = safeMax;
+
+    onChange(newValue.toString());
   };
 
-  const handleBlur = (e) => {
-    const val = e.target.value;
-    if (!val) {
+  const handleBlur = () => {
+    if (internalValue === '' || internalValue === '-') {
       onChange('');
-      e.target.value = '';
       return;
     }
-    onChange(Math.max(min, Math.min(max, parseInt(value, 10))));
+
+    let numValue = BigInt(internalValue);
+    const safeMin = isFinite(min) ? BigInt(min) : null;
+    const safeMax = isFinite(max) ? BigInt(max) : null;
+
+    if (safeMin !== null && numValue < safeMin) numValue = safeMin;
+    if (safeMax !== null && numValue > safeMax) numValue = safeMax;
+
+    if (numValue.toString() !== value) {
+      onChange(numValue.toString());
+    }
   };
 
   return (
     <div className={clsx('relative', className)}>
       <input
         ref={ref}
-        type="number"
+        type="text"
+        inputMode="numeric"
         value={value}
         onChange={handleChange}
         onBlur={handleBlur}
@@ -136,7 +166,7 @@ export const IntegerInput = forwardRef(function IntegerInput(
           onClick={() => handleStep(-1)}
           className="rounded-md border border-transparent p-1.5 text-zinc-600 transition-all hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 disabled:pointer-events-none disabled:opacity-50"
           aria-label="Decrement"
-          disabled={props.disabled || (value !== '' && value <= min)}
+          disabled={props.disabled || (value !== '' && isFinite(min) && BigInt(value) <= BigInt(min))}
         >
           <MinusIcon className="h-4 w-4" />
         </button>
@@ -145,7 +175,105 @@ export const IntegerInput = forwardRef(function IntegerInput(
           onClick={() => handleStep(1)}
           className="rounded-md border border-transparent p-1.5 text-zinc-600 transition-all hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 disabled:pointer-events-none disabled:opacity-50"
           aria-label="Increment"
-          disabled={props.disabled || (value !== '' && value >= max)}
+          disabled={props.disabled || (value !== '' && isFinite(max) && BigInt(value) >= BigInt(max))}
+        >
+          <PlusIcon className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  );
+});
+
+export const FloatInput = forwardRef(function FloatInput(
+  { min, max, onChange, value, className, ...props },
+  ref
+) {
+  const [internalValue, setInternalValue] = useState(value ?? '');
+
+  useEffect(() => {
+    setInternalValue(value ?? '');
+  }, [value]);
+
+  const handleChange = (e) => {
+    const strValue = e.target.value;
+    setInternalValue(strValue);
+
+    if (strValue === '' || strValue === '-') {
+      onChange('');
+      return;
+    }
+
+    if (/^-?\d*\.?\d*$/.test(strValue)) {
+      onChange(strValue);
+    }
+  };
+
+  const handleStep = (step) => {
+    const currentValue = (value && value !== '-') ? Number(value) : 0;
+    let newValue = currentValue + step;
+
+    if (isFinite(min) && newValue < min) newValue = min;
+    if (isFinite(max) && newValue > max) newValue = max;
+
+    onChange(Number(newValue.toPrecision(15)).toString());
+  };
+
+  const handleBlur = () => {
+    if (internalValue === '' || internalValue === '-' || internalValue.toString().endsWith('.')) {
+      onChange('');
+      return;
+    }
+
+    let numValue = Number(internalValue);
+
+    if (isNaN(numValue)) {
+      onChange('');
+      return;
+    }
+
+    if (isFinite(min) && numValue < min) numValue = min;
+    if (isFinite(max) && numValue > max) numValue = max;
+
+    if (numValue.toString() !== value) {
+      onChange(numValue.toString());
+    }
+  };
+
+  return (
+    <div className={clsx('relative', className)}>
+      <input
+        ref={ref}
+        type="text"
+        inputMode="decimal"
+        value={value}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        className={clsx(
+          'w-full appearance-none rounded-lg border border-zinc-950/10 bg-white px-3 py-1.5 text-zinc-950 placeholder:text-zinc-500',
+          'pr-20',
+          'focus:outline-none',
+          'dark:border-white/10 dark:bg-zinc-900 dark:text-white',
+          '[&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
+          '[-moz-appearance:textfield]'
+        )}
+        {...props}
+      />
+      <div className="absolute right-1 top-1/2 flex -translate-y-1/2 items-center">
+        <button
+          type="button"
+          onClick={() => handleStep(-0.1)}
+          className="rounded-md border border-transparent p-1.5 text-zinc-600 transition-all hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 disabled:pointer-events-none disabled:opacity-50"
+          aria-label="Decrement"
+          disabled={props.disabled || (value !== '' && isFinite(min) && Number(value) <= min)}
+        >
+          <MinusIcon className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => handleStep(0.1)}
+          className="rounded-md border border-transparent p-1.5 text-zinc-600 transition-all hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 disabled:pointer-events-none disabled:opacity-50"
+          aria-label="Increment"
+          disabled={props.disabled || (value !== '' && isFinite(max) && Number(value) >= max)}
         >
           <PlusIcon className="h-4 w-4" />
         </button>

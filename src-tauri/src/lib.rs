@@ -149,6 +149,58 @@ async fn convert_files(handle: AppHandle, input_paths: Vec<String>, output_ext: 
     converter::run_conversion(handle, input_paths, output_ext, options).await
 }
 
+#[tauri::command]
+async fn get_dynamic_options(handle: AppHandle, widget_name: String, codec: String) -> Result<Vec<String>, String> {
+    let shell = handle.shell();
+    let encoder_arg = format!("encoder={}", codec);
+    let command_args = vec!["-hide_banner", "-h", &encoder_arg];
+
+    let (mut rx, _child) = shell
+        .command("ffmpeg")
+        .args(command_args)
+        .spawn()
+        .map_err(|e| format!("Failed to spawn ffmpeg process: {}", e))?;
+
+    let mut full_output = String::new();
+
+    while let Some(event) = rx.recv().await {
+        if let tauri_plugin_shell::process::CommandEvent::Stdout(line) = event {
+            full_output.push_str(&String::from_utf8_lossy(&line));
+        }
+    }
+
+    let key_phrase_to_find = match widget_name.as_str() {
+        // Audio
+        "sample_rate" => "Supported sample rates",
+        "sample_format" => "Supported sample formats",
+        "channel_layout" => "Supported channel layouts",
+        // Video
+        "framerate_DYN" => "Supported framerates",
+        "pixel_format" => "Supported pixel formats",
+        _ => return Err(format!("Unknown dynamic widget requested: {}", widget_name)),
+    };
+
+    let line = full_output
+        .lines()
+        .find(|l| l.trim().starts_with(key_phrase_to_find))
+        .ok_or_else(|| format!("Could not find key phrase '{}' in ffmpeg output.", key_phrase_to_find))?;
+
+    let options_str = line
+        .splitn(2, ':')
+        .nth(1)
+        .ok_or_else(|| format!("Malformed line for '{}': {}", key_phrase_to_find, line))?;
+
+    let mut unique_options: Vec<String> = Vec::new();
+    for option in options_str.split_whitespace() {
+        let opt_string = option.to_string();
+        if !unique_options.contains(&opt_string) {
+            unique_options.push(opt_string);
+        }
+    }
+
+    Ok(unique_options)
+}
+
 // --- Main application entry point ---
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -163,6 +215,7 @@ pub fn run() {
             check_for_updates,
             launch_updater,
             convert_files,
+            get_dynamic_options
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
