@@ -44,7 +44,7 @@ export default function TerminalOutput() {
     };
 
     return (
-        <div ref={scrollContainerRef} className="w-full flex-1 overflow-y-auto mt-6 pl-4 pr-2 text-sm">
+        <div ref={scrollContainerRef} className="w-full flex-1 overflow-y-auto mt-6 pl-3 pr-2 text-sm">
             {terminalLogs.length === 0 ? (
                 <div className="font-mono flex h-full items-center justify-center text-lg text-zinc-500 -translate-y-[0.73rem] -translate-x-1">
                     {t('terminal.waiting_for_conversion')}
@@ -57,7 +57,7 @@ export default function TerminalOutput() {
 
                     return (
                         <div key={log.path} className="mb-2">
-                            <div className="flex cursor-pointer items-center gap-2" onClick={() => isExpandable && toggleExpand(index)}>
+                            <div className="flex cursor-pointer items-center gap-2 h-8" onClick={() => isExpandable && toggleExpand(index)}>
                                 {log.isFinished ? (
                                     log.success ? (
                                         <CheckCircleIcon className="h-5 w-5 flex-shrink-0 text-green-500" />

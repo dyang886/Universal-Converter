@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next';
 
 import { useApp } from '@/contexts/AppContext';
 import { formats, widgetDefinitions } from '@/contexts/format-options';
-import { Checkbox } from '@/components/checkbox';
+import { TriStateCheckbox } from '@/components/checkbox';
 import { Field, Label } from '@/components/fieldset';
-import { IntegerInput, FloatInput } from '@/components/input';
+import { IntegerInput, FloatInput, TextInput } from '@/components/input';
 import { Listbox, ListboxOption } from '@/components/listbox';
 import { Navbar, NavbarItem, NavbarSection } from '@/components/navbar';
 import { ClipboardIcon } from '@heroicons/react/24/outline';
@@ -82,9 +82,16 @@ function WidgetRenderer({ widgetKey, value, codecValue, onChange }) {
                 </Field>
             )}
 
+            {definition.type === 'input-txt' && (
+                <Field as="div">
+                    <Label>{t(definition.labelKey)}</Label>
+                    <TextInput value={value} onChange={handleChange} />
+                </Field>
+            )}
+
             {definition.type === 'checkbox' && (
                 <Field as="div" className="flex items-center gap-2">
-                    <Checkbox checked={value === 1} onChange={(checked) => handleChange(checked ? 1 : '')} />
+                    <TriStateCheckbox value={value} onChange={handleChange} />
                     <Label>{t(definition.labelKey)}</Label>
                 </Field>
             )}
@@ -312,7 +319,7 @@ export default function AdvancedOptions() {
     };
 
     return (
-        <div className="w-full flex-1 flex flex-col overflow-hidden px-4 my-2">
+        <div className="w-full flex-1 flex flex-col overflow-hidden px-4 mb-2 mt-6">
             {!outputExt ? (
                 <div className="font-mono flex h-full items-center justify-center text-lg text-zinc-500">
                     {t('advanced.please_select_files')}

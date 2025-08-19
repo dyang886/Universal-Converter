@@ -34,35 +34,63 @@ export function Listbox({ value, onChange, className, placeholder, children, anc
   }, [value, children, placeholder]);
 
   return (
-    <span className={clsx(className, 'relative block w-full')} {...props}>
-      <HeadlessListbox value={value} onChange={onChange}>
+    <HeadlessListbox value={value} onChange={onChange} {...props}>
+      <span
+        data-slot="control"
+        className={clsx([
+          className,
+          // Basic layout
+          'relative block w-full',
+          // Background color + shadow applied to inset pseudo element, so shadow blends with border in light mode
+          'before:absolute before:inset-px before:rounded-[calc(var(--radius-lg)-1px)] before:bg-white before:shadow-sm',
+          // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
+          'dark:before:hidden',
+          // Focus ring
+          'after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-transparent after:ring-inset sm:focus-within:after:ring-2 sm:focus-within:after:ring-blue-500',
+          // Disabled state
+          'has-data-disabled:opacity-50 has-data-disabled:before:bg-zinc-950/5 has-data-disabled:before:shadow-none',
+          // Invalid state
+          'has-data-invalid:before:shadow-red-500/10',
+        ])}
+      >
         <HeadlessListboxButton
-          className={clsx(
-            'relative w-full grid appearance-none rounded-lg border border-zinc-950/10 bg-white py-1.5 pl-3 pr-8 text-left text-base/6 text-zinc-950',
-            'data-[hover]:border-zinc-950/20 data-[open]:border-zinc-950/20 dark:border-white/10 dark:bg-zinc-900 dark:data-[hover]:border-white/20 dark:data-[open]:border-white/20',
-            'focus:outline-none',
-            'dark:text-white sm:text-sm/6',
-            'data-[disabled]:opacity-50'
-          )}
+          className={clsx([
+            // Basic layout
+            'relative block w-full appearance-none rounded-lg px-[calc(--spacing(3.5)-1px)] py-[calc(--spacing(2.5)-1px)] sm:px-[calc(--spacing(3)-1px)] sm:py-[calc(--spacing(1.5)-1px)]',
+            // Typography
+            'text-left text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6 dark:text-white',
+            // Border
+            'border border-zinc-950/10 data-hover:border-zinc-950/20 dark:border-white/10 dark:data-hover:border-white/20',
+            // Background color
+            'bg-transparent dark:bg-white/5',
+            // Hide default focus styles
+            'focus:outline-hidden',
+            // Invalid state
+            'data-invalid:border-red-500 data-invalid:data-hover:border-red-500 dark:data-invalid:border-red-500 dark:data-invalid:data-hover:border-red-500',
+            // Disabled state
+            'data-disabled:border-zinc-950/20 dark:data-disabled:border-white/15 dark:data-disabled:bg-white/[2.5%] dark:data-hover:data-disabled:border-white/15',
+            // System icons
+            'dark:scheme-dark',
+          ])}
         >
           {displayValue || <span className="text-zinc-500">{placeholder}</span>}
           <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
             <ChevronUpDownIcon className="h-5 w-5 text-zinc-500" aria-hidden="true" />
           </span>
         </HeadlessListboxButton>
-        <HeadlessListboxOptions
-          transition
-          anchor={anchor}
-          className={clsx(
-            'min-w-[var(--button-width)] z-10 mt-1 overflow-y-scroll overscroll-contain rounded-xl bg-white/75 p-1 text-base shadow-lg ring-1 ring-zinc-950/10 backdrop-blur-xl focus:outline-none dark:bg-zinc-800/75 dark:ring-white/10 sm:text-sm',
-            'transition duration-100 ease-out data-[leave]:ease-in data-[leave]:duration-75',
-            'data-[enter]:opacity-100 data-[leave]:opacity-0'
-          )}
-        >
-          {children}
-        </HeadlessListboxOptions>
-      </HeadlessListbox>
-    </span>
+      </span>
+      <HeadlessListboxOptions
+        transition
+        anchor={anchor}
+        className={clsx(
+          'min-w-[var(--button-width)] z-10 mt-1 overflow-y-auto overscroll-contain rounded-xl bg-white/75 p-1 text-base shadow-lg ring-1 ring-zinc-950/10 backdrop-blur-xl focus:outline-none dark:bg-zinc-800/75 dark:ring-white/10 sm:text-sm',
+          'transition duration-100 ease-out data-[leave]:ease-in data-[leave]:duration-75',
+          'data-[enter]:opacity-100 data-[leave]:opacity-0'
+        )}
+      >
+        {children}
+      </HeadlessListboxOptions>
+    </HeadlessListbox>
   );
 }
 

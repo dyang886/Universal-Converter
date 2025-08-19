@@ -24,7 +24,6 @@ const dateTypes = ['date', 'datetime-local', 'month', 'time', 'week']
 
 export const Input = forwardRef(function Input(
   { className, ...props },
-
   ref
 ) {
   return (
@@ -143,21 +142,13 @@ export const IntegerInput = forwardRef(function IntegerInput(
 
   return (
     <div className={clsx('relative', className)}>
-      <input
+      <Input
         ref={ref}
         type="text"
         inputMode="numeric"
         value={value}
         onChange={handleChange}
         onBlur={handleBlur}
-        className={clsx(
-          'w-full appearance-none rounded-lg border border-zinc-950/10 bg-white px-3 py-1.5 text-zinc-950 placeholder:text-zinc-500',
-          'pr-20',
-          'focus:outline-none',
-          'dark:border-white/10 dark:bg-zinc-900 dark:text-white',
-          '[&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
-          '[-moz-appearance:textfield]'
-        )}
         {...props}
       />
       <div className="absolute right-1 top-1/2 flex -translate-y-1/2 items-center">
@@ -241,21 +232,13 @@ export const FloatInput = forwardRef(function FloatInput(
 
   return (
     <div className={clsx('relative', className)}>
-      <input
+      <Input
         ref={ref}
         type="text"
         inputMode="decimal"
         value={value}
         onChange={handleChange}
         onBlur={handleBlur}
-        className={clsx(
-          'w-full appearance-none rounded-lg border border-zinc-950/10 bg-white px-3 py-1.5 text-zinc-950 placeholder:text-zinc-500',
-          'pr-20',
-          'focus:outline-none',
-          'dark:border-white/10 dark:bg-zinc-900 dark:text-white',
-          '[&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
-          '[-moz-appearance:textfield]'
-        )}
         {...props}
       />
       <div className="absolute right-1 top-1/2 flex -translate-y-1/2 items-center">
@@ -279,5 +262,25 @@ export const FloatInput = forwardRef(function FloatInput(
         </button>
       </div>
     </div>
+  );
+});
+
+export const TextInput = forwardRef(function TextInput(
+  { onChange, ...props },
+  ref
+) {
+  const handleChange = (event) => {
+    if (onChange) {
+      onChange(event.target.value);
+    }
+  };
+
+  return (
+    <Input
+      ref={ref}
+      type="text"
+      {...props}
+      onChange={handleChange}
+    />
   );
 });

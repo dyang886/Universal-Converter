@@ -33,34 +33,48 @@ export function AppProvider({ children }) {
         const [display, setDisplay] = useState(text);
 
         useLayoutEffect(() => {
-            const el = ref.current;
-            if (!el) return;
-            const style = window.getComputedStyle(el);
-            const font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            ctx.font = font;
-            const available = el.offsetWidth;
-            if (ctx.measureText(text).width <= available) {
-                setDisplay(text);
-                return;
-            }
-            let low = 0;
-            let high = text.length;
-            let best = text;
-            while (low < high) {
-                const mid = Math.floor((low + high) / 2);
-                const keepFront = Math.ceil(mid / 2);
-                const keepBack = Math.floor(mid / 2);
-                const candidate = text.slice(0, keepFront) + '…' + text.slice(text.length - keepBack);
-                if (ctx.measureText(candidate).width <= available) {
-                    best = candidate;
-                    low = mid + 1;
-                } else {
-                    high = mid;
+            const element = ref.current;
+            if (!element) return;
+
+            const observer = new ResizeObserver(entries => {
+                if (entries[0]) {
+                    const availableWidth = entries[0].contentRect.width;
+                    if (availableWidth === 0) return;
+
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const style = window.getComputedStyle(element);
+                    const font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+                    ctx.font = font;
+
+                    if (ctx.measureText(text).width <= availableWidth) {
+                        setDisplay(text);
+                        return;
+                    }
+
+                    let low = 0;
+                    let high = text.length;
+                    let best = text;
+
+                    while (low < high) {
+                        const mid = Math.floor((low + high) / 2);
+                        const keepFront = Math.ceil(mid / 2);
+                        const keepBack = Math.floor(mid / 2);
+                        const candidate = text.slice(0, keepFront) + '…' + text.slice(text.length - keepBack);
+
+                        if (ctx.measureText(candidate).width <= availableWidth) {
+                            best = candidate;
+                            low = mid + 1;
+                        } else {
+                            high = mid;
+                        }
+                    }
+                    setDisplay(best);
                 }
-            }
-            setDisplay(best);
+            });
+
+            observer.observe(element);
+            return () => observer.disconnect();
         }, [text, ref.current?.offsetWidth]);
 
         return (

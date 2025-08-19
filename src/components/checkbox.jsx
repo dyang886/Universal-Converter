@@ -142,3 +142,52 @@ export function Checkbox({ color = 'dark/zinc', className, ...props }) {
     </Headless.Checkbox>
   )
 }
+
+export function TriStateCheckbox({ value, onChange, color = 'dark/zinc', className, ...props }) {
+  const handleClick = () => {
+    // Defines the cycle: not used -> checked -> unchecked
+    if (value === '') {
+      onChange(1);
+    } else if (value === 1) {
+      onChange(0);
+    } else {
+      onChange('');
+    }
+  };
+
+  return (
+    <Headless.Checkbox
+      data-slot="control"
+      data-not-used={value === ''}
+      checked={value === 1}
+      onChange={handleClick}
+      {...props}
+      className={clsx(className, 'group inline-flex focus:outline-none')}
+    >
+      <span className={clsx([base, colors[color]])}>
+        <svg
+          className="size-4 opacity-0 group-data-checked:opacity-100 group-data-[not-used='true']:opacity-100 sm:h-3.5 sm:w-3.5"
+          viewBox="0 0 14 14"
+          fill="none"
+        >
+          {/* Checkmark icon */}
+          <path
+            className="stroke-(--checkbox-check) opacity-0 group-data-checked:opacity-100"
+            d="M3 8L6 11L11 3.5"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {/* Not Used icon */}
+          <path
+            className="stroke-zinc-950 dark:stroke-white opacity-0 group-data-[not-used='true']:opacity-100"
+            d="M3.5 3.5L10.5 10.5"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
+    </Headless.Checkbox>
+  );
+}
