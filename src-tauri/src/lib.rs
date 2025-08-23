@@ -8,7 +8,8 @@ use serde::{Deserialize, Serialize};
 use tauri::AppHandle;
 use tauri_plugin_shell::ShellExt;
 
-mod converter;
+mod ffmpeg;
+mod ncm;
 mod secret_config;
 
 #[derive(Deserialize, Debug)]
@@ -38,7 +39,8 @@ struct ConversionLogPayload {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct AdvancedOptions {
+pub struct ConversionRequest {
+    tool: String,
     options: HashMap<String, String>,
 }
 
@@ -143,10 +145,15 @@ async fn launch_updater(app_handle: AppHandle, latest_version: String, theme: St
 }
 
 #[tauri::command]
-async fn convert_files(handle: AppHandle, input_paths: Vec<String>, output_ext: String, options: AdvancedOptions) -> Result<bool, String> {
+async fn convert_files(handle: AppHandle, input_paths: Vec<String>, output_ext: String, request: ConversionRequest) -> Result<bool, String> {
     println!("Received request to convert {} files to .{}", input_paths.len(), output_ext);
-    println!("Options: {:?}", options);
-    converter::run_conversion(handle, input_paths, output_ext, options).await
+    println!("Tool: {}, Options: {:?}", request.tool, request.options);
+
+    match request.tool.as_str() {
+        "ffmpeg" => ffmpeg::run_conversion(handle, input_paths, output_ext, request.options).await,
+        "ncm" => ncm::run_conversion(handle, input_paths, output_ext, request.options).await,
+        _ => Err(format!("Unsupported tool requested: {}", request.tool)),
+    }
 }
 
 #[tauri::command]

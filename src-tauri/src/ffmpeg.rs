@@ -5,10 +5,12 @@ use std::time::{Duration, Instant};
 use tauri::{AppHandle, Emitter};
 use tauri_plugin_shell::{ShellExt, process::CommandEvent};
 
-use crate::{AdvancedOptions, ConversionLogPayload, LocalizedText};
+use crate::{ConversionLogPayload, LocalizedText};
 const THROTTLE_INTERVAL: Duration = Duration::from_millis(500);
 
-pub async fn run_conversion(handle: AppHandle, input_paths: Vec<String>, output_ext: String, options: AdvancedOptions) -> Result<bool, String> {
+pub async fn run_conversion(
+    handle: AppHandle, input_paths: Vec<String>, output_ext: String, options: HashMap<String, String>,
+) -> Result<bool, String> {
     let shell = handle.shell();
     let mut all_files_converted_successfully = true;
 
@@ -47,7 +49,7 @@ pub async fn run_conversion(handle: AppHandle, input_paths: Vec<String>, output_
         if output_ext == "m4a" {
             args.push("-vn".to_string());
         }
-        if let Some(codec) = options.options.get("-c:a") {
+        if let Some(codec) = options.get("-c:a") {
             match codec.as_str() {
                 "dca" | "truehd" => {
                     args.push("-strict".to_string());
@@ -57,7 +59,7 @@ pub async fn run_conversion(handle: AppHandle, input_paths: Vec<String>, output_
             }
         }
 
-        for (key, value) in &options.options {
+        for (key, value) in &options {
             args.push(key.clone());
             if !value.is_empty() {
                 args.push(value.clone());

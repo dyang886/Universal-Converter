@@ -199,7 +199,7 @@ export function AppProvider({ children }) {
             const result = await invoke('convert_files', {
                 inputPaths: filePaths,
                 outputExt: outputExt,
-                options: { options: finalOptions },
+                request: { tool: config['tool'], options: finalOptions },
             });
 
             if (result) {

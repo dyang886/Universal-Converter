@@ -30,3 +30,6 @@ lazy_static = "1.5.0"
 reqwest = { version = "0.12.22", features = ["json"] }
 obfstr = "0.4.4"
 tauri-plugin-process = "2"
+aes = "0.8.4"
+base64 = "0.22.1"
+ecb = { version = "0.1.2", features = ["block-padding"] }

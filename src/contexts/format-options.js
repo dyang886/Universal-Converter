@@ -585,9 +585,7 @@ export const formats = {
     },
     ncm: {
         group: 'audio',
-        tool: 'ncm',
-        outputs: allAudioFormats,
-        widgets: []
+        tool: '',
     },
 
     // --- Video Formats ---
