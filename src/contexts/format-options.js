@@ -17,6 +17,9 @@ export const widgetOptions = {
     // huffyuv
     pred_huffyuv: { "Left": "0", "Plane": "1", "Median": "2" },
 
+    // dvvideo
+    framerate_dvvideo: { "30000/1001": "30000/1001", "25/1": "25/1", "60000/1001": "60000/1001", "50/1": "50/1" },
+
     // libx264, libx265
     preset: { "Ultrafast": "ultrafast", "Superfast": "superfast", "Veryfast": "veryfast", "Faster": "faster", "Fast": "fast", "Medium": "medium", "Slow": "slow", "Slower": "slower", "Veryslow": "veryslow", "Placebo": "placebo" },
     tune_h264: { "Film": "film", "Animation": "animation", "Grain": "grain", "Still Image": "stillimage", "Fast Decode": "fastdecode", "Zero Latency": "zerolatency" },
@@ -62,6 +65,16 @@ export const widgetOptions = {
     // ====== audio.general ======
     audio_bitrate: { "8 kbps": "8k", "16 kbps": "16k", "24 kbps": "24k", "32 kbps": "32k", "40 kbps": "40k", "48 kbps": "48k", "64 kbps": "64k", "80 kbps": "80k", "96 kbps": "96k", "112 kbps": "112k", "128 kbps": "128k", "160 kbps": "160k", "192 kbps": "192k", "224 kbps": "224k", "256 kbps": "256k", "320 kbps": "320k" },
 
+    // nellymoser
+    sample_rate_nellymoser: { "8000": "8000", "16000": "16000", "11025": "11025", "22050": "22050", "44100": "44100" },
+
+    // adpcm_swf
+    sample_rate_adpcm_swf: { "11025": "11025", "22050": "22050", "44100": "44100" },
+
+    // gsm, adpcm_g726
+    sample_rate_8000: { "8000": "8000" },
+    channel_layout_mono: { "mono": "mono" },
+
     // aac
     aac_coder: { "ANMR": "0", "Two Loop": "1", "Fast": "2" },
 
@@ -81,6 +94,10 @@ export const widgetOptions = {
     dsurex_mode: { "Not Indicated": "0", "Not Dolby Surround EX": "1", "Dolby Surround EX": "2", "Dolby Pro Logic IIz": "3" },
     dheadphone_mode: { "Not Indicated": "0", "Not Dolby Headphone": "1", "Dolby Headphone": "2" },
     ad_conv_type: { "Standard": "0", "HDCD": "1" },
+
+    // truehd
+    lpc_type_truehd: { "Levinson": "2", "Cholesky": "3" },
+    prediction_order_truehd: { "Estimation": "0", "Search": "4" },
 };
 
 // ===========================================================================
@@ -92,11 +109,13 @@ export const widgetDefinitions = {
     disable_video: { arg: "-vn", labelKey: "advanced.video.disable_video", type: "checkbox" },
     disable_subtitle: { arg: "-sn", labelKey: "advanced.video.disable_subtitle", type: "checkbox" },
     pass: { arg: "-pass", labelKey: "advanced.video.pass", type: "input-int", options: [1, 3] },
-    aspect_ratio: { arg: "-aspect", labelKey: "advanced.video.aspect_ratio", type: "select", options: widgetOptions.aspect_ratio },
-    vframes: { arg: "-vframes", labelKey: "advanced.video.vframes", type: "input-int", options: [-9223372036854775808, 9223372036854775808] },
-    video_bitrate: { arg: "-b:v", labelKey: "advanced.video.video_bitrate", type: "input-int", options: [0, 9.22337e+18] },
+    frame_size: { arg: "-vf", labelKey: "advanced.video.frame_size", type: "input-txt", prefix: 'scale=' },
     video_rotate: { arg: "-vf", labelKey: "advanced.video.video_rotate", type: "select", options: widgetOptions.video_rotate },
     video_flip: { arg: "-vf", labelKey: "advanced.video.video_flip", type: "select", options: widgetOptions.video_flip },
+    video_bitrate: { arg: "-b:v", labelKey: "advanced.video.video_bitrate", type: "input-int", options: [0, 9.22337e+18] },
+    vframes: { arg: "-vframes", labelKey: "advanced.video.vframes", type: "input-int", options: [-9223372036854775808, 9223372036854775808] },
+    aspect_ratio: { arg: "-aspect", labelKey: "advanced.video.aspect_ratio", type: "select", options: widgetOptions.aspect_ratio },
+
     // ====== video.codec_specific ======
     framerate: { arg: "-r", labelKey: "advanced.video.framerate", type: "input-int", options: [0, Infinity] },
     framerate_DYN: { arg: "-r", labelKey: "advanced.video.framerate", type: "select", options: 'dynamic' },
@@ -118,6 +137,23 @@ export const widgetDefinitions = {
     // huffyuv
     non_deterministic: { arg: "-non_deterministic", labelKey: "advanced.video.non_deterministic", type: "checkbox" },
     pred_huffyuv: { arg: "-pred", labelKey: "advanced.video.pred", type: "select", options: widgetOptions.pred_huffyuv },
+
+    // dvvideo  // TODO: add supported profiles list
+    framerate_dvvideo: { arg: "-r", labelKey: "advanced.video.framerate", type: "select", options: widgetOptions.framerate_dvvideo },
+    quant_deadzone: { arg: "-quant_deadzone", labelKey: "advanced.video.quant_deadzone", type: "input-int", options: [0, 1024] },
+
+    // cinepak
+    max_extra_cb_iterations: { arg: "-max_extra_cb_iterations", labelKey: "advanced.video.max_extra_cb_iterations", type: "input-int", options: [0, 2147483647] },
+    skip_empty_cb: { arg: "-skip_empty_cb", labelKey: "advanced.video.skip_empty_cb", type: "checkbox" },
+    max_strips: { arg: "-max_strips", labelKey: "advanced.video.max_strips", type: "input-int", options: [1, 32] },
+    min_strips: { arg: "-min_strips", labelKey: "advanced.video.min_strips", type: "input-int", options: [1, 32] },
+    strip_number_adaptivity: { arg: "-strip_number_adaptivity", labelKey: "advanced.video.strip_number_adaptivity", type: "input-int", options: [0, 31] },
+
+    // rpza
+    skip_frame_thresh: { arg: "-skip_frame_thresh", labelKey: "advanced.video.skip_frame_thresh", type: "input-int", options: [0, 24] },
+    start_one_color_thresh: { arg: "-start_one_color_thresh", labelKey: "advanced.video.start_one_color_thresh", type: "input-int", options: [0, 24] },
+    continue_one_color_thresh: { arg: "-continue_one_color_thresh", labelKey: "advanced.video.continue_one_color_thresh", type: "input-int", options: [0, 24] },
+    sixteen_color_thresh: { arg: "-sixteen_color_thresh", labelKey: "advanced.video.sixteen_color_thresh", type: "input-int", options: [0, 24] },
 
     // libx264
     preset: { arg: "-preset", labelKey: "advanced.video.preset", type: "select", options: widgetOptions.preset },
@@ -322,6 +358,23 @@ export const widgetDefinitions = {
     // dca
     dca_adpcm: { arg: "-dca_adpcm", labelKey: "advanced.audio.dca_adpcm", type: "checkbox" },
 
+    // vorbis
+    iblock: { arg: "-iblock", labelKey: "advanced.audio.iblock", type: "input-flt", options: [-15, 0] },
+
+    // nellymoser
+    sample_rate_nellymoser: { arg: "-ar", labelKey: "advanced.audio.sample_rate", type: "select", options: widgetOptions.sample_rate_nellymoser },
+
+    // adpcm_swf
+    sample_rate_adpcm_swf: { arg: "-ar", labelKey: "advanced.audio.sample_rate", type: "select", options: widgetOptions.sample_rate_adpcm_swf },
+    block_size: { arg: "-block_size", labelKey: "advanced.audio.block_size", type: "input-int", options: [32, 8192] },
+
+    // gsm, adpcm_g726
+    sample_rate_8000: { arg: "-ar", labelKey: "advanced.audio.sample_rate", type: "select", options: widgetOptions.sample_rate_8000 },
+
+    // adpcm_g726
+    channel_layout_mono: { arg: "-ch_layout", labelKey: "advanced.audio.channel_layout", type: "select", options: widgetOptions.channel_layout_mono },
+    code_size: { arg: "-code_size", labelKey: "advanced.audio.code_size", type: "input-int", options: [2, 5] },
+
     // mp3
     reservoir: { arg: "-reservoir", labelKey: "advanced.audio.reservoir", type: "checkbox" },
     joint_stereo: { arg: "-joint_stereo", labelKey: "advanced.audio.joint_stereo", type: "checkbox" },
@@ -381,6 +434,19 @@ export const widgetDefinitions = {
     ad_conv_type: { arg: "-ad_conv_type", labelKey: "advanced.audio.ad_conv_type", type: "select", options: widgetOptions.ad_conv_type },
     stereo_rematrixing: { arg: "-stereo_rematrixing", labelKey: "advanced.audio.stereo_rematrixing", type: "checkbox" },
 
+    // truehd
+    max_interval: { arg: "-max_interval", labelKey: "advanced.audio.max_interval", type: "input-int", options: [8, 128] },
+    lpc_type_truehd: { arg: "-lpc_type", labelKey: "advanced.audio.lpc_type", type: "select", options: widgetOptions.lpc_type_truehd },
+    codebook_search: { arg: "-codebook_search", labelKey: "advanced.audio.codebook_search", type: "input-int", options: [1, 100] },
+    prediction_order_truehd: { arg: "-prediction_order", labelKey: "advanced.audio.prediction_order_method", type: "select", options: widgetOptions.prediction_order_truehd },
+    rematrix_precision: { arg: "-rematrix_precision", labelKey: "advanced.audio.rematrix_precision", type: "input-int", options: [0, 14] },
+
+    // libspeex
+    cbr_quality: { arg: "-cbr_quality", labelKey: "advanced.audio.cbr_quality", type: "input-int", options: [0, 10] },
+    frames_per_packet: { arg: "-frames_per_packet", labelKey: "advanced.audio.frames_per_packet", type: "input-int", options: [1, 8] },
+    vad: { arg: "-vad", labelKey: "advanced.audio.vad", type: "checkbox" },
+    dtx: { arg: "-dtx", labelKey: "advanced.audio.dtx", type: "checkbox" },
+
     // image
     img_quality: { arg: "-quality", labelKey: "advanced.image.quality", type: "input-int", options: [0, 100] },
     img_resize: { arg: "-resize", valueTemplate: "{arg0}x{arg1}", labelKey: "advanced.image.resize", type: "textinput", options: ["advanced.image.width", "advanced.image.height"] },
@@ -415,108 +481,120 @@ const allVideoFormats = [
     // Mobile Containers (Legacy)
     '3gp', '3g2'
 ];
-const allAudioFormats = ['mp3', 'mpeg', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'aiff', 'opus'];
-const generalVideoWidgets = ['disable_video', 'disable_subtitle', 'pass', 'aspect_ratio', 'vframes', 'video_bitrate', 'video_rotate', 'video_flip'];
+const allAudioFormats = ['mp3', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'aiff', 'opus'];
+const generalVideoWidgets = ['disable_video', 'disable_subtitle', 'pass', 'frame_size', 'video_rotate', 'video_flip', 'video_bitrate', 'vframes', 'aspect_ratio'];
 const generalAudioWidgets = ['audio_volume', 'audio_speed', 'audio_quality', 'audio_bitrate', 'audio_channels', 'aframes'];
 export const formats = {
     // --- Audio Formats ---
     mp3: {
         group: 'audio',
+        tool: 'ffmpeg',
         outputs: allAudioFormats,
         widgets: generalAudioWidgets,
         codecs: {
-            'MP3': { value: 'libmp3lame', widgets: ['sample_rate', 'sample_format', 'channel_layout', 'reservoir', 'joint_stereo', 'abr', 'copyright_flag', 'original_flag'] },
-        }
-    },
-    mpeg: {
-        group: 'audio',
-        outputs: allAudioFormats,
-        widgets: generalAudioWidgets,
-        codecs: {
-            'MP2': { value: 'mp2', widgets: [] },
-            'MP3': { value: 'libmp3lame', widgets: [] }
+            'MP3 (MPEG audio layer 3)': { value: 'libmp3lame', widgets: ['sample_rate', 'sample_format', 'channel_layout', 'reservoir', 'joint_stereo', 'abr', 'copyright_flag', 'original_flag'] },
         }
     },
     flac: {
         group: 'audio',
+        tool: 'ffmpeg',
         outputs: allAudioFormats,
         widgets: generalAudioWidgets,
         codecs: {
-            'FLAC': { value: 'flac', widgets: ['lpc_type', 'ch_mode'] }
+            'FLAC (Free Lossless Audio Codec)': { value: 'flac', widgets: ['sample_format', 'lpc_coeff_precision', 'lpc_type', 'lpc_passes', 'min_partition_order', 'max_partition_order', 'prediction_order_method', 'ch_mode', 'exact_rice_parameters', 'multi_dim_quant', 'min_prediction_order_flac', 'max_prediction_order_flac'] },
         }
     },
     wav: {
         group: 'audio',
+        tool: 'ffmpeg',
         outputs: allAudioFormats,
-        widgets: generalAudioWidgets, // Note: Bitrate is not applicable for PCM
+        widgets: generalAudioWidgets,
         codecs: {
-            'PCM 16-bit': { value: 'pcm_s16le', widgets: [] },
-            'PCM 24-bit': { value: 'pcm_s24le', widgets: [] },
-            'PCM 32-bit': { value: 'pcm_s32le', widgets: [] }
+            'PCM signed 16-bit little-endian': { value: 'pcm_s16le', widgets: ['sample_format'] },
+            'PCM signed 24-bit little-endian': { value: 'pcm_s24le', widgets: ['sample_format'] },
+            'PCM signed 32-bit little-endian': { value: 'pcm_s32le', widgets: ['sample_format'] },
+            'PCM 32-bit floating point little-endian': { value: 'pcm_f32le', widgets: ['sample_format'] },
+            'PCM A-law / G.711 A-law': { value: 'pcm_alaw', widgets: ['sample_format'] },
+            'PCM mu-law / G.711 mu-law': { value: 'pcm_mulaw', widgets: ['sample_format'] },
+            'G.722 ADPCM': { value: 'g722', widgets: ['sample_format', 'channel_layout'] },
+            'G.726 ADPCM': { value: 'g726', widgets: ['sample_rate_8000', 'sample_format', 'channel_layout_mono', 'code_size'] },
+            'ADPCM IMA WAV': { value: 'adpcm_ima_wav', widgets: ['sample_format', 'channel_layout', 'block_size'] },
+            'ADPCM Microsoft': { value: 'adpcm_ms', widgets: ['sample_format', 'channel_layout', 'block_size'] },
         }
     },
     aac: {
         group: 'audio',
+        tool: 'ffmpeg',
         outputs: allAudioFormats,
         widgets: generalAudioWidgets,
         codecs: {
-            'AAC': { value: 'aac', widgets: ['sample_rate', 'sample_format', 'aac_coder', 'aac_ms', 'aac_is', 'aac_pns', 'aac_tns', 'aac_ltp', 'aac_pred', 'aac_pce'] },
+            'AAC (Advanced Audio Coding)': { value: 'aac', widgets: ['sample_rate', 'sample_format', 'aac_coder', 'aac_ms', 'aac_is', 'aac_pns', 'aac_tns', 'aac_ltp', 'aac_pred', 'aac_pce'] },
         }
     },
     ogg: {
         group: 'audio',
+        tool: 'ffmpeg',
         outputs: allAudioFormats,
         widgets: generalAudioWidgets,
         codecs: {
-            'Opus': { value: 'libopus', widgets: ['vbr'] },
-            'Vorbis': { value: 'libvorbis', widgets: [] }
+            'Vorbis': { value: 'libvorbis', widgets: ['sample_format', 'iblock'] },
+            'Opus (Opus Interactive Audio Codec)': { value: 'libopus', widgets: ['sample_rate', 'sample_format', 'application', 'frame_duration', 'packet_loss', 'fec', 'vbr', 'mapping_family', 'apply_phase_inv'] },
+            'FLAC (Free Lossless Audio Codec)': { value: 'flac', widgets: ['sample_format', 'lpc_coeff_precision', 'lpc_type', 'lpc_passes', 'min_partition_order', 'max_partition_order', 'prediction_order_method', 'ch_mode', 'exact_rice_parameters', 'multi_dim_quant', 'min_prediction_order_flac', 'max_prediction_order_flac'] },
+            'libspeex Speex': { value: 'libspeex', widgets: ['sample_rate', 'sample_format', 'channel_layout', 'abr', 'cbr_quality', 'frames_per_packet', 'vad', 'dtx'] },
         }
     },
     m4a: {
         group: 'audio',
+        tool: 'ffmpeg',
         outputs: allAudioFormats,
         widgets: generalAudioWidgets,
         codecs: {
-            'AAC': { value: 'aac', widgets: ['aac_coder'] },
-            'ALAC': { value: 'alac', widgets: ['sample_rate', 'channels'] } // Note: Bitrate is not applicable for ALAC
+            'AAC (Advanced Audio Coding)': { value: 'aac', widgets: ['sample_rate', 'sample_format', 'aac_coder', 'aac_ms', 'aac_is', 'aac_pns', 'aac_tns', 'aac_ltp', 'aac_pred', 'aac_pce'] },
+            'ALAC (Apple Lossless Audio Codec)': { value: 'alac', widgets: ['sample_format', 'channel_layout', 'min_prediction_order_alac', 'max_prediction_order_alac'] },
         }
     },
     wma: {
         group: 'audio',
+        tool: 'ffmpeg',
         outputs: allAudioFormats,
         widgets: generalAudioWidgets,
         codecs: {
-            'WMA': { value: 'wmav2', widgets: [] }
+            'Windows Media Audio 2': { value: 'wmav2', widgets: ['sample_format'] },
+            'Windows Media Audio 1': { value: 'wmav1', widgets: ['sample_format'] },
         }
     },
     aiff: {
         group: 'audio',
+        tool: 'ffmpeg',
         outputs: allAudioFormats,
-        widgets: ['sample_rate', 'channels'], // Note: Bitrate is not applicable for PCM
+        widgets: generalAudioWidgets,
         codecs: {
-            'PCM 16-bit': { value: 'pcm_s16be', widgets: [] },
-            'PCM 24-bit': { value: 'pcm_s24be', widgets: [] }
+            'PCM signed 16-bit big-endian': { value: 'pcm_s16be', widgets: ['sample_format'] },
+            'PCM signed 24-bit big-endian': { value: 'pcm_s24be', widgets: ['sample_format'] },
+            'PCM signed 32-bit big-endian': { value: 'pcm_s32be', widgets: ['sample_format'] },
         }
     },
     opus: {
         group: 'audio',
+        tool: 'ffmpeg',
         outputs: allAudioFormats,
         widgets: generalAudioWidgets,
         codecs: {
-            'Opus': { value: 'libopus', widgets: ['vbr'] }
+            'Opus (Opus Interactive Audio Codec)': { value: 'libopus', widgets: ['sample_rate', 'sample_format', 'application', 'frame_duration', 'packet_loss', 'fec', 'vbr', 'mapping_family', 'apply_phase_inv'] },
         }
     },
     ncm: {
         group: 'audio',
-        outputs: allAudioFormats,
         tool: 'ncm',
-        widgets: [] // No configurable widgets for this tool
+        outputs: allAudioFormats,
+        widgets: []
     },
 
     // --- Video Formats ---
     mp4: {
         group: 'video',
-        outputs: allVideoFormats,
+        tool: 'ffmpeg',
+        outputs: [...allVideoFormats, ...allAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
         videoCodecs: {
@@ -526,7 +604,7 @@ export const formats = {
             'MPEG-4 part 2': { value: 'mpeg4', widgets: ['framerate', 'pixel_format', 'data_partitioning', 'alternate_scan', 'mpeg_quant', 'b_strategy', 'b_sensitivity', 'brd_scale', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_eq', 'rc_init_cplx', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'motion_est_mpeg', 'mepc', 'mepre', 'intra_penalty'] },
             'MPEG-2 video': { value: 'mpeg2video', widgets: ['framerate_DYN', 'pixel_format', 'gop_timecode', 'drop_frame_timecode', 'scan_offset', 'timecode_frame_start', 'b_strategy', 'b_sensitivity', 'brd_scale', 'intra_vlc', 'non_linear_quant', 'alternate_scan', 'a53cc', 'seq_disp_ext', 'video_format', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_init_cplx', 'rc_eq', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'motion_est_mpeg', 'mepc', 'mepre', 'intra_penalty'] },
             'Motion JPEG': { value: 'mjpeg', widgets: ['framerate', 'pixel_format', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_eq', 'rc_init_cplx', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'huffman', 'force_duplicated_matrix'] },
-            'Apple ProRes (iCodec Pro)': { value: 'prores', widgets: ['framerate', 'pixel_format', 'vendor'] }
+            'Apple ProRes (iCodec Pro)': { value: 'prores', widgets: ['framerate', 'pixel_format', 'vendor'] },
         },
         audioCodecs: {
             'AAC (Advanced Audio Coding)': { value: 'aac', widgets: ['sample_rate', 'sample_format', 'aac_coder', 'aac_ms', 'aac_is', 'aac_pns', 'aac_tns', 'aac_ltp', 'aac_pred', 'aac_pce'] },
@@ -535,12 +613,13 @@ export const formats = {
             'Opus (Opus Interactive Audio Codec)': { value: 'libopus', widgets: ['sample_rate', 'sample_format', 'application', 'frame_duration', 'packet_loss', 'fec', 'vbr', 'mapping_family', 'apply_phase_inv'] },
             'DCA (DTS Coherent Acoustics)': { value: 'dca', widgets: ['sample_rate', 'sample_format', 'channel_layout', 'dca_adpcm'] },
             'ALAC (Apple Lossless Audio Codec)': { value: 'alac', widgets: ['sample_format', 'channel_layout', 'min_prediction_order_alac', 'max_prediction_order_alac'] },
-            'FLAC (Free Lossless Audio Codec)': { value: 'flac', widgets: ['sample_format', 'lpc_coeff_precision', 'lpc_type', 'lpc_passes', 'min_partition_order', 'max_partition_order', 'prediction_order_method', 'ch_mode', 'exact_rice_parameters', 'multi_dim_quant', 'min_prediction_order_flac', 'max_prediction_order_flac'] }
+            'FLAC (Free Lossless Audio Codec)': { value: 'flac', widgets: ['sample_format', 'lpc_coeff_precision', 'lpc_type', 'lpc_passes', 'min_partition_order', 'max_partition_order', 'prediction_order_method', 'ch_mode', 'exact_rice_parameters', 'multi_dim_quant', 'min_prediction_order_flac', 'max_prediction_order_flac'] },
         }
     },
     mkv: {
         group: 'video',
-        outputs: allVideoFormats,
+        tool: 'ffmpeg',
+        outputs: [...allVideoFormats, ...allAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
         videoCodecs: {
@@ -562,92 +641,112 @@ export const formats = {
             'MP2': { value: 'mp2', widgets: ['sample_rate', 'sample_format', 'channel_layout'] },
             'ATSC A/52A (AC-3)': { value: 'ac3', widgets: ['sample_rate', 'sample_format', 'channel_layout', 'center_mixlev', 'surround_mixlev', 'mixing_level', 'room_type', 'per_frame_metadata', 'copyright_bit', 'dialnorm', 'dsur_mode', 'original_bit', 'dmix_mode', 'ltrt_cmixlev', 'ltrt_surmixlev', 'loro_cmixlev', 'loro_surmixlev', 'dsurex_mode', 'dheadphone_mode', 'ad_conv_type', 'stereo_rematrixing'] },
             'Opus (Opus Interactive Audio Codec)': { value: 'libopus', widgets: ['sample_rate', 'sample_format', 'application', 'frame_duration', 'packet_loss', 'fec', 'vbr', 'mapping_family', 'apply_phase_inv'] },
-            'Vorbis': { value: 'libvorbis', widgets: [] },
+            'Vorbis': { value: 'libvorbis', widgets: ['sample_format', 'iblock'] },
             'DCA (DTS Coherent Acoustics)': { value: 'dca', widgets: ['sample_rate', 'sample_format', 'channel_layout', 'dca_adpcm'] },
             'ALAC (Apple Lossless Audio Codec)': { value: 'alac', widgets: ['sample_format', 'channel_layout', 'min_prediction_order_alac', 'max_prediction_order_alac'] },
             'FLAC (Free Lossless Audio Codec)': { value: 'flac', widgets: ['sample_format', 'lpc_coeff_precision', 'lpc_type', 'lpc_passes', 'min_partition_order', 'max_partition_order', 'prediction_order_method', 'ch_mode', 'exact_rice_parameters', 'multi_dim_quant', 'min_prediction_order_flac', 'max_prediction_order_flac'] },
-            'TrueHD': { value: 'truehd', widgets: [] }
+            'TrueHD': { value: 'truehd', widgets: ['sample_rate', 'sample_format', 'channel_layout', 'max_interval', 'lpc_coeff_precision', 'lpc_type_truehd', 'lpc_passes', 'codebook_search', 'prediction_order_truehd', 'rematrix_precision'] },
         }
     },
     mov: {
         group: 'video',
-        outputs: allVideoFormats,
+        tool: 'ffmpeg',
+        outputs: [...allVideoFormats, ...allAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
         videoCodecs: {
-            'H.264/MPEG-4': { value: 'libx264', widgets: ['crf_v1', 'preset', 'tune_h264'] },
-            'ProRes': { value: 'prores', widgets: [] },
-            'H.265/HEVC': { value: 'libx265', widgets: ['crf_v1', 'preset', 'tune_h265'] }
+            'H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10': { value: 'libx264', widgets: ['framerate', 'pixel_format', 'preset', 'tune_h264', 'profile_h264', 'fastfirstpass', 'level', 'wpredp', 'a53cc', 'x264opts', 'crf_63', 'crf_max', 'qp', 'aq_mode_h264', 'aq_strength', 'psy', 'psy_rd', 'rc_lookahead_frametype', 'weightb', 'weightp', 'ssim', 'intra_refresh', 'bluray_compat', 'b_bias', 'b_pyramid', 'mixed_refs', '8x8dct', 'fast_pskip', 'aud', 'mbtree', 'deblock', 'cplxblur', 'partitions', 'direct_pred', 'slice_max_size', 'stats', 'nal_hrd_mp4', 'avcintra_class', 'motion_est_h264', 'forced_idr', 'coder', 'b_strategy', 'chromaoffset', 'sc_threshold', 'noise_reduction', 'udu_sei', 'x264_params', 'mb_info'] },
+            'H.265 / HEVC': { value: 'libx265', widgets: ['framerate', 'pixel_format', 'crf_51', 'qp', 'forced_idr', 'preset', 'tune_h265', 'profile_h265', 'udu_sei', 'a53cc', 'x265_params', 'dolbyvision'] },
+            'Apple ProRes (iCodec Pro)': { value: 'prores', widgets: ['framerate', 'pixel_format', 'vendor'] },
+            'VC3 / DNxHD': { value: 'dnxhd', widgets: ['framerate', 'pixel_format', 'nitris_compat', 'ibias', 'profile_dnxhd'] },
+            'Motion JPEG': { value: 'mjpeg', widgets: ['framerate', 'pixel_format', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_eq', 'rc_init_cplx', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'huffman', 'force_duplicated_matrix'] },
+            'DV (Digital Video)': { value: 'dvvideo', widgets: ['framerate_dvvideo', 'pixel_format', 'quant_deadzone'] },
+            'QuickTime Animation (RLE) video': { value: 'qtrle', widgets: ['framerate', 'pixel_format'] },
+            'Cinepak': { value: 'cinepak', widgets: ['framerate', 'pixel_format', 'max_extra_cb_iterations', 'skip_empty_cb', 'max_strips', 'min_strips', 'strip_number_adaptivity'] },
+            'QuickTime video (RPZA)': { value: 'rpza', widgets: ['framerate', 'pixel_format', 'skip_frame_thresh', 'start_one_color_thresh', 'continue_one_color_thresh', 'sixteen_color_thresh'] },
         },
         audioCodecs: {
-            'AAC': { value: 'aac', widgets: ['aac_coder'] },
-            'ALAC': { value: 'alac', widgets: [] },
-            'AC-3': { value: 'ac3', widgets: ['room_type', 'mixing_level', 'dmix_mode', 'dsur_mode', 'dsurex_mode', 'dheadphone_mode'] }
+            'AAC (Advanced Audio Coding)': { value: 'aac', widgets: ['sample_rate', 'sample_format', 'aac_coder', 'aac_ms', 'aac_is', 'aac_pns', 'aac_tns', 'aac_ltp', 'aac_pred', 'aac_pce'] },
+            'ALAC (Apple Lossless Audio Codec)': { value: 'alac', widgets: ['sample_format', 'channel_layout', 'min_prediction_order_alac', 'max_prediction_order_alac'] },
+            'MP3 (MPEG audio layer 3)': { value: 'libmp3lame', widgets: ['sample_rate', 'sample_format', 'channel_layout', 'reservoir', 'joint_stereo', 'abr', 'copyright_flag', 'original_flag'] },
+            'PCM signed 16-bit little-endian': { value: 'pcm_s16le', widgets: ['sample_format'] },
+            'PCM signed 24-bit big-endian': { value: 'pcm_s24be', widgets: ['sample_format'] },
         }
     },
     avi: {
         group: 'video',
-        outputs: allVideoFormats,
+        tool: 'ffmpeg',
+        outputs: [...allVideoFormats, ...allAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
         videoCodecs: {
-            'Xvid': { value: 'libxvid', widgets: ['me_quality', 'gmc'] },
-            'H.264/MPEG-4': { value: 'libx264', widgets: ['crf_v1', 'preset', 'tune_h264'] },
-            'H.265/HEVC': { value: 'libx265', widgets: ['crf_v1', 'preset', 'tune_h265'] }
+            'MPEG-4 part 2': { value: 'mpeg4', widgets: ['framerate', 'pixel_format', 'data_partitioning', 'alternate_scan', 'mpeg_quant', 'b_strategy', 'b_sensitivity', 'brd_scale', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_eq', 'rc_init_cplx', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'motion_est_mpeg', 'mepc', 'mepre', 'intra_penalty'] },
+            'DV (Digital Video)': { value: 'dvvideo', widgets: ['framerate_dvvideo', 'pixel_format', 'quant_deadzone'] },
+            'Motion JPEG': { value: 'mjpeg', widgets: ['framerate', 'pixel_format', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_eq', 'rc_init_cplx', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'huffman', 'force_duplicated_matrix'] },
+            'HuffYUV': { value: 'huffyuv', widgets: ['framerate', 'pixel_format', 'non_deterministic', 'pred_huffyuv'] },
+            'FFmpeg video codec #1': { value: 'ffv1', widgets: ['framerate', 'pixel_format', 'slicecrc', 'coder_ffv1', 'context'] },
+            'Microsoft Video 1': { value: 'msvideo1', widgets: ['framerate', 'pixel_format'] },
+            'Cinepak': { value: 'cinepak', widgets: ['framerate', 'pixel_format', 'max_extra_cb_iterations', 'skip_empty_cb', 'max_strips', 'min_strips', 'strip_number_adaptivity'] },
         },
         audioCodecs: {
-            'MP3': { value: 'libmp3lame', widgets: [] },
-            'AC-3': { value: 'ac3', widgets: ['room_type', 'mixing_level', 'dmix_mode', 'dsur_mode', 'dsurex_mode', 'dheadphone_mode'] },
-            'WMA': { value: 'wmav2', widgets: [] }
+            'MP3 (MPEG audio layer 3)': { value: 'libmp3lame', widgets: ['sample_rate', 'sample_format', 'channel_layout', 'reservoir', 'joint_stereo', 'abr', 'copyright_flag', 'original_flag'] },
+            'PCM signed 16-bit little-endian': { value: 'pcm_s16le', widgets: ['sample_format'] },
+            'ATSC A/52A (AC-3)': { value: 'ac3', widgets: ['sample_rate', 'sample_format', 'channel_layout', 'center_mixlev', 'surround_mixlev', 'mixing_level', 'room_type', 'per_frame_metadata', 'copyright_bit', 'dialnorm', 'dsur_mode', 'original_bit', 'dmix_mode', 'ltrt_cmixlev', 'ltrt_surmixlev', 'loro_cmixlev', 'loro_surmixlev', 'dsurex_mode', 'dheadphone_mode', 'ad_conv_type', 'stereo_rematrixing'] },
         }
     },
     webm: {
         group: 'video',
-        outputs: allVideoFormats,
+        tool: 'ffmpeg',
+        outputs: [...allVideoFormats, ...allAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
         videoCodecs: {
-            'VP9': { value: 'libvpx-vp9', widgets: ['crf_v2', 'speed', 'sharpness', 'lossless'] },
-            'VP8': { value: 'libvpx', widgets: ['crf_v2', 'speed', 'sharpness'] },
-            'AV1': { value: 'libaom-av1', widgets: ['crf_v2', 'aq_mode'] }
+            'On2 VP8': { value: 'libvpx', widgets: ['framerate', 'pixel_format', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'arnr_type', 'tune', 'deadline', 'error_resilient', 'max_intra_rate', 'crf_63', 'static_thresh', 'drop_threshold', 'noise_sensitivity', 'undershoot_pct', 'overshoot_pct', 'ts_parameters', 'auto_alt_ref', 'cpu_used_vpx', 'screen_content_mode', 'speed', 'quality', 'vp8flags', 'rc_lookahead_altref', 'sharpness'] },
+            'Google VP9': { value: 'libvpx-vp9', widgets: ['framerate', 'pixel_format', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'arnr_type', 'tune', 'deadline', 'error_resilient', 'max_intra_rate', 'crf_63', 'static_thresh', 'drop_threshold', 'noise_sensitivity', 'undershoot_pct', 'overshoot_pct', 'ts_parameters', 'auto_alt_ref_vp9', 'cpu_used_vp9', 'lossless', 'tile_columns', 'tile_rows_vp9', 'frame_parallel', 'aq_mode_vp9', 'level_vp9', 'row_mt', 'tune_content', 'corpus_complexity', 'enable_tpl', 'min_gf_interval', 'speed', 'quality', 'rc_lookahead_altref', 'sharpness'] },
+            'Alliance for Open Media AV1': { value: 'libaom-av1', widgets: ['framerate', 'pixel_format', 'cpu_used_av1', 'auto_alt_ref', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'aq_mode_av1', 'error_resilience', 'crf_63', 'static_thresh', 'drop_threshold', 'denoise_noise_level', 'denoise_block_size', 'undershoot_pct', 'overshoot_pct', 'minsection_pct', 'maxsection_pct', 'frame_parallel', 'tiles', 'tile_columns', 'tile_rows', 'row_mt', 'enable_cdef', 'enable_global_motion', 'enable_intrabc', 'enable_restoration', 'usage', 'tune', 'still_picture', 'dolbyvision', 'enable_rect_partitions', 'enable_1to4_partitions', 'enable_ab_partitions', 'enable_angle_delta', 'enable_cfl_intra', 'enable_filter_intra', 'enable_intra_edge_filter', 'enable_smooth_intra', 'enable_paeth_intra', 'enable_palette', 'enable_flip_idtx', 'enable_tx64', 'reduced_tx_type_set', 'use_intra_dct_only', 'use_inter_dct_only', 'use_intra_default_tx_only', 'enable_ref_frame_mvs', 'enable_reduced_reference_set', 'enable_obmc', 'enable_dual_filter', 'enable_diff_wtd_comp', 'enable_dist_wtd_comp', 'enable_onesided_comp', 'enable_interinter_wedge', 'enable_interintra_wedge', 'enable_masked_comp', 'enable_interintra_comp', 'enable_smooth_interintra', 'aom_params'] },
         },
         audioCodecs: {
-            'Opus': { value: 'libopus', widgets: ['vbr'] },
-            'Vorbis': { value: 'libvorbis', widgets: [] }
+            'Opus (Opus Interactive Audio Codec)': { value: 'libopus', widgets: ['sample_rate', 'sample_format', 'application', 'frame_duration', 'packet_loss', 'fec', 'vbr', 'mapping_family', 'apply_phase_inv'] },
+            'Vorbis': { value: 'libvorbis', widgets: ['sample_format', 'iblock'] },
         }
     },
     flv: {
         group: 'video',
-        outputs: allVideoFormats,
+        tool: 'ffmpeg',
+        outputs: [...allVideoFormats, ...allAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
         videoCodecs: {
-            'H.263': { value: 'flv1', widgets: ['motion_est'] }
+            'FLV / Sorenson Spark / Sorenson H.263 (Flash Video)': { value: 'flv1', widgets: ['framerate', 'pixel_format', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_eq', 'rc_init_cplx', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'motion_est_mpeg', 'mepc', 'mepre', 'intra_penalty'] },
+            'H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10': { value: 'libx264', widgets: ['framerate', 'pixel_format', 'preset', 'tune_h264', 'profile_h264', 'fastfirstpass', 'level', 'wpredp', 'a53cc', 'x264opts', 'crf_63', 'crf_max', 'qp', 'aq_mode_h264', 'aq_strength', 'psy', 'psy_rd', 'rc_lookahead_frametype', 'weightb', 'weightp', 'ssim', 'intra_refresh', 'bluray_compat', 'b_bias', 'b_pyramid', 'mixed_refs', '8x8dct', 'fast_pskip', 'aud', 'mbtree', 'deblock', 'cplxblur', 'partitions', 'direct_pred', 'slice_max_size', 'stats', 'nal_hrd_mp4', 'avcintra_class', 'motion_est_h264', 'forced_idr', 'coder', 'b_strategy', 'chromaoffset', 'sc_threshold', 'noise_reduction', 'udu_sei', 'x264_params', 'mb_info'] },
         },
         audioCodecs: {
-            'MP3': { value: 'libmp3lame', widgets: [] },
-            'ADPCM': { value: 'adpcm_swf', widgets: ['sample_rate_adpcm'] },
-            'Nellymoser Asao': { value: 'nellymoser', widgets: ['sample_rate_nellymoser'] }
+            'MP3 (MPEG audio layer 3)': { value: 'libmp3lame', widgets: ['sample_rate', 'sample_format', 'channel_layout', 'reservoir', 'joint_stereo', 'abr', 'copyright_flag', 'original_flag'] },
+            'AAC (Advanced Audio Coding)': { value: 'aac', widgets: ['sample_rate', 'sample_format', 'aac_coder', 'aac_ms', 'aac_is', 'aac_pns', 'aac_tns', 'aac_ltp', 'aac_pred', 'aac_pce'] },
+            'Nellymoser Asao': { value: 'nellymoser', widgets: ['sample_rate_nellymoser', 'sample_format', 'channel_layout'] },
+            'ADPCM Shockwave Flash': { value: 'adpcm_swf', widgets: ['sample_rate_adpcm_swf', 'sample_format', 'channel_layout', 'block_size'] },
         }
     },
     wmv: {
         group: 'video',
-        outputs: allVideoFormats,
+        tool: 'ffmpeg',
+        outputs: [...allVideoFormats, ...allAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
         videoCodecs: {
-            'MPEG-4 pt.2 MS v.3': { value: 'msmpeg4', widgets: ['motion_est'] },
-            'Windows Media Video 7': { value: 'wmv1', widgets: ['motion_est'] },
-            'Windows Media Video 8': { value: 'wmv2', widgets: ['motion_est'] }
+            'Windows Media Video 7': { value: 'wmv1', widgets: ['framerate', 'pixel_format', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_eq', 'rc_init_cplx', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'motion_est_mpeg', 'mepc', 'mepre', 'intra_penalty'] },
+            'Windows Media Video 8': { value: 'wmv2', widgets: ['framerate', 'pixel_format', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_eq', 'rc_init_cplx', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'motion_est_mpeg', 'mepc', 'mepre', 'intra_penalty'] },
         },
         audioCodecs: {
-            'MPEG-4 part 2 Microsoft variant v3': { value: 'msmpeg4v3', widgets: [] },
-            'Windows Media Audio 2': { value: 'wmav2', widgets: [] },
+            'Windows Media Audio 1': { value: 'wmav1', widgets: ['sample_format'] },
+            'Windows Media Audio 2': { value: 'wmav2', widgets: ['sample_format'] },
+            'GSM Microsoft variant': { value: 'gsm_ms', widgets: ['sample_rate_8000', 'sample_format', 'channel_layout'] },
         }
     },
     mpeg: {
         group: 'video',
-        outputs: allVideoFormats,
+        tool: 'ffmpeg',
+        outputs: [...allVideoFormats, ...allAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
         videoCodecs: {

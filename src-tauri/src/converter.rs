@@ -48,9 +48,12 @@ pub async fn run_conversion(handle: AppHandle, input_paths: Vec<String>, output_
             args.push("-vn".to_string());
         }
         if let Some(codec) = options.options.get("-c:a") {
-            if codec == "dca" {
-                args.push("-strict".to_string());
-                args.push("-2".to_string());
+            match codec.as_str() {
+                "dca" | "truehd" => {
+                    args.push("-strict".to_string());
+                    args.push("-2".to_string());
+                }
+                _ => {}
             }
         }
 
