@@ -9,7 +9,6 @@ use tauri::AppHandle;
 use tauri_plugin_shell::ShellExt;
 
 mod ffmpeg;
-mod ncm;
 mod secret_config;
 
 #[derive(Deserialize, Debug)]
@@ -151,7 +150,6 @@ async fn convert_files(handle: AppHandle, input_paths: Vec<String>, output_ext: 
 
     match request.tool.as_str() {
         "ffmpeg" => ffmpeg::run_conversion(handle, input_paths, output_ext, request.options).await,
-        "ncm" => ncm::run_conversion(handle, input_paths, output_ext, request.options).await,
         _ => Err(format!("Unsupported tool requested: {}", request.tool)),
     }
 }

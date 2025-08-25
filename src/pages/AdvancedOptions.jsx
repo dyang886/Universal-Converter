@@ -99,9 +99,17 @@ function WidgetRenderer({ widgetKey, value, codecValue, onChange }) {
     );
 }
 
+const WIDGET_HEIGHT_PX = {
+    'select': 64,
+    'input-int': 64,
+    'input-flt': 64,
+    'input-txt': 64,
+    'checkbox': 24,
+};
+
 export default function AdvancedOptions() {
     const { t } = useTranslation();
-    const { outputExt, selectedVideoCodec, setSelectedVideoCodec, selectedAudioCodec, setSelectedAudioCodec, advancedOptionValues, setAdvancedOptionValues, activeTab, setActiveTab } = useApp();
+    const { filePaths, outputExt, selectedVideoCodec, setSelectedVideoCodec, selectedAudioCodec, setSelectedAudioCodec, advancedOptionValues, setAdvancedOptionValues, activeTab, setActiveTab } = useApp();
 
     const config = useMemo(() => formats[outputExt] || null, [outputExt]);
 
@@ -112,30 +120,55 @@ export default function AdvancedOptions() {
         return { videoCodecs: video, audioCodecs: audio };
     }, [config]);
 
-    // Memoize the widgets to display based on the new data structure
+    const inputDrivenWidgets = useMemo(() => {
+        if (!filePaths || filePaths.length === 0) {
+            return [];
+        }
+
+        const widgetKeys = new Set();
+        filePaths.forEach(path => {
+            const extension = path.split('.').pop()?.toLowerCase();
+            if (extension) {
+                const formatConfig = formats[extension];
+                if (formatConfig?.widgets_input) {
+                    formatConfig.widgets_input.forEach(widgetKey => {
+                        widgetKeys.add(widgetKey);
+                    });
+                }
+            }
+        });
+
+        return Array.from(widgetKeys);
+    }, [filePaths]);
+
     const widgetsToDisplay = useMemo(() => {
         if (!config) return { all: [], generalVideo: [], generalAudio: [], codecVideo: [], codecAudio: [], direct: [] };
 
-        let generalVideo = [];
-        let generalAudio = [];
+        let outputGeneralVideo = [];
+        let outputGeneralAudio = [];
+        let outputDirect = [];
         let codecVideo = [];
         let codecAudio = [];
-        let direct = [];
 
         if (config.group === 'video') {
-            generalVideo = config.videoWidgets || [];
-            generalAudio = config.audioWidgets || [];
+            outputGeneralVideo = config.videoWidgets || [];
+            outputGeneralAudio = config.audioWidgets || [];
             codecVideo = selectedVideoCodec ? videoCodecs[selectedVideoCodec]?.widgets || [] : [];
             codecAudio = selectedAudioCodec ? audioCodecs[selectedAudioCodec]?.widgets || [] : [];
         } else if (config.group === 'audio') {
-            direct = config.widgets || []; // These are the general audio widgets for audio-only formats
+            outputDirect = config.widgets || [];
             codecAudio = selectedAudioCodec ? audioCodecs[selectedAudioCodec]?.widgets || [] : [];
         }
+
+        const direct = Array.from(new Set([...outputDirect, ...(config.group === 'audio' ? inputDrivenWidgets : [])]));
+        const generalVideo = Array.from(new Set(outputGeneralVideo));
+        const generalAudio = Array.from(new Set(outputGeneralAudio));
 
         const all = [...generalVideo, ...generalAudio, ...codecVideo, ...codecAudio, ...direct];
 
         return { all, generalVideo, generalAudio, codecVideo, codecAudio, direct };
-    }, [config, selectedVideoCodec, selectedAudioCodec, videoCodecs, audioCodecs]);
+
+    }, [config, selectedVideoCodec, selectedAudioCodec, videoCodecs, audioCodecs, inputDrivenWidgets]);
 
     // Effect to initialize or clean up advanced option values when the available widgets change
     useEffect(() => {
@@ -157,6 +190,9 @@ export default function AdvancedOptions() {
 
     // Memoize the final ffmpeg command string
     const commandString = useMemo(() => {
+        // a set of arguments to exclude from the command string
+        const excludedArgs = new Set(['--qmc-mmkv', '--qmc-mmkv-key', '--kgg-db', '--update-metadata']);
+
         let cmd = `ffmpeg -i "${t("advanced.input_file")}"`;
         const videoCodecInfo = videoCodecs[selectedVideoCodec];
         const audioCodecInfo = audioCodecs[selectedAudioCodec];
@@ -174,7 +210,7 @@ export default function AdvancedOptions() {
             const value = advancedOptionValues[widgetKey];
             const definition = widgetDefinitions[widgetKey];
 
-            if (definition && value !== '' && value !== null && value !== undefined) {
+            if (definition && !excludedArgs.has(definition.arg) && value !== '' && value !== null && value !== undefined) {
                 const arg = definition.arg;
                 // Initialize the array if it's the first time we see this arg
                 if (!groupedArgs[arg]) {
@@ -201,9 +237,8 @@ export default function AdvancedOptions() {
 
         cmd += ` "${t("advanced.output_file")}_UCT.${outputExt}"`;
         return cmd;
-    }, [advancedOptionValues, selectedVideoCodec, selectedAudioCodec, videoCodecs, audioCodecs, outputExt]);
+    }, [advancedOptionValues, selectedVideoCodec, selectedAudioCodec, videoCodecs, audioCodecs, outputExt, t]);
 
-    // Helper function to render a list of widgets
     const renderWidgets = (widgetKeys, codecType = null) => {
         let codecValue = null;
         if (codecType === 'video' && selectedVideoCodec && videoCodecs[selectedVideoCodec]) {
@@ -219,7 +254,7 @@ export default function AdvancedOptions() {
 
             return (
                 <WidgetRenderer
-                    key={`${widgetKey}-${codecValue}`}
+                    key={`${widgetKey}-${codecValue || 'general'}`}
                     widgetKey={widgetKey}
                     value={value}
                     codecValue={codecValue}
@@ -239,11 +274,29 @@ export default function AdvancedOptions() {
                 </div>
             );
         } else {
-            // Evenly distribute for audio files
+            // Evenly distribute
             const generalWidgets = [...widgetsToDisplay.direct];
-            const midpoint = Math.ceil(generalWidgets.length / 2);
-            const leftWidgets = generalWidgets.slice(0, midpoint);
-            const rightWidgets = generalWidgets.slice(midpoint);
+
+            const widgetsWithHeights = generalWidgets.map(key => {
+                const definition = widgetDefinitions[key];
+                const height = WIDGET_HEIGHT_PX[definition.type];
+                return { key, height };
+            }).sort((a, b) => b.height - a.height);
+
+            const leftWidgets = [];
+            const rightWidgets = [];
+            let leftHeightPx = 0;
+            let rightHeightPx = 0;
+
+            widgetsWithHeights.forEach(widget => {
+                if (leftHeightPx <= rightHeightPx) {
+                    leftWidgets.push(widget.key);
+                    leftHeightPx += widget.height;
+                } else {
+                    rightWidgets.push(widget.key);
+                    rightHeightPx += widget.height;
+                }
+            });
 
             return (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
@@ -290,24 +343,60 @@ export default function AdvancedOptions() {
                 </div>
             );
         } else if (config.group === 'audio') {
-            const codecSelectorComponent = Object.keys(audioCodecs).length > 0 ? [
-                <Field key="audio-codec-selector">
-                    <Label>{t('advanced.audio.codec')}</Label>
-                    <Listbox value={selectedAudioCodec} onChange={setSelectedAudioCodec} placeholder={t('advanced.not_selected')}>
-                        <ListboxOption value="">{t('advanced.not_selected')}</ListboxOption>
-                        {Object.keys(audioCodecs).map(name => (
-                            <ListboxOption key={name} value={name}>{name}</ListboxOption>
-                        ))}
-                    </Listbox>
-                </Field>
-            ] : [];
+            // Evenly distribute
+            const itemsToDistribute = [];
 
+            // 1. Add the codec selector as an item to be distributed
+            if (Object.keys(audioCodecs).length > 0) {
+                itemsToDistribute.push({
+                    key: 'audio-codec-selector',
+                    height: WIDGET_HEIGHT_PX['select'],
+                    component: (
+                        <Field key="audio-codec-selector">
+                            <Label>{t('advanced.audio.codec')}</Label>
+                            <Listbox value={selectedAudioCodec} onChange={setSelectedAudioCodec} placeholder={t('advanced.not_selected')}>
+                                <ListboxOption value="">{t('advanced.not_selected')}</ListboxOption>
+                                {Object.keys(audioCodecs).map(name => (
+                                    <ListboxOption key={name} value={name}>{name}</ListboxOption>
+                                ))}
+                            </Listbox>
+                        </Field>
+                    ),
+                });
+            }
+
+            // 2. Add all codec-specific widgets as items to be distributed
             const codecWidgetComponents = renderWidgets(widgetsToDisplay.codecAudio, 'audio');
+            widgetsToDisplay.codecAudio.forEach((widgetKey, index) => {
+                const definition = widgetDefinitions[widgetKey];
+                if (definition) {
+                    const height = WIDGET_HEIGHT_PX[definition.type];
+                    itemsToDistribute.push({
+                        key: widgetKey,
+                        height: height,
+                        component: codecWidgetComponents[index],
+                    });
+                }
+            });
 
-            const itemsToDistribute = [...codecSelectorComponent, ...codecWidgetComponents];
-            const midpoint = Math.ceil(itemsToDistribute.length / 2);
-            const leftColumnItems = itemsToDistribute.slice(0, midpoint);
-            const rightColumnItems = itemsToDistribute.slice(midpoint);
+            // 3. Sort all items by height, descending
+            itemsToDistribute.sort((a, b) => b.height - a.height);
+
+            // 4. Distribute components into two columns using a greedy algorithm
+            const leftColumnItems = [];
+            const rightColumnItems = [];
+            let leftHeightPx = 0;
+            let rightHeightPx = 0;
+
+            itemsToDistribute.forEach(item => {
+                if (leftHeightPx <= rightHeightPx) {
+                    leftColumnItems.push(item.component);
+                    leftHeightPx += item.height;
+                } else {
+                    rightColumnItems.push(item.component);
+                    rightHeightPx += item.height;
+                }
+            });
 
             return (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">

@@ -447,7 +447,13 @@ export const widgetDefinitions = {
     vad: { arg: "-vad", labelKey: "advanced.audio.vad", type: "checkbox" },
     dtx: { arg: "-dtx", labelKey: "advanced.audio.dtx", type: "checkbox" },
 
-    // image
+    // encrypted
+    qmc_mmkv: { arg: "--qmc-mmkv", labelKey: "advanced.audio.qmc_mmkv", type: "input-txt" },
+    qmc_mmkv_key: { arg: "--qmc-mmkv-key", labelKey: "advanced.audio.qmc_mmkv_key", type: "input-txt" },
+    kgg_db: { arg: "--kgg-db", labelKey: "advanced.audio.kgg_db", type: "input-txt" },
+    update_metadata: { arg: "--update-metadata", labelKey: "advanced.audio.update_metadata", type: "checkbox" },
+
+    // ====== image ======
     img_quality: { arg: "-quality", labelKey: "advanced.image.quality", type: "input-int", options: [0, 100] },
     img_resize: { arg: "-resize", valueTemplate: "{arg0}x{arg1}", labelKey: "advanced.image.resize", type: "textinput", options: ["advanced.image.width", "advanced.image.height"] },
     img_rotate: { arg: "-rotate", labelKey: "advanced.image.rotate", type: "textinput", options: ["advanced.image.angle"] },
@@ -485,7 +491,7 @@ const allAudioFormats = ['mp3', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'aiff
 const generalVideoWidgets = ['disable_video', 'disable_subtitle', 'pass', 'frame_size', 'video_rotate', 'video_flip', 'video_bitrate', 'vframes', 'aspect_ratio'];
 const generalAudioWidgets = ['audio_volume', 'audio_speed', 'audio_quality', 'audio_bitrate', 'audio_channels', 'aframes'];
 export const formats = {
-    // --- Audio Formats ---
+    // ====== Audio Formats ======
     mp3: {
         group: 'audio',
         tool: 'ffmpeg',
@@ -583,12 +589,165 @@ export const formats = {
             'Opus (Opus Interactive Audio Codec)': { value: 'libopus', widgets: ['sample_rate', 'sample_format', 'application', 'frame_duration', 'packet_loss', 'fec', 'vbr', 'mapping_family', 'apply_phase_inv'] },
         }
     },
+    // Encrypted file formats  // TODO: add applicable for .ext, .ext... based on selected files
+    qmc0: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key']
+    },
+    qmc2: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key']
+    },
+    qmc3: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key']
+    },
+    qmcflac: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key']
+    },
+    qmcogg: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key']
+    },
+    tkm: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata']
+    },
+    bkcmp3: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata']
+    },
+    bkcflac: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata']
+    },
+    tm0: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata']
+    },
+    tm2: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata']
+    },
+    tm3: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata']
+    },
+    tm6: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata']
+    },
+    mflac: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata']
+    },
+    mgg: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata']
+    },
+    mflac0: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata']
+    },
+    mgg1: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata']
+    },
+    mggl: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata']
+    },
+    ofl_en: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata']
+    },
     ncm: {
         group: 'audio',
         tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata']
+    },
+    xm: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata']
+    },
+    kwm: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata']
+    },
+    kgm: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata', 'kgg_db']
+    },
+    vpr: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata', 'kgg_db']
+    },
+    x2m: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata']
+    },
+    x3m: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata']
+    },
+    mg3d: {
+        group: 'audio',
+        tool: '',
+        outputs: allAudioFormats,
+        widgets_input: ['update_metadata']
     },
 
-    // --- Video Formats ---
+    // ====== Video Formats ======
     mp4: {
         group: 'video',
         tool: 'ffmpeg',
@@ -761,7 +920,7 @@ export const formats = {
         }
     },
 
-    // --- Image Formats ---
+    // ====== Image Formats ======
     jpg: { group: 'image', outputs: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'jxr', 'svg', 'heic', 'eps', 'psd', 'ico'], supportsAlpha: false, widgets: ['img_quality', 'img_resize', 'img_rotate', 'img_sharpen', 'img_blur', 'img_brightness', 'alpha_fill'] },
     jpeg: { group: 'image', outputs: ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'jxr', 'svg', 'heic', 'eps', 'psd', 'ico'], supportsAlpha: false, widgets: ['img_quality', 'img_resize', 'img_rotate', 'img_sharpen', 'img_blur', 'img_brightness', 'alpha_fill'] },
     jxr: { group: 'image', outputs: ['jxr', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'svg', 'heic', 'eps', 'psd', 'ico'], supportsAlpha: false, widgets: ['img_quality', 'img_resize', 'img_rotate', 'img_sharpen', 'img_blur', 'img_brightness', 'alpha_fill'] },

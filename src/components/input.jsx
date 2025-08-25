@@ -141,7 +141,7 @@ export const IntegerInput = forwardRef(function IntegerInput(
   };
 
   return (
-    <div className={clsx('relative', className)}>
+    <div data-slot="control" className={clsx('relative', className)}>
       <Input
         ref={ref}
         type="text"
@@ -231,7 +231,7 @@ export const FloatInput = forwardRef(function FloatInput(
   };
 
   return (
-    <div className={clsx('relative', className)}>
+    <div data-slot="control" className={clsx('relative', className)}>
       <Input
         ref={ref}
         type="text"

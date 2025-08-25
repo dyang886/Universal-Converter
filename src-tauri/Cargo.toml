@@ -33,3 +33,4 @@ tauri-plugin-process = "2"
 aes = "0.8.4"
 base64 = "0.22.1"
 ecb = { version = "0.1.2", features = ["block-padding"] }
+uuid = "1.18.0"

@@ -28,6 +28,7 @@
     "publisher": "Yongcan Yang",
     "externalBin": [
       "binaries/ffmpeg",
+      "binaries/um",
       "binaries/Updater"
     ],
     "targets": "all",
