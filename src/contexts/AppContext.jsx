@@ -175,7 +175,12 @@ export function AppProvider({ children }) {
                         finalValue = `${finalValue}${definition.suffix}`;
                     }
 
-                    groupedArgs[arg].push(finalValue);
+                    // For checkbox-novalue, push empty string as placeholder (arg only, no value)
+                    if (definition.type === 'checkbox-novalue') {
+                        groupedArgs[arg].push('');
+                    } else {
+                        groupedArgs[arg].push(finalValue);
+                    }
                 }
             }
 
@@ -188,8 +193,8 @@ export function AppProvider({ children }) {
             }
 
             for (const arg in groupedArgs) {
-                const combinedValue = groupedArgs[arg].join(',');
-                finalOptions[arg] = combinedValue;
+                const combinedValue = groupedArgs[arg].filter(v => v !== '').join(',');
+                finalOptions[arg] = combinedValue === '' ? '' : combinedValue;
             }
 
             setIsConverting(true);

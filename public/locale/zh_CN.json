@@ -325,22 +325,19 @@
       "update_metadata": "从网络更新元数据与专辑封面"
     },
     "image": {
-      "quality": "质量",
-      "resize": "调整大小",
-      "width": "宽度",
-      "height": "高度",
-      "rotate": "旋转",
-      "angle": "角度",
-      "sharpen": "锐化",
-      "blur": "模糊",
-      "brightness": "亮度",
-      "brightness_percent": "亮度 (%)",
-      "alpha_fill": "透明度填充",
-      "color_hex": "颜色 (十六进制, 例如 #FFFFFF)",
-      "gif_delay": "帧延迟",
-      "frame_delay": "延迟 (1/100秒)",
-      "gif_loop": "循环次数",
-      "loop_count": "循环 (0 = 无限)"
+      "adaptive_blur": "自适应模糊 (半径[xSigma])",
+      "adaptive_resize": "自适应调整大小 (几何参数)",
+      "adaptive_sharpen": "自适应锐化 (半径[xSigma])",
+      "affine": "仿射变换矩阵 (sx,rx,ry,sy[,tx,ty])",
+      "alpha": "Alpha通道操作",
+      "annotate": "使用文本注释图像 (几何参数 文本)",
+      "antialias": "禁用抗锯齿 (+antialias)",
+      "attenuate": "噪声衰减",
+      "authenticate": "PDF解密密码",
+      "auto_gamma": "自动调整伽马值",
+      "auto_level": "自动调整色彩级别",
+      "auto_orient": "自动定向图像 (基于EXIF)",
+      "auto_threshold": "自动阈值方法"
     }
   }
 }

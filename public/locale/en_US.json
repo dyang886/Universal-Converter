@@ -325,22 +325,19 @@
       "update_metadata": "Update Metadata & Album Art from Network"
     },
     "image": {
-      "quality": "Quality",
-      "resize": "Resize",
-      "width": "Width",
-      "height": "Height",
-      "rotate": "Rotate",
-      "angle": "Angle",
-      "sharpen": "Sharpen",
-      "blur": "Blur",
-      "brightness": "Brightness",
-      "brightness_percent": "Brightness (%)",
-      "alpha_fill": "Alpha Fill",
-      "color_hex": "Color (HEX, e.g., #FFFFFF)",
-      "gif_delay": "Frame Delay",
-      "frame_delay": "Delay (1/100s)",
-      "gif_loop": "Loop Count",
-      "loop_count": "Loops (0 = infinite)"
+      "adaptive_blur": "Adaptive Blur (Radius[xSigma])",
+      "adaptive_resize": "Adaptive Resize (Geometry)",
+      "adaptive_sharpen": "Adaptive Sharpen (Radius[xSigma])",
+      "affine": "Affine Transformation Matrix (sx,rx,ry,sy[,tx,ty])",
+      "alpha": "Alpha Channel Operation",
+      "annotate": "Annotate Image with Text (geometry text)",
+      "antialias": "Disable Anti-aliasing (+antialias)",
+      "attenuate": "Noise Attenuation",
+      "authenticate": "PDF Decryption Password",
+      "auto_gamma": "Auto Adjust Gamma",
+      "auto_level": "Auto Adjust Color Levels",
+      "auto_orient": "Auto Orient Image (from EXIF)",
+      "auto_threshold": "Auto Threshold Method"
     }
   }
 }

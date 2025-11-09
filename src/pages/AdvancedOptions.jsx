@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useApp } from '@/contexts/AppContext';
 import { formats, widgetDefinitions } from '@/contexts/format-options';
-import { TriStateCheckbox } from '@/components/checkbox';
+import { TriStateCheckbox, DualStateCheckbox } from '@/components/checkbox';
 import { Field, Label } from '@/components/fieldset';
 import { IntegerInput, FloatInput, TextInput } from '@/components/input';
 import { Listbox, ListboxOption } from '@/components/listbox';
@@ -95,6 +95,13 @@ function WidgetRenderer({ widgetKey, value, codecValue, onChange }) {
                     <Label>{t(definition.labelKey)}</Label>
                 </Field>
             )}
+
+            {definition.type === 'checkbox-novalue' && (
+                <Field as="div" className="flex items-center gap-2">
+                    <DualStateCheckbox value={value} onChange={handleChange} />
+                    <Label>{t(definition.labelKey)}</Label>
+                </Field>
+            )}
         </>
     );
 }
@@ -105,6 +112,7 @@ const WIDGET_HEIGHT_PX = {
     'input-flt': 64,
     'input-txt': 64,
     'checkbox': 24,
+    'checkbox-novalue': 24,
 };
 
 export default function AdvancedOptions() {
@@ -158,6 +166,8 @@ export default function AdvancedOptions() {
         } else if (config.group === 'audio') {
             outputDirect = config.widgets || [];
             codecAudio = selectedAudioCodec ? audioCodecs[selectedAudioCodec]?.widgets || [] : [];
+        } else if (config.group === 'image') {
+            outputDirect = config.widgets || [];
         }
 
         const direct = Array.from(new Set([...outputDirect, ...(config.group === 'audio' ? inputDrivenWidgets : [])]));
@@ -184,27 +194,22 @@ export default function AdvancedOptions() {
         });
     }, [widgetsToDisplay.all.join(','), setAdvancedOptionValues]);
 
+    useEffect(() => {
+        if (config?.group === 'image') {
+            setActiveTab('general');
+        }
+    }, [config, setActiveTab]);
+
     const handleOptionChange = (widgetKey, value) => {
         setAdvancedOptionValues(prev => ({ ...prev, [widgetKey]: value }));
     };
 
-    // Memoize the final ffmpeg command string
+    // Memoize the final command string
     const commandString = useMemo(() => {
         // a set of arguments to exclude from the command string
         const excludedArgs = new Set(['--qmc-mmkv', '--qmc-mmkv-key', '--kgg-db', '--update-metadata']);
 
-        let cmd = `ffmpeg -i "${t("advanced.input_file")}"`;
-        const videoCodecInfo = videoCodecs[selectedVideoCodec];
-        const audioCodecInfo = audioCodecs[selectedAudioCodec];
-
-        if (selectedVideoCodec && videoCodecInfo) {
-            cmd += ` -c:v ${videoCodecInfo.value}`;
-        }
-        if (selectedAudioCodec && audioCodecInfo) {
-            cmd += ` -c:a ${audioCodecInfo.value}`;
-        }
-
-        // 1. Group all selected options by their FFmpeg argument
+        // 1. Group all selected options by their argument
         const groupedArgs = {};
         for (const widgetKey in advancedOptionValues) {
             const value = advancedOptionValues[widgetKey];
@@ -225,19 +230,61 @@ export default function AdvancedOptions() {
                     finalValue = `${finalValue}${definition.suffix}`;
                 }
 
-                groupedArgs[arg].push(finalValue);
+                // For checkbox-novalue, push empty string as placeholder (arg only, no value)
+                if (definition.type === 'checkbox-novalue') {
+                    groupedArgs[arg].push('');
+                } else {
+                    groupedArgs[arg].push(finalValue);
+                }
             }
         }
 
-        // 2. Build the command string from the grouped arguments
-        for (const arg in groupedArgs) {
-            const combinedValue = groupedArgs[arg].join(',');
-            cmd += ` ${arg} ${combinedValue}`;
+        // 2. Build the command string based on the tool
+        let cmd = "";
+        const tool = config?.tool || null;
+
+        if (tool === 'magick') {
+            cmd = `magick "${t("advanced.input_file")}"`;
+
+            // Build the command string from the grouped arguments
+            for (const arg in groupedArgs) {
+                const combinedValue = groupedArgs[arg].filter(v => v !== '').join(',');
+                if (combinedValue === '') {
+                    cmd += ` ${arg}`;
+                } else {
+                    cmd += ` ${arg} ${combinedValue}`;
+                }
+            }
+
+            cmd += ` "${t("advanced.output_file")}_UCT.${outputExt}"`;
+
+        } else if (tool === 'ffmpeg') {
+            cmd = `ffmpeg -i "${t("advanced.input_file")}"`;
+            const videoCodecInfo = videoCodecs[selectedVideoCodec];
+            const audioCodecInfo = audioCodecs[selectedAudioCodec];
+
+            if (selectedVideoCodec && videoCodecInfo) {
+                cmd += ` -c:v ${videoCodecInfo.value}`;
+            }
+            if (selectedAudioCodec && audioCodecInfo) {
+                cmd += ` -c:a ${audioCodecInfo.value}`;
+            }
+
+            // Build the command string from the grouped arguments
+            for (const arg in groupedArgs) {
+                const combinedValue = groupedArgs[arg].filter(v => v !== '').join(',');
+                if (combinedValue === '') {
+                    cmd += ` ${arg}`;
+                } else {
+                    cmd += ` ${arg} ${combinedValue}`;
+                }
+            }
+
+            cmd += ` "${t("advanced.output_file")}_UCT.${outputExt}"`;
         }
 
-        cmd += ` "${t("advanced.output_file")}_UCT.${outputExt}"`;
         return cmd;
-    }, [advancedOptionValues, selectedVideoCodec, selectedAudioCodec, videoCodecs, audioCodecs, outputExt, t]);
+    }, [advancedOptionValues, selectedVideoCodec, selectedAudioCodec, videoCodecs, audioCodecs, outputExt, t, config]);
 
     const renderWidgets = (widgetKeys, codecType = null) => {
         let codecValue = null;
@@ -422,12 +469,14 @@ export default function AdvancedOptions() {
                     </div>
 
                     {/* Tab Navigation */}
-                    <Navbar className="mt-3 flex justify-start self-stretch">
-                        <NavbarSection>
-                            <NavbarItem as="button" onClick={() => setActiveTab('general')} current={activeTab === 'general'}>{t('advanced.general')}</NavbarItem>
-                            <NavbarItem as="button" onClick={() => setActiveTab('codec')} current={activeTab === 'codec'}>{t('advanced.codec')}</NavbarItem>
-                        </NavbarSection>
-                    </Navbar>
+                    {config.group !== 'image' && (
+                        <Navbar className="mt-3 flex justify-start self-stretch">
+                            <NavbarSection>
+                                <NavbarItem as="button" onClick={() => setActiveTab('general')} current={activeTab === 'general'}>{t('advanced.general')}</NavbarItem>
+                                <NavbarItem as="button" onClick={() => setActiveTab('codec')} current={activeTab === 'codec'}>{t('advanced.codec')}</NavbarItem>
+                            </NavbarSection>
+                        </Navbar>
+                    )}
 
                     {/* Command Display */}
                     <div className="mt-3 flex-shrink-0 rounded-lg bg-zinc-800 p-4 font-mono text-sm text-zinc-300">

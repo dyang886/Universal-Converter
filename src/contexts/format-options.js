@@ -98,6 +98,10 @@ export const widgetOptions = {
     // truehd
     lpc_type_truehd: { "Levinson": "2", "Cholesky": "3" },
     prediction_order_truehd: { "Estimation": "0", "Search": "4" },
+
+    // ====== image.general ======
+    alpha: { "Activate": "activate", "Associate": "associate", "Background": "background", "Copy": "copy", "Deactivate": "deactivate", "Disassociate": "disassociate", "Extract": "extract", "Off": "off", "Off if Opaque": "off-if-opaque", "On": "on", "Opaque": "opaque", "Remove": "remove", "Set": "set", "Shape": "shape", "Transparent": "transparent" },
+    auto_threshold_method: { "Kapur": "Kapur", "OTSU": "OTSU", "Triangle": "Triangle" },
 };
 
 // ===========================================================================
@@ -106,8 +110,8 @@ export const widgetOptions = {
 // ===========================================================================
 export const widgetDefinitions = {
     // ====== video.general ======
-    disable_video: { arg: "-vn", labelKey: "advanced.video.disable_video", type: "checkbox" },
-    disable_subtitle: { arg: "-sn", labelKey: "advanced.video.disable_subtitle", type: "checkbox" },
+    disable_video: { arg: "-vn", labelKey: "advanced.video.disable_video", type: "checkbox-novalue" },
+    disable_subtitle: { arg: "-sn", labelKey: "advanced.video.disable_subtitle", type: "checkbox-novalue" },
     pass: { arg: "-pass", labelKey: "advanced.video.pass", type: "input-int", options: [1, 3] },
     frame_size: { arg: "-vf", labelKey: "advanced.video.frame_size", type: "input-txt", prefix: 'scale=' },
     video_rotate: { arg: "-vf", labelKey: "advanced.video.video_rotate", type: "select", options: widgetOptions.video_rotate },
@@ -337,9 +341,8 @@ export const widgetDefinitions = {
     corpus_complexity: { arg: "-corpus-complexity", labelKey: "advanced.video.corpus_complexity", type: "input-int", options: [0, 10000] },
     enable_tpl: { arg: "-enable-tpl", labelKey: "advanced.video.enable_tpl", type: "checkbox" },
     min_gf_interval: { arg: "-min-gf-interval", labelKey: "advanced.video.min_gf_interval", type: "input-int", options: [0, 2147483647] },
-
     // ====== audio.general ======
-    disable_audio: { arg: "-an", labelKey: "advanced.audio.disable_audio", type: "checkbox" },
+    disable_audio: { arg: "-an", labelKey: "advanced.audio.disable_audio", type: "checkbox-novalue" },
     audio_volume: { arg: "-af", labelKey: "advanced.audio.audio_volume", type: "input-flt", options: [-Infinity, Infinity], prefix: 'volume=' },
     audio_speed: { arg: "-af", labelKey: "advanced.audio.audio_speed", type: "input-flt", options: [0.5, 100], prefix: 'atempo=' },
     audio_quality: { arg: "-aq", labelKey: "advanced.audio.audio_quality", type: "input-int", options: [-Infinity, Infinity] },
@@ -454,15 +457,21 @@ export const widgetDefinitions = {
     update_metadata: { arg: "--update-metadata", labelKey: "advanced.audio.update_metadata", type: "checkbox" },
 
     // ====== image ======
-    img_quality: { arg: "-quality", labelKey: "advanced.image.quality", type: "input-int", options: [0, 100] },
-    img_resize: { arg: "-resize", valueTemplate: "{arg0}x{arg1}", labelKey: "advanced.image.resize", type: "textinput", options: ["advanced.image.width", "advanced.image.height"] },
-    img_rotate: { arg: "-rotate", labelKey: "advanced.image.rotate", type: "textinput", options: ["advanced.image.angle"] },
-    img_sharpen: { arg: "-sharpen", valueTemplate: "0x{arg0}", labelKey: "advanced.image.sharpen", type: "input-int", options: [0, 100] },
-    img_blur: { arg: "-blur", valueTemplate: "0x{arg0}", labelKey: "advanced.image.blur", type: "input-int", options: [0, 100] },
-    img_brightness: { arg: "-modulate", labelKey: "advanced.image.brightness", type: "textinput", options: ["advanced.image.brightness_percent"] },
-    alpha_fill: { arg: "-background", labelKey: "advanced.image.alpha_fill", type: "textinput", options: ["advanced.image.color_hex"] },
-    gif_delay: { arg: "-delay", labelKey: "advanced.image.gif_delay", type: "textinput", options: ["advanced.image.frame_delay"] },
-    gif_loop: { arg: "-loop", labelKey: "advanced.image.gif_loop", type: "textinput", options: ["advanced.image.loop_count"] },
+    adaptive_blur: { arg: "-adaptive-blur", labelKey: "advanced.image.adaptive_blur", type: "input-txt" },
+    adaptive_resize: { arg: "-adaptive-resize", labelKey: "advanced.image.adaptive_resize", type: "input-txt" },
+    adaptive_sharpen: { arg: "-adaptive-sharpen", labelKey: "advanced.image.adaptive_sharpen", type: "input-txt" },
+    // adjoin: { arg: "+adjoin", labelKey: "advanced.image.adjoin", type: "checkbox" },
+    affine: { arg: "-affine", labelKey: "advanced.image.affine", type: "input-txt" },
+    alpha: { arg: "-alpha", labelKey: "advanced.image.alpha", type: "select", options: widgetOptions.alpha },
+    annotate: { arg: "-annotate", labelKey: "advanced.image.annotate", type: "input-txt" },
+    antialias: { arg: "+antialias", labelKey: "advanced.image.antialias", type: "checkbox-novalue" },
+    // append: { arg: "", labelKey: "advanced.image.append", type: "select", options: widgetOptions.append_direction },
+    attenuate: { arg: "-attenuate", labelKey: "advanced.image.attenuate", type: "input-flt", options: [0, 1] },
+    authenticate: { arg: "-authenticate", labelKey: "advanced.image.authenticate", type: "input-txt" },
+    auto_gamma: { arg: "-auto-gamma", labelKey: "advanced.image.auto_gamma", type: "checkbox-novalue" },
+    auto_level: { arg: "-auto-level", labelKey: "advanced.image.auto_level", type: "checkbox-novalue" },
+    auto_orient: { arg: "-auto-orient", labelKey: "advanced.image.auto_orient", type: "checkbox-novalue" },
+    auto_threshold: { arg: "-auto-threshold", labelKey: "advanced.image.auto_threshold", type: "select", options: widgetOptions.auto_threshold_method },
 };
 
 // ===========================================================================
@@ -488,8 +497,28 @@ const allVideoFormats = [
     '3gp', '3g2'
 ];
 const allAudioFormats = ['mp3', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'aiff', 'opus'];
+const allImageFormats = [
+    // Common Web & General Use Raster Formats
+    'jpeg', 'png', 'gif', 'webp',
+    // Uncompressed & Lossless Raster Formats
+    'bmp', 'dib', 'tiff', 'pnm', 'ppm', 'pgm', 'pbm', 'xpm', 'xbm',
+    // Modern & High-Quality Formats
+    'heic', 'heif', 'jp2', 'j2k', 'jxr', 'ico', 'cur',
+    // Professional & Design Formats
+    'psd', 'xcf', 'ai', 'eps', 'pdf', 'ps',
+    // Specialized Raster Formats
+    'pcx', 'tga', 'dds', 'dcx', 'iff', 'ora', 'lbm', 'thm',
+    // Raw Camera & Image Formats
+    'raw', 'cr2', 'crw', 'nef', 'dng', 'arw', 'raf', 'rw2', 'orf', 'pef', 'x3f', 'srw', 'iiq', '3fr', 'mef', 'mrw', 'mos', 'kdc', 'dcr', 'erf', 'ptx', 'pxn', 'sr2', 'srf', 'mdc', 'gp4', 'bay',
+    // Vector & Document Formats
+    'svg', 'emf', 'wmf'
+];
 const generalVideoWidgets = ['disable_video', 'disable_subtitle', 'pass', 'frame_size', 'video_rotate', 'video_flip', 'video_bitrate', 'vframes', 'aspect_ratio'];
 const generalAudioWidgets = ['audio_volume', 'audio_speed', 'audio_quality', 'audio_bitrate', 'audio_channels', 'aframes'];
+const generalImageWidgets = [
+    'adaptive_blur', 'adaptive_resize', 'adaptive_sharpen', 'affine', 'alpha', 'annotate', 'antialias', 'attenuate', 'authenticate', 'auto_gamma', 'auto_level',
+    'auto_orient', 'auto_threshold'
+];
 export const formats = {
     // ====== Audio Formats ======
     mp3: {
@@ -590,162 +619,32 @@ export const formats = {
         }
     },
     // Encrypted file formats  // TODO: add applicable for .ext, .ext... based on selected files
-    qmc0: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key']
-    },
-    qmc2: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key']
-    },
-    qmc3: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key']
-    },
-    qmcflac: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key']
-    },
-    qmcogg: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key']
-    },
-    tkm: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata']
-    },
-    bkcmp3: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata']
-    },
-    bkcflac: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata']
-    },
-    tm0: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata']
-    },
-    tm2: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata']
-    },
-    tm3: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata']
-    },
-    tm6: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata']
-    },
-    mflac: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata']
-    },
-    mgg: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata']
-    },
-    mflac0: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata']
-    },
-    mgg1: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata']
-    },
-    mggl: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata']
-    },
-    ofl_en: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata']
-    },
-    ncm: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata']
-    },
-    xm: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata']
-    },
-    kwm: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata']
-    },
-    kgm: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata', 'kgg_db']
-    },
-    vpr: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata', 'kgg_db']
-    },
-    x2m: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata']
-    },
-    x3m: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata']
-    },
-    mg3d: {
-        group: 'audio',
-        tool: '',
-        outputs: allAudioFormats,
-        widgets_input: ['update_metadata']
-    },
+    qmc0: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key'] },
+    qmc2: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key'] },
+    qmc3: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key'] },
+    qmcflac: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key'] },
+    qmcogg: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key'] },
+    tkm: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata'] },
+    bkcmp3: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata'] },
+    bkcflac: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata'] },
+    tm0: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata'] },
+    tm2: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata'] },
+    tm3: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata'] },
+    tm6: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata'] },
+    mflac: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata'] },
+    mgg: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata'] },
+    mflac0: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata'] },
+    mgg1: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata'] },
+    mggl: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata'] },
+    ofl_en: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata'] },
+    ncm: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata'] },
+    xm: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata'] },
+    kwm: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata'] },
+    kgm: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata', 'kgg_db'] },
+    vpr: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata', 'kgg_db'] },
+    x2m: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata'] },
+    x3m: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata'] },
+    mg3d: { group: 'audio', tool: 'ffmpeg', outputs: allAudioFormats, widgets_input: ['update_metadata'] },
 
     // ====== Video Formats ======
     mp4: {
@@ -921,30 +820,78 @@ export const formats = {
     },
 
     // ====== Image Formats ======
-    jpg: { group: 'image', outputs: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'jxr', 'svg', 'heic', 'eps', 'psd', 'ico'], supportsAlpha: false, widgets: ['img_quality', 'img_resize', 'img_rotate', 'img_sharpen', 'img_blur', 'img_brightness', 'alpha_fill'] },
-    jpeg: { group: 'image', outputs: ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'jxr', 'svg', 'heic', 'eps', 'psd', 'ico'], supportsAlpha: false, widgets: ['img_quality', 'img_resize', 'img_rotate', 'img_sharpen', 'img_blur', 'img_brightness', 'alpha_fill'] },
-    jxr: { group: 'image', outputs: ['jxr', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'svg', 'heic', 'eps', 'psd', 'ico'], supportsAlpha: false, widgets: ['img_quality', 'img_resize', 'img_rotate', 'img_sharpen', 'img_blur', 'img_brightness', 'alpha_fill'] },
-    png: { group: 'image', outputs: ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tiff', 'jxr', 'svg', 'heic', 'eps', 'psd', 'ico'], supportsAlpha: true, widgets: ['img_quality', 'img_resize', 'img_rotate', 'img_sharpen', 'img_blur', 'img_brightness'] },
-    svg: { group: 'image', outputs: ['svg', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'jxr', 'heic', 'eps', 'psd', 'ico'], supportsAlpha: true, widgets: ['img_quality', 'img_resize', 'img_rotate', 'img_sharpen', 'img_blur', 'img_brightness'] },
-    gif: { group: 'image', outputs: ['gif', 'jpg', 'jpeg', 'png', 'bmp', 'webp', 'tiff', 'jxr', 'svg', 'heic', 'eps', 'psd', 'ico'], supportsAlpha: false, widgets: ['img_quality', 'img_resize', 'img_rotate', 'img_sharpen', 'img_blur', 'img_brightness', 'alpha_fill', 'gif_delay', 'gif_loop'] },
-    bmp: { group: 'image', outputs: ['bmp', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'tiff', 'jxr', 'svg', 'heic', 'eps', 'psd', 'ico'], supportsAlpha: true, widgets: ['img_quality', 'img_resize', 'img_rotate', 'img_sharpen', 'img_blur', 'img_brightness'] },
-    webp: { group: 'image', outputs: ['webp', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'jxr', 'svg', 'heic', 'eps', 'psd', 'ico'], supportsAlpha: true, widgets: ['img_quality', 'img_resize', 'img_rotate', 'img_sharpen', 'img_blur', 'img_brightness'] },
-    tiff: { group: 'image', outputs: ['tiff', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'jxr', 'svg', 'heic', 'eps', 'psd', 'ico'], supportsAlpha: true, widgets: ['img_quality', 'img_resize', 'img_rotate', 'img_sharpen', 'img_blur', 'img_brightness'] },
-    heic: { group: 'image', outputs: ['heic', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'jxr', 'svg', 'eps', 'psd', 'ico'], supportsAlpha: true, widgets: ['img_quality', 'img_resize', 'img_rotate', 'img_sharpen', 'img_blur', 'img_brightness'] },
-    eps: { group: 'image', outputs: ['eps', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'jxr', 'svg', 'heic', 'psd', 'ico'], supportsAlpha: false, widgets: ['img_quality', 'img_resize', 'img_rotate', 'img_sharpen', 'img_blur', 'img_brightness', 'alpha_fill'] },
-    psd: { group: 'image', outputs: ['psd', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'jxr', 'svg', 'heic', 'eps', 'ico'], supportsAlpha: true, widgets: ['img_quality', 'img_resize', 'img_rotate', 'img_sharpen', 'img_blur', 'img_brightness'] },
-    ico: { group: 'image', outputs: ['ico', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'jxr', 'svg', 'heic', 'eps', 'psd'], supportsAlpha: true, widgets: ['img_quality', 'img_rotate', 'img_sharpen', 'img_blur', 'img_brightness'] },
-
-    // --- Document Formats ---
-    pdf: { group: 'document', tool: 'pdf', outputs: ['pdf', 'jpeg', 'epub', 'docx'], widgets: {} },
-
-    // Pandoc-based documents
-    docx: { group: 'document', tool: 'pandoc', outputs: ["docx", "html", "epub", "txt", "md", "rst", "rtf", "odt", "docbook", "fb2", "org", "muse", "textile", "jats", "roff", "tex", "ipynb", "opml", "bibtex", "bib", "json", "yaml", "wiki", "dokuwiki", "jira"] },
-    // ... (add all other pandoc input formats here with their respective outputs)
-
-    // Calibre-based documents
-    epub: { group: 'document', tool: 'calibre', outputs: ["epub", "pdf", "azw3", "mobi", "docx", "fb2", "htmlz", "lit", "lrf", "pdb", "pmlz", "rb", "rtf", "snb", "tcr", "txt", "txtz", "zip"] },
-    // ... (add all other calibre input formats here with their respective outputs)
+    // Common Web & General Use Raster Formats
+    jpeg: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    jpg: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    png: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    gif: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    webp: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    // Uncompressed & Lossless Raster Formats
+    bmp: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    dib: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    tiff: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    pnm: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    ppm: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    pgm: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    pbm: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    xpm: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    xbm: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    // Modern & High-Quality Formats
+    heic: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    heif: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    jp2: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    j2k: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    jxr: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    ico: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    cur: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    // Professional & Design Formats
+    psd: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    xcf: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    ai: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    eps: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    pdf: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    ps: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    // Specialized Raster Formats
+    pcx: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    tga: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    dds: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    dcx: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    iff: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    ora: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    lbm: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    thm: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    // Raw Camera & Image Formats
+    raw: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    cr2: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    crw: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    nef: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    dng: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    arw: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    raf: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    rw2: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    orf: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    pef: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    x3f: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    srw: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    iiq: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    '3fr': { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    mef: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    mrw: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    mos: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    kdc: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    dcr: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    erf: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    ptx: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    pxn: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    sr2: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    srf: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    mdc: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    gp4: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    bay: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    // Vector & Document Formats
+    svg: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    emf: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    wmf: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets }
 };
 
 // ===========================================================================

@@ -1,15 +1,21 @@
 use std::collections::HashMap;
+use std::env;
+use std::ffi::OsStr;
 use std::fs;
 use std::path::PathBuf;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use directories::BaseDirs;
 use serde::{Deserialize, Serialize};
-use tauri::AppHandle;
-use tauri_plugin_shell::ShellExt;
+use tauri::{AppHandle, Emitter, Manager};
+use tauri_plugin_shell::{ShellExt, process::CommandEvent};
+use tokio::fs as async_fs;
 
 mod ffmpeg;
+mod magick;
 mod secret_config;
+
+pub const THROTTLE_INTERVAL: Duration = Duration::from_millis(500);
 
 #[derive(Deserialize, Debug)]
 struct UpdateInfo {
@@ -145,11 +151,11 @@ async fn launch_updater(app_handle: AppHandle, latest_version: String, theme: St
 
 #[tauri::command]
 async fn convert_files(handle: AppHandle, input_paths: Vec<String>, output_ext: String, request: ConversionRequest) -> Result<bool, String> {
-    println!("Received request to convert {} files to .{}", input_paths.len(), output_ext);
-    println!("Tool: {}, Options: {:?}", request.tool, request.options);
+    println!("\nReceived request to convert {} files to .{}", input_paths.len(), output_ext);
 
     match request.tool.as_str() {
         "ffmpeg" => ffmpeg::run_conversion(handle, input_paths, output_ext, request.options).await,
+        "magick" => magick::run_conversion(handle, input_paths, output_ext, request.options).await,
         _ => Err(format!("Unsupported tool requested: {}", request.tool)),
     }
 }
@@ -204,6 +210,123 @@ async fn get_dynamic_options(handle: AppHandle, widget_name: String, codec: Stri
     }
 
     Ok(unique_options)
+}
+
+// --- Common helper functions for CLI command execution ---
+
+/// Create a HashMap with a single file path for localization context
+pub fn create_vars(file_path: String) -> HashMap<String, String> {
+    let mut vars = HashMap::new();
+    vars.insert("file".to_string(), file_path);
+    vars
+}
+
+/// Emit a conversion success event
+pub fn emit_success(handle: &AppHandle, path_str: &str, original_path: &PathBuf, final_log: String) {
+    handle
+        .emit(
+            "conversion-log",
+            &ConversionLogPayload {
+                file_path: path_str.to_string(),
+                status_message: LocalizedText {
+                    key: "terminal.success".to_string(),
+                    vars: create_vars(original_path.display().to_string()),
+                },
+                terminal_output: Some(final_log),
+                success: Some(true),
+            },
+        )
+        .unwrap();
+}
+
+/// Emit a conversion error event
+pub fn emit_error(handle: &AppHandle, path_str: &str, original_path: &PathBuf, error_log: String) {
+    handle
+        .emit(
+            "conversion-log",
+            &ConversionLogPayload {
+                file_path: path_str.to_string(),
+                status_message: LocalizedText {
+                    key: "terminal.failure".to_string(),
+                    vars: create_vars(original_path.display().to_string()),
+                },
+                terminal_output: Some(error_log),
+                success: Some(false),
+            },
+        )
+        .unwrap();
+}
+
+/// Finds the first file within a given directory.
+pub async fn find_first_file_in_dir(dir: &PathBuf) -> Result<Option<PathBuf>, String> {
+    let mut entries = async_fs::read_dir(dir).await.map_err(|e| e.to_string())?;
+    if let Some(entry) = entries.next_entry().await.map_err(|e| e.to_string())? {
+        Ok(Some(entry.path()))
+    } else {
+        Ok(None)
+    }
+}
+
+/// Run an external CLI command and stream its output
+pub async fn run_cli_command(handle: &AppHandle, original_path_str: &str, program: &str, args: &[String]) -> Result<String, String> {
+    let resource_dir = handle.path().resource_dir().map_err(|e| e.to_string())?;
+
+    let mut new_env = HashMap::new();
+    if let Some(path_var) = std::env::var_os("PATH") {
+        let mut paths = std::env::split_paths(&path_var).collect::<Vec<_>>();
+        paths.insert(0, resource_dir.clone());
+        let new_path = std::env::join_paths(paths).unwrap_or_else(|_| OsStr::new("").to_os_string());
+        new_env.insert("PATH".to_string(), new_path);
+    }
+
+    let (mut rx, _child) = handle
+        .shell()
+        .command(program)
+        .args(args)
+        .envs(new_env)
+        .spawn()
+        .map_err(|e| format!("Failed to spawn '{}'. Error: {}", program, e))?;
+
+    let mut terminal_output = String::new();
+    let mut last_update = Instant::now();
+    let display_path = PathBuf::from(original_path_str).display().to_string();
+    let mut final_code: Option<i32> = None;
+
+    while let Some(event) = rx.recv().await {
+        match event {
+            CommandEvent::Stderr(line) | CommandEvent::Stdout(line) => {
+                terminal_output.push_str(&String::from_utf8_lossy(&line));
+
+                if last_update.elapsed() >= THROTTLE_INTERVAL {
+                    handle
+                        .emit(
+                            "conversion-log",
+                            &ConversionLogPayload {
+                                file_path: original_path_str.to_string(),
+                                status_message: LocalizedText {
+                                    key: "terminal.converting".to_string(),
+                                    vars: create_vars(display_path.clone()),
+                                },
+                                terminal_output: Some(terminal_output.clone()),
+                                success: None,
+                            },
+                        )
+                        .unwrap();
+                    last_update = Instant::now();
+                }
+            }
+            CommandEvent::Terminated(payload) => {
+                final_code = payload.code;
+            }
+            _ => {}
+        }
+    }
+
+    if final_code != Some(0) {
+        return Err(terminal_output);
+    }
+
+    Ok(terminal_output)
 }
 
 // --- Main application entry point ---

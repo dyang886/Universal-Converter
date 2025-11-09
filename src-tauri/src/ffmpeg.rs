@@ -1,15 +1,12 @@
 use std::collections::HashMap;
 use std::env;
 use std::path::PathBuf;
-use std::time::{Duration, Instant};
 
 use tauri::{AppHandle, Emitter};
-use tauri_plugin_shell::{ShellExt, process::CommandEvent};
 use tokio::fs;
 use uuid::Uuid;
 
-use crate::{ConversionLogPayload, LocalizedText};
-const THROTTLE_INTERVAL: Duration = Duration::from_millis(500);
+use crate::{ConversionLogPayload, LocalizedText, create_vars, emit_error, emit_success, find_first_file_in_dir, run_cli_command};
 
 // A list of all file extensions that should be processed by the 'um' CLI tool.
 const ENCRYPTED_AUDIO_EXTENSIONS: &[&str] = &[
@@ -30,6 +27,9 @@ pub async fn run_conversion(
         let file_ext = original_input_path.extension().and_then(|s| s.to_str()).unwrap_or("").to_lowercase();
 
         let is_encrypted_file = ENCRYPTED_AUDIO_EXTENSIONS.contains(&file_ext.as_str());
+
+        // These are the special options only for the 'um' tool
+        let um_specific_args = ["--qmc-mmkv", "--qmc-mmkv-key", "--kgg-db", "--update-metadata"];
 
         handle
             .emit(
@@ -61,17 +61,18 @@ pub async fn run_conversion(
                 temp_dir.to_string_lossy().to_string(),
             ];
 
-            // These are the special options only for the 'um' tool
-            let um_specific_args = ["--qmc-mmkv", "--qmc-mmkv-key", "--kgg-db", "--update-metadata"];
-
             for arg_name in um_specific_args {
-                if let Some(value) = options.remove(arg_name) {
+                if let Some(value) = options.get(arg_name) {
                     um_cli_args.push(arg_name.to_string());
                     if !value.is_empty() {
-                        um_cli_args.push(value);
+                        um_cli_args.push(value.clone());
                     }
                 }
             }
+
+            // Print the full um command for debugging
+            let full_um_command = format!("um {}", um_cli_args.join(" "));
+            println!("Full um command: {}", full_um_command);
 
             match run_cli_command(&handle, &path_str, "um", &um_cli_args).await {
                 Ok(cli_log) => {
@@ -104,6 +105,10 @@ pub async fn run_conversion(
             original_input_path.clone()
         };
 
+        for arg in um_specific_args {
+            options.remove(arg);
+        }
+
         let original_file_stem = original_input_path.file_stem().unwrap_or_default().to_string_lossy();
         let new_file_name = format!("{}_UCT.{}", original_file_stem, output_ext);
         let output_path = original_input_path.with_file_name(new_file_name);
@@ -133,6 +138,10 @@ pub async fn run_conversion(
             output_path.to_string_lossy().to_string(),
         ]);
 
+        // Print the full command for debugging
+        let full_command = format!("ffmpeg {}", ffmpeg_args.join(" "));
+        println!("Full FFmpeg command: {}", full_command);
+
         match run_cli_command(&handle, &path_str, "ffmpeg", &ffmpeg_args).await {
             Ok(ffmpeg_log) => {
                 let final_log = format!("{}{}", pre_process_log_output, ffmpeg_log);
@@ -154,105 +163,4 @@ pub async fn run_conversion(
     }
 
     Ok(all_files_converted_successfully)
-}
-
-/// A generic function to run an external command and stream its output.
-async fn run_cli_command(handle: &AppHandle, original_path_str: &str, program: &str, args: &[String]) -> Result<String, String> {
-    let (mut rx, _child) = handle
-        .shell()
-        .command(program)
-        .args(args)
-        .spawn()
-        .map_err(|e| format!("Failed to spawn '{}'. Error: {}", program, e))?;
-
-    let mut terminal_output = String::new();
-    let mut last_update = Instant::now();
-    let display_path = PathBuf::from(original_path_str).display().to_string();
-    let mut final_code: Option<i32> = None;
-
-    while let Some(event) = rx.recv().await {
-        match event {
-            CommandEvent::Stderr(line) | CommandEvent::Stdout(line) => {
-                terminal_output.push_str(&String::from_utf8_lossy(&line));
-
-                if last_update.elapsed() >= THROTTLE_INTERVAL {
-                    handle
-                        .emit(
-                            "conversion-log",
-                            &ConversionLogPayload {
-                                file_path: original_path_str.to_string(),
-                                status_message: LocalizedText {
-                                    key: "terminal.converting".to_string(),
-                                    vars: create_vars(display_path.clone()),
-                                },
-                                terminal_output: Some(terminal_output.clone()),
-                                success: None,
-                            },
-                        )
-                        .unwrap();
-                    last_update = Instant::now();
-                }
-            }
-            CommandEvent::Terminated(payload) => {
-                final_code = payload.code;
-            }
-            _ => {}
-        }
-    }
-
-    if final_code != Some(0) {
-        return Err(terminal_output);
-    }
-
-    Ok(terminal_output)
-}
-
-/// Finds the first file within a given directory.
-async fn find_first_file_in_dir(dir: &PathBuf) -> Result<Option<PathBuf>, String> {
-    let mut entries = fs::read_dir(dir).await.map_err(|e| e.to_string())?;
-    if let Some(entry) = entries.next_entry().await.map_err(|e| e.to_string())? {
-        Ok(Some(entry.path()))
-    } else {
-        Ok(None)
-    }
-}
-
-fn create_vars(file_path: String) -> HashMap<String, String> {
-    let mut vars = HashMap::new();
-    vars.insert("file".to_string(), file_path);
-    vars
-}
-
-fn emit_error(handle: &AppHandle, path_str: &str, original_path: &PathBuf, error_log: String) {
-    handle
-        .emit(
-            "conversion-log",
-            &ConversionLogPayload {
-                file_path: path_str.to_string(),
-                status_message: LocalizedText {
-                    key: "terminal.failure".to_string(),
-                    vars: create_vars(original_path.display().to_string()),
-                },
-                terminal_output: Some(error_log),
-                success: Some(false),
-            },
-        )
-        .unwrap();
-}
-
-fn emit_success(handle: &AppHandle, path_str: &str, original_path: &PathBuf, final_log: String) {
-    handle
-        .emit(
-            "conversion-log",
-            &ConversionLogPayload {
-                file_path: path_str.to_string(),
-                status_message: LocalizedText {
-                    key: "terminal.success".to_string(),
-                    vars: create_vars(original_path.display().to_string()),
-                },
-                terminal_output: Some(final_log),
-                success: Some(true),
-            },
-        )
-        .unwrap();
 }

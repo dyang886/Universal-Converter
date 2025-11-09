@@ -29,6 +29,7 @@
     "externalBin": [
       "binaries/ffmpeg",
       "binaries/um",
+      "binaries/magick",
       "binaries/Updater"
     ],
     "targets": "all",
