@@ -115,7 +115,7 @@ async fn check_for_updates(app_name: String) -> Result<String, String> {
     let client = reqwest::Client::new();
 
     let response = client
-        .get(secret_config::VERSION_CHECKER_API_GATEWAY_ENDPOINT.as_str())
+        .get(secret_config::VERSION_CHECKER_ENDPOINT.as_str())
         .header("x-api-key", secret_config::CLIENT_API_KEY.as_str())
         .query(&[("appName", app_name)])
         .timeout(Duration::from_secs(15))

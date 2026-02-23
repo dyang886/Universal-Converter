@@ -366,7 +366,7 @@ export default function AdvancedOptions() {
                                 <Listbox value={selectedVideoCodec} onChange={setSelectedVideoCodec} placeholder={t('advanced.not_selected')}>
                                     <ListboxOption value="">{t('advanced.not_selected')}</ListboxOption>
                                     {Object.keys(videoCodecs).map(name => (
-                                        <ListboxOption key={name} value={name}>{name}</ListboxOption>
+                                        <ListboxOption key={name} value={name}>{t(name)}</ListboxOption>
                                     ))}
                                 </Listbox>
                             </Field>
@@ -380,7 +380,7 @@ export default function AdvancedOptions() {
                                 <Listbox value={selectedAudioCodec} onChange={setSelectedAudioCodec} placeholder={t('advanced.not_selected')}>
                                     <ListboxOption value="">{t('advanced.not_selected')}</ListboxOption>
                                     {Object.keys(audioCodecs).map(name => (
-                                        <ListboxOption key={name} value={name}>{name}</ListboxOption>
+                                        <ListboxOption key={name} value={name}>{t(name)}</ListboxOption>
                                     ))}
                                 </Listbox>
                             </Field>
@@ -404,7 +404,7 @@ export default function AdvancedOptions() {
                             <Listbox value={selectedAudioCodec} onChange={setSelectedAudioCodec} placeholder={t('advanced.not_selected')}>
                                 <ListboxOption value="">{t('advanced.not_selected')}</ListboxOption>
                                 {Object.keys(audioCodecs).map(name => (
-                                    <ListboxOption key={name} value={name}>{name}</ListboxOption>
+                                    <ListboxOption key={name} value={name}>{t(name)}</ListboxOption>
                                 ))}
                             </Listbox>
                         </Field>

@@ -124,12 +124,20 @@ pub async fn run_conversion(
                 ffmpeg_args.extend(vec!["-strict".to_string(), "-2".to_string()]);
             }
         }
+        // If a key or value contains whitespace (e.g. "-movflags +faststart"),
+        // split it into separate arguments so ffmpeg receives each token separately.
+        let mut push_split = |s: &str| {
+            for part in s.split_whitespace() {
+                let cleaned = part.trim_matches('"').trim_matches('\'').to_string();
+                ffmpeg_args.push(cleaned);
+            }
+        };
 
         // Add remaining options to FFmpeg. 'um' specific options have been removed.
         for (key, value) in &options {
-            ffmpeg_args.push(key.clone());
+            push_split(key);
             if !value.is_empty() {
-                ffmpeg_args.push(value.clone());
+                push_split(value);
             }
         }
         ffmpeg_args.extend(vec![
