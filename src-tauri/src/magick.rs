@@ -19,11 +19,17 @@ pub async fn run_conversion(
 
         let mut magick_args: Vec<String> = vec![original_input_path.to_string_lossy().to_string()];
 
-        // Add all options
+        let mut push_split = |s: &str| {
+            for part in s.split_whitespace() {
+                let cleaned = part.trim_matches('"').trim_matches('\'').to_string();
+                magick_args.push(cleaned);
+            }
+        };
+
         for (key, value) in &options {
-            magick_args.push(key.clone());
+            push_split(key);
             if !value.is_empty() {
-                magick_args.push(value.clone());
+                push_split(value);
             }
         }
 

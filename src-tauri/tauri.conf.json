@@ -29,9 +29,14 @@
     "externalBin": [
       "binaries/ffmpeg",
       "binaries/um",
-      "binaries/magick",
+      "binaries/ImageMagick/magick",
       "binaries/Updater"
     ],
+    "resources": {
+      "binaries/ImageMagick/delegates.xml": "binaries/ImageMagick/delegates.xml",
+      "binaries/ImageMagick/LibJXR/JXREncApp.exe": "binaries/ImageMagick/LibJXR/JXREncApp.exe",
+      "binaries/ImageMagick/LibJXR/JXRDecApp.exe": "binaries/ImageMagick/LibJXR/JXRDecApp.exe"
+    },
     "targets": "all",
     "icon": [
       "../assets/logo.ico"

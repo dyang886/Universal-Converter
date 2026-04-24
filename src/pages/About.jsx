@@ -83,13 +83,13 @@ export default function AboutPage() {
                             <div className="text-sm gap-5 flex flex-row items-center justify-center">
                                 <div className="flex flex-col gap-y-0.5">
                                     <div>
-                                        <span className="mr-2">{t('about.current_version')}:</span>
+                                        <span>{t('about.current_version')}</span>
                                         <span className={clsx(updateAvailable && 'text-red-500')}>
                                             {currentVersion}
                                         </span>
                                     </div>
                                     <div>
-                                        <span className="mr-2">{t('about.latest_version')}:</span>
+                                        <span>{t('about.latest_version')}</span>
                                         <span className={clsx(updateAvailable && 'text-green-500')}>
                                             {latestVersion}
                                         </span>
@@ -105,11 +105,15 @@ export default function AboutPage() {
 
                     <div className="text-sm flex flex-col gap-2 items-center mb-2">
                         <p>
-                            <span>GitHub: </span>
+                            <span>{t('about.official_website')}</span>
+                            <a className="text-blue-600 dark:text-blue-400 cursor-pointer" onClick={() => openUrl('https://gamezonelabs.com')}>https://gamezonelabs.com</a>
+                        </p>
+                        <p>
+                            <span>{t('about.github')}</span>
                             <a className="text-blue-600 dark:text-blue-400 cursor-pointer" onClick={() => openUrl('https://github.com/dyang886/Universal-Converter')}>https://github.com/dyang886/Universal-Converter</a>
                         </p>
                         <p>
-                            <span>{t('about.bilibili')}: </span>
+                            <span>{t('about.bilibili')}</span>
                             <a className="text-blue-600 dark:text-blue-400 cursor-pointer" onClick={() => openUrl('https://space.bilibili.com/256673766')}>https://space.bilibili.com/256673766</a>
                         </p>
                     </div>

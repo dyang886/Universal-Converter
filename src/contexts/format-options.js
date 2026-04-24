@@ -106,6 +106,25 @@ export const widgetOptions = {
     // ====== image.general ======
     alpha: { "Activate": "activate", "Associate": "associate", "Background": "background", "Copy": "copy", "Deactivate": "deactivate", "Disassociate": "disassociate", "Extract": "extract", "Off": "off", "Off if Opaque": "off-if-opaque", "On": "on", "Opaque": "opaque", "Remove": "remove", "Set": "set", "Shape": "shape", "Transparent": "transparent" },
     auto_threshold_method: { "Kapur": "Kapur", "OTSU": "OTSU", "Triangle": "Triangle" },
+    colorspace: { "Adobe98": "Adobe98", "CAT02LMS": "CAT02LMS", "CIELab": "CIELab", "CMY": "CMY", "CMYK": "CMYK", "DisplayP3": "DisplayP3", "Gray": "Gray", "HCL": "HCL", "HCLp": "HCLp", "HSB": "HSB", "HSI": "HSI", "HSL": "HSL", "HSV": "HSV", "HWB": "HWB", "Jzazbz": "Jzazbz", "Lab": "Lab", "LCH": "LCH", "LCHab": "LCHab", "LCHuv": "LCHuv", "LinearGray": "LinearGray", "LMS": "LMS", "Log": "Log", "Luv": "Luv", "OHTA": "OHTA", "Oklab": "Oklab", "Oklch": "Oklch", "ProPhoto": "ProPhoto", "Rec601YCbCr": "Rec601YCbCr", "Rec709YCbCr": "Rec709YCbCr", "RGB": "RGB", "scRGB": "scRGB", "sRGB": "sRGB", "Transparent": "Transparent", "xyY": "xyY", "XYZ": "XYZ", "YCbCr": "YCbCr", "YDbDr": "YDbDr", "YCC": "YCC", "YIQ": "YIQ", "YPbPr": "YPbPr", "YUV": "YUV" },
+    type_image: { "Bilevel": "Bilevel", "Grayscale": "Grayscale", "GrayscaleAlpha": "GrayscaleAlpha", "Palette": "Palette", "PaletteAlpha": "PaletteAlpha", "TrueColor": "TrueColor", "TrueColorAlpha": "TrueColorAlpha", "ColorSeparation": "ColorSeparation", "ColorSeparationAlpha": "ColorSeparationAlpha", "Optimize": "Optimize" },
+    interlace: { "None": "None", "Line": "Line", "Plane": "Plane", "Partition": "Partition", "JPEG": "JPEG", "GIF": "GIF", "PNG": "PNG" },
+    compress: { "None": "None", "BZip": "BZip", "Fax": "Fax", "Group4": "Group4", "JPEG": "JPEG", "JPEG2000": "JPEG2000", "Lossless": "Lossless", "LZW": "LZW", "RLE": "RLE", "Zip": "Zip" },
+    gravity: { "NorthWest": "NorthWest", "North": "North", "NorthEast": "NorthEast", "West": "West", "Center": "Center", "East": "East", "SouthWest": "SouthWest", "South": "South", "SouthEast": "SouthEast" },
+    grayscale_method: { "Rec601Luma": "Rec601Luma", "Rec601Luminance": "Rec601Luminance", "Rec709Luma": "Rec709Luma", "Rec709Luminance": "Rec709Luminance", "Brightness": "Brightness", "Lightness": "Lightness", "Average": "Average", "MS": "MS", "RMS": "RMS" },
+    noise_type: { "Gaussian": "Gaussian", "Impulse": "Impulse", "Laplacian": "Laplacian", "Multiplicative": "Multiplicative", "Poisson": "Poisson", "Random": "Random", "Uniform": "Uniform" },
+    font_weight: { "Thin (100)": "Thin", "ExtraLight (200)": "ExtraLight", "Light (300)": "Light", "Normal (400)": "Normal", "Medium (500)": "Medium", "DemiBold (600)": "DemiBold", "Bold (700)": "Bold", "ExtraBold (800)": "ExtraBold", "Heavy (900)": "Heavy" },
+    font_style: { "Any": "Any", "Italic": "Italic", "Normal": "Normal", "Oblique": "Oblique" },
+    dispose_method: { "Undefined": "Undefined", "None": "None", "Background": "Background", "Previous": "Previous" },
+    channel_type: { "Red": "Red", "Green": "Green", "Blue": "Blue", "Alpha": "Alpha", "Gray": "Gray", "Cyan": "Cyan", "Magenta": "Magenta", "Yellow": "Yellow", "Black": "Black", "Opacity": "Opacity", "Index": "Index", "RGB": "RGB", "RGBA": "RGBA", "CMYK": "CMYK", "CMYKA": "CMYKA" },
+    dither_method: { "None": "None", "Riemersma": "Riemersma", "FloydSteinberg": "FloydSteinberg" },
+    statistic_type: { "Contrast": "Contrast", "Gradient": "Gradient", "Maximum": "Maximum", "Mean": "Mean", "Median": "Median", "Minimum": "Minimum", "Mode": "Mode", "Nonpeak": "Nonpeak", "RMS": "RMS", "StandardDeviation": "StandardDeviation" },
+    filter_type: { "Point": "Point", "Box": "Box", "Triangle": "Triangle", "Hermite": "Hermite", "Gaussian": "Gaussian", "Quadratic": "Quadratic", "Cubic": "Cubic", "CubicSpline": "CubicSpline", "Catrom": "Catrom", "Mitchell": "Mitchell", "Lanczos": "Lanczos", "Hamming": "Hamming", "Parzen": "Parzen", "Blackman": "Blackman", "Kaiser": "Kaiser", "Welsh": "Welsh", "Hanning": "Hanning", "Bartlett": "Bartlett", "Bohman": "Bohman", "Lagrange": "Lagrange" },
+    virtual_pixel_method: { "background": "background", "black": "black", "checker-tile": "checker-tile", "dither": "dither", "edge": "edge", "gray": "gray", "horizontal-tile": "horizontal-tile", "horizontal-tile-edge": "horizontal-tile-edge", "mirror": "mirror", "random": "random", "tile": "tile", "transparent": "transparent", "vertical-tile": "vertical-tile", "vertical-tile-edge": "vertical-tile-edge", "white": "white" },
+    units_type: { "Undefined": "Undefined", "PixelsPerInch": "PixelsPerInch", "PixelsPerCentimeter": "PixelsPerCentimeter" },
+    font_stretch: { "Any": "Any", "Condensed": "Condensed", "Expanded": "Expanded", "ExtraCondensed": "ExtraCondensed", "ExtraExpanded": "ExtraExpanded", "Normal": "Normal", "SemiCondensed": "SemiCondensed", "SemiExpanded": "SemiExpanded", "UltraCondensed": "UltraCondensed", "UltraExpanded": "UltraExpanded" },
+    rendering_intent: { "Absolute": "Absolute", "Perceptual": "Perceptual", "Relative": "Relative", "Saturation": "Saturation" },
+    interpolate_method: { "average": "average", "average4": "average4", "average9": "average9", "average16": "average16", "background": "background", "bilinear": "bilinear", "blend": "blend", "catrom": "catrom", "integer": "integer", "mesh": "mesh", "nearest-neighbor": "nearest-neighbor", "spline": "spline" },
 };
 
 // ===========================================================================
@@ -169,7 +188,7 @@ export const widgetDefinitions = {
     tune_h264: { arg: "-tune", labelKey: "advanced.video.tune", type: "select", options: widgetOptions.tune_h264 },
     profile_h264: { arg: "-profile:v", labelKey: "advanced.video.profile", type: "select", options: widgetOptions.profile_h264 },
     fastfirstpass: { arg: "-fastfirstpass", labelKey: "advanced.video.fastfirstpass", type: "checkbox" },
-    level: { arg: "-level", labelKey: "advanced.video.level", type: "select", options: widgetOptions.level },
+    codec_level: { arg: "-level", labelKey: "advanced.video.level", type: "select", options: widgetOptions.level },
     wpredp: { arg: "-wpredp", labelKey: "advanced.video.wpredp", type: "input-txt" },
     a53cc: { arg: "-a53cc", labelKey: "advanced.video.a53cc", type: "checkbox" },
     x264opts: { arg: "-x264opts", labelKey: "advanced.video.x264opts", type: "input-txt" },
@@ -212,7 +231,6 @@ export const widgetDefinitions = {
     mb_info: { arg: "-mb_info", labelKey: "advanced.video.mb_info", type: "checkbox" },
     // libx265
     crf_51: { arg: "-crf", labelKey: "advanced.video.crf", type: "input-flt", options: [0, 51] },
-    preset: { arg: "-preset", labelKey: "advanced.video.preset", type: "select", options: widgetOptions.preset },
     tune_h265: { arg: "-tune", labelKey: "advanced.video.tune", type: "select", options: widgetOptions.tune_h265 },
     profile_h265: { arg: "-profile:v", labelKey: "advanced.video.profile", type: "select", options: widgetOptions.profile_h265 },
     x265_params: { arg: "-x265-params", labelKey: "advanced.video.x265_params", type: "input-txt" },
@@ -241,7 +259,6 @@ export const widgetDefinitions = {
     skip_factor: { arg: "-skip_factor", labelKey: "advanced.video.skip_factor", type: "input-int", options: [-2147483648, 2147483647] },
     skip_exp: { arg: "-skip_exp", labelKey: "advanced.video.skip_exp", type: "input-int", options: [-2147483648, 2147483647] },
     skip_cmp: { arg: "-skip_cmp", labelKey: "advanced.video.skip_cmp", type: "select", options: widgetOptions.skip_cmp },
-    sc_threshold: { arg: "-sc_threshold", labelKey: "advanced.video.sc_threshold", type: "input-int", options: [-2147483648, 2147483647] },
     ps: { arg: "-ps", labelKey: "advanced.video.ps", type: "input-int", options: [-2147483648, 2147483647] },
     motion_est_mpeg: { arg: "-motion_est", labelKey: "advanced.video.motion_est", type: "select", options: widgetOptions.motion_est_mpeg },
     mepc: { arg: "-mepc", labelKey: "advanced.video.mepc", type: "input-int", options: [-2147483648, 2147483647] },
@@ -251,7 +268,6 @@ export const widgetDefinitions = {
     intra_vlc: { arg: "-intra_vlc", labelKey: "advanced.video.intra_vlc", type: "checkbox" },
     non_linear_quant: { arg: "-non_linear_quant", labelKey: "advanced.video.non_linear_quant", type: "checkbox" },
     alternate_scan: { arg: "-alternate_scan", labelKey: "advanced.video.alternate_scan", type: "checkbox" },
-    a53cc: { arg: "-a53cc", labelKey: "advanced.video.a53cc", type: "checkbox" },
     seq_disp_ext: { arg: "-seq_disp_ext", labelKey: "advanced.video.seq_disp_ext", type: "select", options: widgetOptions.seq_disp_ext },
     video_format: { arg: "-video_format", labelKey: "advanced.video.video_format", type: "select", options: widgetOptions.video_format },
     // mpeg4 only
@@ -289,7 +305,6 @@ export const widgetDefinitions = {
     usage: { arg: "-usage", labelKey: "advanced.video.usage", type: "select", options: widgetOptions.usage },
     tune: { arg: "-tune", labelKey: "advanced.video.tune", type: "select", options: widgetOptions.tune },
     still_picture: { arg: "-still-picture", labelKey: "advanced.video.still_picture", type: "checkbox" },
-    dolbyvision: { arg: "-dolbyvision", labelKey: "advanced.video.dolbyvision", type: "checkbox" },
     enable_rect_partitions: { arg: "-enable-rect-partitions", labelKey: "advanced.video.enable_rect_partitions", type: "checkbox" },
     enable_1to4_partitions: { arg: "-enable-1to4-partitions", labelKey: "advanced.video.enable_1to4_partitions", type: "checkbox" },
     enable_ab_partitions: { arg: "-enable-ab-partitions", labelKey: "advanced.video.enable_ab_partitions", type: "checkbox" },
@@ -325,7 +340,6 @@ export const widgetDefinitions = {
 
     // vp8, vp9
     arnr_type: { arg: "-arnr-type", labelKey: "advanced.video.arnr_type", type: "select", options: widgetOptions.arnr_type },
-    tune: { arg: "-tune", labelKey: "advanced.video.tune", type: "select", options: widgetOptions.tune },
     deadline: { arg: "-deadline", labelKey: "advanced.video.deadline", type: "select", options: widgetOptions.deadline },
     error_resilient: { arg: "-error-resilient", labelKey: "advanced.video.error_resilient", type: "select", options: widgetOptions.error_resilient },
     max_intra_rate: { arg: "-max-intra-rate", labelKey: "advanced.video.max_intra_rate", type: "input-int", options: [0, 2147483647] },
@@ -334,7 +348,7 @@ export const widgetDefinitions = {
     cpu_used_vpx: { arg: "-cpu-used", labelKey: "advanced.video.cpu_used", type: "input-int", options: [-16, 16] },
     screen_content_mode: { arg: "-screen-content-mode", labelKey: "advanced.video.screen_content_mode", type: "input-int", options: [0, 2] },
     speed: { arg: "-speed", labelKey: "advanced.video.speed", type: "input-int", options: [-16, 16] },
-    quality: { arg: "-quality", labelKey: "advanced.video.quality", type: "select", options: widgetOptions.deadline },
+    quality_vpx: { arg: "-quality", labelKey: "advanced.video.quality", type: "select", options: widgetOptions.deadline },
     vp8flags: { arg: "-vp8flags", labelKey: "advanced.video.vp8flags", type: "select", options: widgetOptions.vp8flags },
     rc_lookahead_altref: { arg: "-rc_lookahead", labelKey: "advanced.video.rc_lookahead_altref", type: "input-int", options: [0, 25] },
     sharpness: { arg: "-sharpness", labelKey: "advanced.video.sharpness", type: "input-int", options: [0, 7] },
@@ -467,48 +481,166 @@ export const widgetDefinitions = {
     // ====== image ======
     // Common ImageMagick Arguments
     quality: { arg: "-quality", labelKey: "advanced.image.quality", type: "input-int", options: [0, 100] },
+    depth: { arg: "-depth", labelKey: "advanced.image.depth", type: "input-int", options: [1, 32] },
     density: { arg: "-density", labelKey: "advanced.image.density", type: "input-txt" },
+    compress: { arg: "-compress", labelKey: "advanced.image.compress", type: "select", options: widgetOptions.compress },
+    colorspace: { arg: "-colorspace", labelKey: "advanced.image.colorspace", type: "select", options: widgetOptions.colorspace },
+    type: { arg: "-type", labelKey: "advanced.image.type", type: "select", options: widgetOptions.type_image },
+    interlace: { arg: "-interlace", labelKey: "advanced.image.interlace", type: "select", options: widgetOptions.interlace },
+    sampling_factor: { arg: "-sampling-factor", labelKey: "advanced.image.sampling_factor", type: "input-txt" },
+    strip: { arg: "-strip", labelKey: "advanced.image.strip", type: "checkbox-novalue" },
     resize: { arg: "-resize", labelKey: "advanced.image.resize", type: "input-txt" },
     scale: { arg: "-scale", labelKey: "advanced.image.scale", type: "input-txt" },
     thumbnail: { arg: "-thumbnail", labelKey: "advanced.image.thumbnail", type: "input-txt" },
     crop: { arg: "-crop", labelKey: "advanced.image.crop", type: "input-txt" },
+    gravity: { arg: "-gravity", labelKey: "advanced.image.gravity", type: "select", options: widgetOptions.gravity },
+    extent: { arg: "-extent", labelKey: "advanced.image.extent", type: "input-txt" },
+    trim: { arg: "-trim", labelKey: "advanced.image.trim", type: "checkbox-novalue" },
+    shave: { arg: "-shave", labelKey: "advanced.image.shave", type: "input-txt" },
     rotate: { arg: "-rotate", labelKey: "advanced.image.rotate", type: "input-flt", options: [-360, 360] },
     flip: { arg: "-flip", labelKey: "advanced.image.flip", type: "checkbox-novalue" },
     flop: { arg: "-flop", labelKey: "advanced.image.flop", type: "checkbox-novalue" },
-    grayscale: { arg: "-colorspace", labelKey: "advanced.image.grayscale", type: "input-txt", prefix: 'Gray' },
-    blur: { arg: "-blur", labelKey: "advanced.image.blur", type: "input-txt" },
-    sharpen: { arg: "-sharpen", labelKey: "advanced.image.sharpen", type: "input-txt" },
-    negate: { arg: "-negate", labelKey: "advanced.image.negate", type: "checkbox-novalue" },
+    auto_orient: { arg: "-auto-orient", labelKey: "advanced.image.auto_orient", type: "checkbox-novalue" },
+    brightness_contrast: { arg: "-brightness-contrast", labelKey: "advanced.image.brightness_contrast", type: "input-txt" },
+    modulate: { arg: "-modulate", labelKey: "advanced.image.modulate", type: "input-txt" },
+    gamma: { arg: "-gamma", labelKey: "advanced.image.gamma", type: "input-flt", options: [0.1, 10] },
+    level: { arg: "-level", labelKey: "advanced.image.level", type: "input-txt" },
+    auto_gamma: { arg: "-auto-gamma", labelKey: "advanced.image.auto_gamma", type: "checkbox-novalue" },
+    auto_level: { arg: "-auto-level", labelKey: "advanced.image.auto_level", type: "checkbox-novalue" },
     normalize: { arg: "-normalize", labelKey: "advanced.image.normalize", type: "checkbox-novalue" },
-    trim: { arg: "-trim", labelKey: "advanced.image.trim", type: "checkbox-novalue" },
-    border: { arg: "-border", labelKey: "advanced.image.border", type: "input-txt" },
+    equalize: { arg: "-equalize", labelKey: "advanced.image.equalize", type: "checkbox-novalue" },
+    grayscale: { arg: "-grayscale", labelKey: "advanced.image.grayscale", type: "select", options: widgetOptions.grayscale_method },
+    negate: { arg: "-negate", labelKey: "advanced.image.negate", type: "checkbox-novalue" },
+    blur: { arg: "-blur", labelKey: "advanced.image.blur", type: "input-txt" },
+    gaussian_blur: { arg: "-gaussian-blur", labelKey: "advanced.image.gaussian_blur", type: "input-txt" },
+    sharpen: { arg: "-sharpen", labelKey: "advanced.image.sharpen", type: "input-txt" },
+    unsharp: { arg: "-unsharp", labelKey: "advanced.image.unsharp", type: "input-txt" },
     background: { arg: "-background", labelKey: "advanced.image.background", type: "input-txt" },
     foreground: { arg: "-foreground", labelKey: "advanced.image.foreground", type: "input-txt" },
     fill: { arg: "-fill", labelKey: "advanced.image.fill", type: "input-txt" },
     stroke: { arg: "-stroke", labelKey: "advanced.image.stroke", type: "input-txt" },
+    strokewidth: { arg: "-strokewidth", labelKey: "advanced.image.strokewidth", type: "input-int", options: [1, 1000] },
+    border: { arg: "-border", labelKey: "advanced.image.border", type: "input-txt" },
+    bordercolor: { arg: "-bordercolor", labelKey: "advanced.image.bordercolor", type: "input-txt" },
     font: { arg: "-font", labelKey: "advanced.image.font", type: "input-txt" },
     pointsize: { arg: "-pointsize", labelKey: "advanced.image.pointsize", type: "input-int", options: [1, 1000] },
-    strip: { arg: "-strip", labelKey: "advanced.image.strip", type: "checkbox-novalue" },
-    interlace: { arg: "-interlace", labelKey: "advanced.image.interlace", type: "input-txt" },
-    colorspace: { arg: "-colorspace", labelKey: "advanced.image.colorspace", type: "input-txt" },
-    depth: { arg: "-depth", labelKey: "advanced.image.depth", type: "input-int", options: [1, 32] },
 
-    // Rest of ImageMagick Arguments
     adaptive_blur: { arg: "-adaptive-blur", labelKey: "advanced.image.adaptive_blur", type: "input-txt" },
     adaptive_resize: { arg: "-adaptive-resize", labelKey: "advanced.image.adaptive_resize", type: "input-txt" },
     adaptive_sharpen: { arg: "-adaptive-sharpen", labelKey: "advanced.image.adaptive_sharpen", type: "input-txt" },
-    // adjoin: { arg: "+adjoin", labelKey: "advanced.image.adjoin", type: "checkbox" },
     affine: { arg: "-affine", labelKey: "advanced.image.affine", type: "input-txt" },
     alpha: { arg: "-alpha", labelKey: "advanced.image.alpha", type: "select", options: widgetOptions.alpha },
     annotate: { arg: "-annotate", labelKey: "advanced.image.annotate", type: "input-txt" },
     antialias: { arg: "+antialias", labelKey: "advanced.image.antialias", type: "checkbox-novalue" },
-    // append: { arg: "", labelKey: "advanced.image.append", type: "select", options: widgetOptions.append_direction },
     attenuate: { arg: "-attenuate", labelKey: "advanced.image.attenuate", type: "input-flt", options: [0, 1] },
-    authenticate: { arg: "-authenticate", labelKey: "advanced.image.authenticate", type: "input-txt" },
-    auto_gamma: { arg: "-auto-gamma", labelKey: "advanced.image.auto_gamma", type: "checkbox-novalue" },
-    auto_level: { arg: "-auto-level", labelKey: "advanced.image.auto_level", type: "checkbox-novalue" },
-    auto_orient: { arg: "-auto-orient", labelKey: "advanced.image.auto_orient", type: "checkbox-novalue" },
     auto_threshold: { arg: "-auto-threshold", labelKey: "advanced.image.auto_threshold", type: "select", options: widgetOptions.auto_threshold_method },
+    liquid_rescale: { arg: "-liquid-rescale", labelKey: "advanced.image.liquid_rescale", type: "input-txt" },
+    resample: { arg: "-resample", labelKey: "advanced.image.resample", type: "input-txt" },
+    chop: { arg: "-chop", labelKey: "advanced.image.chop", type: "input-txt" },
+    roll: { arg: "-roll", labelKey: "advanced.image.roll", type: "input-txt" },
+    repage: { arg: "+repage", labelKey: "advanced.image.repage", type: "checkbox-novalue" },
+    transpose: { arg: "-transpose", labelKey: "advanced.image.transpose", type: "checkbox-novalue" },
+    transverse: { arg: "-transverse", labelKey: "advanced.image.transverse", type: "checkbox-novalue" },
+    deskew: { arg: "-deskew", labelKey: "advanced.image.deskew", type: "input-txt" },
+    threshold: { arg: "-threshold", labelKey: "advanced.image.threshold", type: "input-txt" },
+    black_threshold: { arg: "-black-threshold", labelKey: "advanced.image.black_threshold", type: "input-txt" },
+    white_threshold: { arg: "-white-threshold", labelKey: "advanced.image.white_threshold", type: "input-txt" },
+    posterize: { arg: "-posterize", labelKey: "advanced.image.posterize", type: "input-int", options: [2, 256] },
+    solarize: { arg: "-solarize", labelKey: "advanced.image.solarize", type: "input-txt" },
+    colorize: { arg: "-colorize", labelKey: "advanced.image.colorize", type: "input-txt" },
+    tint: { arg: "-tint", labelKey: "advanced.image.tint", type: "input-txt" },
+    sigmoidal_contrast: { arg: "-sigmoidal-contrast", labelKey: "advanced.image.sigmoidal_contrast", type: "input-txt" },
+    contrast_stretch: { arg: "-contrast-stretch", labelKey: "advanced.image.contrast_stretch", type: "input-txt" },
+    bilateral_blur: { arg: "-bilateral-blur", labelKey: "advanced.image.bilateral_blur", type: "input-txt" },
+    selective_blur: { arg: "-selective-blur", labelKey: "advanced.image.selective_blur", type: "input-txt" },
+    motion_blur: { arg: "-motion-blur", labelKey: "advanced.image.motion_blur", type: "input-txt" },
+    rotational_blur: { arg: "-rotational-blur", labelKey: "advanced.image.rotational_blur", type: "input-flt", options: [0, 360] },
+    kuwahara: { arg: "-kuwahara", labelKey: "advanced.image.kuwahara", type: "input-txt" },
+    median: { arg: "-median", labelKey: "advanced.image.median", type: "input-txt" },
+    mean_shift: { arg: "-mean-shift", labelKey: "advanced.image.mean_shift", type: "input-txt" },
+    despeckle: { arg: "-despeckle", labelKey: "advanced.image.despeckle", type: "checkbox-novalue" },
+    enhance: { arg: "-enhance", labelKey: "advanced.image.enhance", type: "checkbox-novalue" },
+    noise_add: { arg: "+noise", labelKey: "advanced.image.noise_add", type: "select", options: widgetOptions.noise_type },
+    noise_reduce: { arg: "-noise", labelKey: "advanced.image.noise_reduce", type: "input-int", options: [1, 30] },
+    edge: { arg: "-edge", labelKey: "advanced.image.edge", type: "input-flt", options: [0, 10] },
+    canny: { arg: "-canny", labelKey: "advanced.image.canny", type: "input-txt" },
+    morphology: { arg: "-morphology", labelKey: "advanced.image.morphology", type: "input-txt" },
+    charcoal: { arg: "-charcoal", labelKey: "advanced.image.charcoal", type: "input-flt", options: [0, 10] },
+    emboss: { arg: "-emboss", labelKey: "advanced.image.emboss", type: "input-txt" },
+    sketch: { arg: "-sketch", labelKey: "advanced.image.sketch", type: "input-txt" },
+    paint: { arg: "-paint", labelKey: "advanced.image.paint", type: "input-flt", options: [0, 30] },
+    sepia_tone: { arg: "-sepia-tone", labelKey: "advanced.image.sepia_tone", type: "input-txt" },
+    blue_shift: { arg: "-blue-shift", labelKey: "advanced.image.blue_shift", type: "input-flt", options: [0, 3] },
+    vignette: { arg: "-vignette", labelKey: "advanced.image.vignette", type: "input-txt" },
+    polaroid: { arg: "-polaroid", labelKey: "advanced.image.polaroid", type: "input-flt", options: [-360, 360] },
+    implode: { arg: "-implode", labelKey: "advanced.image.implode", type: "input-flt", options: [-5, 5] },
+    swirl: { arg: "-swirl", labelKey: "advanced.image.swirl", type: "input-flt", options: [-360, 360] },
+    wave: { arg: "-wave", labelKey: "advanced.image.wave", type: "input-txt" },
+    spread: { arg: "-spread", labelKey: "advanced.image.spread", type: "input-flt", options: [0, 100] },
+    shade: { arg: "-shade", labelKey: "advanced.image.shade", type: "input-txt" },
+    shadow: { arg: "-shadow", labelKey: "advanced.image.shadow", type: "input-txt" },
+    raise: { arg: "-raise", labelKey: "advanced.image.raise", type: "input-int", options: [1, 100] },
+    lower: { arg: "+raise", labelKey: "advanced.image.lower", type: "input-int", options: [1, 100] },
+    undercolor: { arg: "-undercolor", labelKey: "advanced.image.undercolor", type: "input-txt" },
+    style: { arg: "-style", labelKey: "advanced.image.style", type: "select", options: widgetOptions.font_style },
+    weight: { arg: "-weight", labelKey: "advanced.image.weight", type: "select", options: widgetOptions.font_weight },
+    family: { arg: "-family", labelKey: "advanced.image.family", type: "input-txt" },
+    kerning: { arg: "-kerning", labelKey: "advanced.image.kerning", type: "input-flt", options: [-1000, 1000] },
+    transparent: { arg: "-transparent", labelKey: "advanced.image.transparent", type: "input-txt" },
+    opaque: { arg: "-opaque", labelKey: "advanced.image.opaque", type: "input-txt" },
+    mattecolor: { arg: "-mattecolor", labelKey: "advanced.image.mattecolor", type: "input-txt" },
+    fuzz: { arg: "-fuzz", labelKey: "advanced.image.fuzz", type: "input-txt" },
+    comment: { arg: "-comment", labelKey: "advanced.image.comment", type: "input-txt" },
+    label: { arg: "-label", labelKey: "advanced.image.label", type: "input-txt" },
+    profile_apply: { arg: "-profile", labelKey: "advanced.image.profile_apply", type: "input-txt" },
+    profile_remove: { arg: "+profile", labelKey: "advanced.image.profile_remove", type: "input-txt" },
+    page: { arg: "-page", labelKey: "advanced.image.page", type: "input-txt" },
+    loop: { arg: "-loop", labelKey: "advanced.image.loop", type: "input-int", options: [0, 65535] },
+    delay: { arg: "-delay", labelKey: "advanced.image.delay", type: "input-txt" },
+    dispose: { arg: "-dispose", labelKey: "advanced.image.dispose", type: "select", options: widgetOptions.dispose_method },
+    coalesce: { arg: "-coalesce", labelKey: "advanced.image.coalesce", type: "checkbox-novalue" },
+    layers: { arg: "-layers", labelKey: "advanced.image.layers", type: "input-txt" },
+    channel: { arg: "-channel", labelKey: "advanced.image.channel", type: "input-txt" },
+    distort: { arg: "-distort", labelKey: "advanced.image.distort", type: "input-txt" },
+    evaluate: { arg: "-evaluate", labelKey: "advanced.image.evaluate", type: "input-txt" },
+    convolve: { arg: "-convolve", labelKey: "advanced.image.convolve", type: "input-txt" },
+    image_function: { arg: "-function", labelKey: "advanced.image.image_function", type: "input-txt" },
+    fx: { arg: "-fx", labelKey: "advanced.image.fx", type: "input-txt" },
+    dither: { arg: "-dither", labelKey: "advanced.image.dither", type: "select", options: widgetOptions.dither_method },
+    ordered_dither: { arg: "-ordered-dither", labelKey: "advanced.image.ordered_dither", type: "input-txt" },
+    statistic: { arg: "-statistic", labelKey: "advanced.image.statistic", type: "input-txt" },
+    clahe: { arg: "-clahe", labelKey: "advanced.image.clahe", type: "input-txt" },
+    kmeans: { arg: "-kmeans", labelKey: "advanced.image.kmeans", type: "input-txt" },
+    lat: { arg: "-lat", labelKey: "advanced.image.lat", type: "input-txt" },
+    color_matrix: { arg: "-color-matrix", labelKey: "advanced.image.color_matrix", type: "input-txt" },
+    channel_fx: { arg: "-channel-fx", labelKey: "advanced.image.channel_fx", type: "input-txt" },
+    separate: { arg: "-separate", labelKey: "advanced.image.separate", type: "checkbox-novalue" },
+    colors: { arg: "-colors", labelKey: "advanced.image.colors", type: "input-int", options: [2, 65536] },
+    monochrome: { arg: "-monochrome", labelKey: "advanced.image.monochrome", type: "checkbox-novalue" },
+    unique_colors: { arg: "-unique-colors", labelKey: "advanced.image.unique_colors", type: "checkbox-novalue" },
+    clamp: { arg: "-clamp", labelKey: "advanced.image.clamp", type: "checkbox-novalue" },
+    white_balance: { arg: "-white-balance", labelKey: "advanced.image.white_balance", type: "checkbox-novalue" },
+    linear_stretch: { arg: "-linear-stretch", labelKey: "advanced.image.linear_stretch", type: "input-txt" },
+    level_colors: { arg: "-level-colors", labelKey: "advanced.image.level_colors", type: "input-txt" },
+    wavelet_denoise: { arg: "-wavelet-denoise", labelKey: "advanced.image.wavelet_denoise", type: "input-txt" },
+    random_threshold: { arg: "-random-threshold", labelKey: "advanced.image.random_threshold", type: "input-txt" },
+    filter: { arg: "-filter", labelKey: "advanced.image.filter", type: "select", options: widgetOptions.filter_type },
+    virtual_pixel: { arg: "-virtual-pixel", labelKey: "advanced.image.virtual_pixel", type: "select", options: widgetOptions.virtual_pixel_method },
+    shear: { arg: "-shear", labelKey: "advanced.image.shear", type: "input-txt" },
+    splice: { arg: "-splice", labelKey: "advanced.image.splice", type: "input-txt" },
+    frame: { arg: "-frame", labelKey: "advanced.image.frame", type: "input-txt" },
+    stretch: { arg: "-stretch", labelKey: "advanced.image.stretch", type: "select", options: widgetOptions.font_stretch },
+    interline_spacing: { arg: "-interline-spacing", labelKey: "advanced.image.interline_spacing", type: "input-flt", options: [-1000, 1000] },
+    interword_spacing: { arg: "-interword-spacing", labelKey: "advanced.image.interword_spacing", type: "input-flt", options: [-1000, 1000] },
+    units: { arg: "-units", labelKey: "advanced.image.units", type: "select", options: widgetOptions.units_type },
+    define: { arg: "-define", labelKey: "advanced.image.define", type: "input-txt" },
+    draw: { arg: "-draw", labelKey: "advanced.image.draw", type: "input-txt" },
+    contrast: { arg: "-contrast", labelKey: "advanced.image.contrast", type: "checkbox-novalue" },
+    contrast_reduce: { arg: "+contrast", labelKey: "advanced.image.contrast_reduce", type: "checkbox-novalue" },
+    transparent_color: { arg: "-transparent-color", labelKey: "advanced.image.transparent_color", type: "input-txt" },
+    intent: { arg: "-intent", labelKey: "advanced.image.intent", type: "select", options: widgetOptions.rendering_intent },
+    range_threshold: { arg: "-range-threshold", labelKey: "advanced.image.range_threshold", type: "input-txt" },
+    interpolate: { arg: "-interpolate", labelKey: "advanced.image.interpolate", type: "select", options: widgetOptions.interpolate_method },
 };
 
 // ===========================================================================
@@ -516,45 +648,42 @@ export const widgetDefinitions = {
 // The main format-centric configuration.
 // ===========================================================================
 const allVideoFormats = [
-    // Modern & Common General-Purpose Containers
-    'mp4', 'mkv', 'webm', 'mov', 'qt', 'm4v',
-    // Legacy & Specialized Web Containers
-    'avi', 'flv', 'f4v', 'swf', 'wmv', 'asf', 'rm', 'rmvb',
-    // Open-Source Containers
-    'ogv', 'ogx',
-    // MPEG Program Stream Family (DVD, VCD, etc.)
-    'mpeg', 'ps', 'm2p', 'dat', 'vob', 'evo',
-    // MPEG Transport Stream Family (Broadcast, Blu-ray, Camcorders)
-    'ts', 'm2ts', 'mts',
-    // Professional, Prosumer & Camera Raw Formats
-    'mxf', 'divx', 'r3d', 'braw', 'ari',
-    // Niche & Gaming Formats
-    'bik', 'smk', 'amv',
-    // Mobile Containers (Legacy)
-    '3gp', '3g2'
+    'mp4', 'mkv', 'webm', 'mov', 'avi', 'wmv', 'flv', 'm4v', 'ts', 'm2ts', 'mpeg', 'vob',
+    '3gp', 'qt', 'ogv', 'f4v', 'asf', 'divx', 'mxf', 'swf', 'rm', 'rmvb', '3g2', 'ogx',
+    'ps', 'm2p', 'dat', 'evo', 'mts', 'r3d', 'braw', 'ari', 'bik', 'smk', 'amv',
 ];
-const allAudioFormats = ['mp3', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'aiff', 'opus'];
+const allAudioFormats = ['mp3', 'flac', 'wav', 'aac', 'm4a', 'ogg', 'opus', 'wma', 'aiff'];
 const allImageFormats = [
-    // Common Web & General Use Raster Formats
-    'jpeg', 'png', 'gif', 'webp',
-    // Uncompressed & Lossless Raster Formats
-    'bmp', 'dib', 'tiff', 'pnm', 'ppm', 'pgm', 'pbm', 'xpm', 'xbm',
-    // Modern & High-Quality Formats
-    'heic', 'heif', 'jp2', 'j2k', 'jxr', 'ico', 'cur',
-    // Professional & Design Formats
-    'psd', 'xcf', 'ai', 'eps', 'pdf', 'ps',
-    // Specialized Raster Formats
-    'pcx', 'tga', 'dds', 'dcx', 'iff', 'ora', 'lbm', 'thm',
-    // Raw Camera & Image Formats
-    'raw', 'cr2', 'crw', 'nef', 'dng', 'arw', 'raf', 'rw2', 'orf', 'pef', 'x3f', 'srw', 'iiq', '3fr', 'mef', 'mrw', 'mos', 'kdc', 'dcr', 'erf', 'ptx', 'pxn', 'sr2', 'srf', 'mdc', 'gp4', 'bay',
-    // Vector & Document Formats
-    'svg', 'emf', 'wmf'
+    'jpeg', 'png', 'webp', 'gif', 'bmp', 'tiff', 'heic', 'jp2', 'svg', 'heif', 'j2k', 'ico',
+    'pdf', 'eps', 'psd', 'tga', 'xcf', 'dds', 'pcx', 'jxr', 'wdp', 'cur', 'ai', 'ps', 'ora', 'emf',
+    'wmf', 'lbm', 'thm', 'iff', 'dcx', 'pnm', 'ppm', 'pgm', 'pbm', 'xpm', 'xbm', 'dib',
+    'raw', 'cr2', 'crw', 'nef', 'dng', 'arw', 'raf', 'rw2', 'orf', 'pef', 'x3f', 'srw', 'iiq',
+    '3fr', 'mef', 'mrw', 'mos', 'kdc', 'dcr', 'erf', 'ptx', 'pxn', 'sr2', 'srf', 'mdc', 'gp4', 'bay'
 ];
 const generalVideoWidgets = ['disable_video', 'disable_subtitle', 'fast_start', 'pass', 'frame_size', 'video_rotate', 'video_flip', 'video_bitrate', 'vframes', 'aspect_ratio'];
 const generalAudioWidgets = ['audio_volume', 'audio_speed', 'audio_quality', 'audio_bitrate', 'audio_channels', 'aframes'];
 const generalImageWidgets = [
-    'adaptive_blur', 'adaptive_resize', 'adaptive_sharpen', 'affine', 'alpha', 'annotate', 'antialias', 'attenuate', 'authenticate', 'auto_gamma', 'auto_level',
-    'auto_orient', 'auto_threshold'
+    'quality', 'depth', 'density', 'compress', 'colorspace', 'type', 'interlace', 'sampling_factor',
+    'strip', 'resize', 'scale', 'thumbnail', 'crop', 'gravity', 'extent', 'trim', 'shave', 'rotate',
+    'flip', 'flop', 'auto_orient', 'brightness_contrast', 'modulate', 'gamma', 'level', 'auto_gamma',
+    'auto_level', 'normalize', 'equalize', 'grayscale', 'negate', 'blur', 'gaussian_blur', 'sharpen',
+    'unsharp', 'background', 'foreground', 'fill', 'stroke', 'strokewidth', 'border', 'bordercolor',
+    'font', 'pointsize', 'adaptive_blur', 'adaptive_resize', 'adaptive_sharpen', 'affine', 'alpha',
+    'annotate', 'antialias', 'attenuate', 'auto_threshold', 'liquid_rescale', 'resample', 'chop',
+    'roll', 'repage', 'transpose', 'transverse', 'deskew', 'threshold', 'black_threshold',
+    'white_threshold', 'posterize', 'solarize', 'colorize', 'tint', 'sigmoidal_contrast',
+    'contrast_stretch', 'bilateral_blur', 'selective_blur', 'motion_blur', 'rotational_blur',
+    'kuwahara', 'median', 'mean_shift', 'despeckle', 'enhance', 'noise_add', 'noise_reduce', 'edge',
+    'canny', 'morphology', 'charcoal', 'emboss', 'sketch', 'paint', 'sepia_tone', 'blue_shift',
+    'vignette', 'polaroid', 'implode', 'swirl', 'wave', 'spread', 'shade', 'shadow', 'raise', 'lower',
+    'undercolor', 'style', 'weight', 'family', 'kerning', 'transparent', 'opaque', 'mattecolor',
+    'fuzz', 'comment', 'label', 'profile_apply', 'profile_remove', 'layers', 'channel', 'distort',
+    'evaluate', 'convolve', 'image_function', 'fx', 'dither', 'ordered_dither', 'statistic', 'clahe',
+    'kmeans', 'lat', 'color_matrix', 'channel_fx', 'separate', 'colors', 'monochrome', 'unique_colors',
+    'clamp', 'white_balance', 'linear_stretch', 'level_colors', 'wavelet_denoise', 'random_threshold',
+    'filter', 'virtual_pixel', 'shear', 'splice', 'frame', 'stretch', 'interline_spacing',
+    'interword_spacing', 'units', 'define', 'draw', 'contrast', 'contrast_reduce', 'transparent_color',
+    'intent', 'range_threshold', 'interpolate'
 ];
 export const formats = {
     // ====== Audio Formats ======
@@ -691,9 +820,9 @@ export const formats = {
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
         videoCodecs: {
-            'H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10': { value: 'libx264', widgets: ['framerate', 'pixel_format', 'preset', 'tune_h264', 'profile_h264', 'fastfirstpass', 'level', 'wpredp', 'a53cc', 'x264opts', 'crf_63', 'crf_max', 'qp', 'aq_mode_h264', 'aq_strength', 'psy', 'psy_rd', 'rc_lookahead_frametype', 'weightb', 'weightp', 'ssim', 'intra_refresh', 'bluray_compat', 'b_bias', 'b_pyramid', 'mixed_refs', '8x8dct', 'fast_pskip', 'aud', 'mbtree', 'deblock', 'cplxblur', 'partitions', 'direct_pred', 'slice_max_size', 'stats', 'nal_hrd_mp4', 'avcintra_class', 'motion_est_h264', 'forced_idr', 'coder', 'b_strategy', 'chromaoffset', 'sc_threshold', 'noise_reduction', 'udu_sei', 'x264_params', 'mb_info'] },
+            'H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10': { value: 'libx264', widgets: ['framerate', 'pixel_format', 'preset', 'tune_h264', 'profile_h264', 'fastfirstpass', 'codec_level', 'wpredp', 'a53cc', 'x264opts', 'crf_63', 'crf_max', 'qp', 'aq_mode_h264', 'aq_strength', 'psy', 'psy_rd', 'rc_lookahead_frametype', 'weightb', 'weightp', 'ssim', 'intra_refresh', 'bluray_compat', 'b_bias', 'b_pyramid', 'mixed_refs', '8x8dct', 'fast_pskip', 'aud', 'mbtree', 'deblock', 'cplxblur', 'partitions', 'direct_pred', 'slice_max_size', 'nal_hrd_mp4', 'avcintra_class', 'motion_est_h264', 'forced_idr', 'coder', 'b_strategy', 'chromaoffset', 'sc_threshold', 'noise_reduction', 'udu_sei', 'x264_params', 'mb_info'] },
             'H.265 / HEVC': { value: 'libx265', widgets: ['framerate', 'pixel_format', 'crf_51', 'qp', 'forced_idr', 'preset', 'tune_h265', 'profile_h265', 'udu_sei', 'a53cc', 'x265_params', 'dolbyvision'] },
-            'Alliance for Open Media AV1 [libaom AV1]': { value: 'libaom-av1', widgets: ['framerate', 'pixel_format', 'cpu_used_av1', 'auto_alt_ref', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'aq_mode_av1', 'error_resilience', 'crf_63', 'static_thresh', 'drop_threshold', 'denoise_noise_level', 'denoise_block_size', 'undershoot_pct', 'overshoot_pct', 'minsection_pct', 'maxsection_pct', 'frame_parallel', 'tiles', 'tile_columns', 'tile_rows', 'row_mt', 'enable_cdef', 'enable_global_motion', 'enable_intrabc', 'enable_restoration', 'usage', 'tune', 'still_picture', 'dolbyvision', 'enable_rect_partitions', 'enable_1to4_partitions', 'enable_ab_partitions', 'enable_angle_delta', 'enable_cfl_intra', 'enable_filter_intra', 'enable_intra_edge_filter', 'enable_smooth_intra', 'enable_paeth_intra', 'enable_palette', 'enable_flip_idtx', 'enable_tx64', 'reduced_tx_type_set', 'use_intra_dct_only', 'use_inter_dct_only', 'use_intra_default_tx_only', 'enable_ref_frame_mvs', 'enable_reduced_reference_set', 'enable_obmc', 'enable_dual_filter', 'enable_diff_wtd_comp', 'enable_dist_wtd_comp', 'enable_onesided_comp', 'enable_interinter_wedge', 'enable_interintra_wedge', 'enable_masked_comp', 'enable_interintra_comp', 'enable_smooth_interintra', 'aom_params'] },
+            'Alliance for Open Media AV1 [libaom AV1]': { value: 'libaom-av1', widgets: ['framerate', 'pixel_format', 'cpu_used_av1', 'auto_alt_ref', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'aq_mode_av1', 'crf_63', 'static_thresh', 'drop_threshold', 'denoise_noise_level', 'denoise_block_size', 'undershoot_pct', 'overshoot_pct', 'minsection_pct', 'maxsection_pct', 'frame_parallel', 'tiles', 'tile_columns', 'tile_rows', 'row_mt', 'enable_cdef', 'enable_global_motion', 'enable_intrabc', 'enable_restoration', 'usage', 'tune', 'still_picture', 'dolbyvision', 'enable_rect_partitions', 'enable_1to4_partitions', 'enable_ab_partitions', 'enable_angle_delta', 'enable_cfl_intra', 'enable_filter_intra', 'enable_intra_edge_filter', 'enable_smooth_intra', 'enable_paeth_intra', 'enable_palette', 'enable_flip_idtx', 'enable_tx64', 'reduced_tx_type_set', 'use_intra_dct_only', 'use_inter_dct_only', 'use_intra_default_tx_only', 'enable_ref_frame_mvs', 'enable_reduced_reference_set', 'enable_obmc', 'enable_dual_filter', 'enable_diff_wtd_comp', 'enable_dist_wtd_comp', 'enable_onesided_comp', 'enable_interinter_wedge', 'enable_interintra_wedge', 'enable_masked_comp', 'enable_interintra_comp', 'enable_smooth_interintra', 'aom_params'] },
             'Alliance for Open Media AV1 [SVT-AV1]': { value: 'libsvtav1', widgets: ['framerate', 'pixel_format', 'preset_av1', 'crf_63', 'qp_av1', 'svtav1_params', 'dolbyvision'] },
             'MPEG-4 part 2': { value: 'mpeg4', widgets: ['framerate', 'pixel_format', 'data_partitioning', 'alternate_scan', 'mpeg_quant', 'b_strategy', 'b_sensitivity', 'brd_scale', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_eq', 'rc_init_cplx', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'motion_est_mpeg', 'mepc', 'mepre', 'intra_penalty'] },
             'MPEG-2 video': { value: 'mpeg2video', widgets: ['framerate_DYN', 'pixel_format', 'gop_timecode', 'drop_frame_timecode', 'scan_offset', 'timecode_frame_start', 'b_strategy', 'b_sensitivity', 'brd_scale', 'intra_vlc', 'non_linear_quant', 'alternate_scan', 'a53cc', 'seq_disp_ext', 'video_format', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_init_cplx', 'rc_eq', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'motion_est_mpeg', 'mepc', 'mepre', 'intra_penalty'] },
@@ -717,11 +846,11 @@ export const formats = {
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
         videoCodecs: {
-            'H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10': { value: 'libx264', widgets: ['framerate', 'pixel_format', 'preset', 'tune_h264', 'profile_h264', 'fastfirstpass', 'level', 'wpredp', 'a53cc', 'x264opts', 'crf_63', 'crf_max', 'qp', 'aq_mode_h264', 'aq_strength', 'psy', 'psy_rd', 'rc_lookahead_frametype', 'weightb', 'weightp', 'ssim', 'intra_refresh', 'bluray_compat', 'b_bias', 'b_pyramid', 'mixed_refs', '8x8dct', 'fast_pskip', 'aud', 'mbtree', 'deblock', 'cplxblur', 'partitions', 'direct_pred', 'slice_max_size', 'stats', 'nal_hrd_mp4', 'avcintra_class', 'motion_est_h264', 'forced_idr', 'coder', 'b_strategy', 'chromaoffset', 'sc_threshold', 'noise_reduction', 'udu_sei', 'x264_params', 'mb_info'] },
+            'H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10': { value: 'libx264', widgets: ['framerate', 'pixel_format', 'preset', 'tune_h264', 'profile_h264', 'fastfirstpass', 'codec_level', 'wpredp', 'a53cc', 'x264opts', 'crf_63', 'crf_max', 'qp', 'aq_mode_h264', 'aq_strength', 'psy', 'psy_rd', 'rc_lookahead_frametype', 'weightb', 'weightp', 'ssim', 'intra_refresh', 'bluray_compat', 'b_bias', 'b_pyramid', 'mixed_refs', '8x8dct', 'fast_pskip', 'aud', 'mbtree', 'deblock', 'cplxblur', 'partitions', 'direct_pred', 'slice_max_size', 'nal_hrd_mp4', 'avcintra_class', 'motion_est_h264', 'forced_idr', 'coder', 'b_strategy', 'chromaoffset', 'sc_threshold', 'noise_reduction', 'udu_sei', 'x264_params', 'mb_info'] },
             'H.265 / HEVC': { value: 'libx265', widgets: ['framerate', 'pixel_format', 'crf_51', 'qp', 'forced_idr', 'preset', 'tune_h265', 'profile_h265', 'udu_sei', 'a53cc', 'x265_params', 'dolbyvision'] },
-            'On2 VP8': { value: 'libvpx', widgets: ['framerate', 'pixel_format', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'arnr_type', 'tune', 'deadline', 'error_resilient', 'max_intra_rate', 'crf_63', 'static_thresh', 'drop_threshold', 'noise_sensitivity', 'undershoot_pct', 'overshoot_pct', 'ts_parameters', 'auto_alt_ref', 'cpu_used_vpx', 'screen_content_mode', 'speed', 'quality', 'vp8flags', 'rc_lookahead_altref', 'sharpness'] },
-            'Google VP9': { value: 'libvpx-vp9', widgets: ['framerate', 'pixel_format', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'arnr_type', 'tune', 'deadline', 'error_resilient', 'max_intra_rate', 'crf_63', 'static_thresh', 'drop_threshold', 'noise_sensitivity', 'undershoot_pct', 'overshoot_pct', 'ts_parameters', 'auto_alt_ref_vp9', 'cpu_used_vp9', 'lossless', 'tile_columns', 'tile_rows_vp9', 'frame_parallel', 'aq_mode_vp9', 'level_vp9', 'row_mt', 'tune_content', 'corpus_complexity', 'enable_tpl', 'min_gf_interval', 'speed', 'quality', 'rc_lookahead_altref', 'sharpness'] },
-            'Alliance for Open Media AV1 [libaom AV1]': { value: 'libaom-av1', widgets: ['framerate', 'pixel_format', 'cpu_used_av1', 'auto_alt_ref', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'aq_mode_av1', 'error_resilience', 'crf_63', 'static_thresh', 'drop_threshold', 'denoise_noise_level', 'denoise_block_size', 'undershoot_pct', 'overshoot_pct', 'minsection_pct', 'maxsection_pct', 'frame_parallel', 'tiles', 'tile_columns', 'tile_rows', 'row_mt', 'enable_cdef', 'enable_global_motion', 'enable_intrabc', 'enable_restoration', 'usage', 'tune', 'still_picture', 'dolbyvision', 'enable_rect_partitions', 'enable_1to4_partitions', 'enable_ab_partitions', 'enable_angle_delta', 'enable_cfl_intra', 'enable_filter_intra', 'enable_intra_edge_filter', 'enable_smooth_intra', 'enable_paeth_intra', 'enable_palette', 'enable_flip_idtx', 'enable_tx64', 'reduced_tx_type_set', 'use_intra_dct_only', 'use_inter_dct_only', 'use_intra_default_tx_only', 'enable_ref_frame_mvs', 'enable_reduced_reference_set', 'enable_obmc', 'enable_dual_filter', 'enable_diff_wtd_comp', 'enable_dist_wtd_comp', 'enable_onesided_comp', 'enable_interinter_wedge', 'enable_interintra_wedge', 'enable_masked_comp', 'enable_interintra_comp', 'enable_smooth_interintra', 'aom_params'] },
+            'On2 VP8': { value: 'libvpx', widgets: ['framerate', 'pixel_format', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'arnr_type', 'tune', 'deadline', 'error_resilient', 'max_intra_rate', 'crf_63', 'static_thresh', 'drop_threshold', 'noise_sensitivity', 'undershoot_pct', 'overshoot_pct', 'ts_parameters', 'auto_alt_ref', 'cpu_used_vpx', 'screen_content_mode', 'speed', 'quality_vpx', 'vp8flags', 'rc_lookahead_altref', 'sharpness'] },
+            'Google VP9': { value: 'libvpx-vp9', widgets: ['framerate', 'pixel_format', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'arnr_type', 'tune', 'deadline', 'error_resilient', 'max_intra_rate', 'crf_63', 'static_thresh', 'drop_threshold', 'noise_sensitivity', 'undershoot_pct', 'overshoot_pct', 'ts_parameters', 'auto_alt_ref_vp9', 'cpu_used_vp9', 'lossless', 'tile_columns', 'tile_rows_vp9', 'frame_parallel', 'aq_mode_vp9', 'level_vp9', 'row_mt', 'tune_content', 'corpus_complexity', 'enable_tpl', 'min_gf_interval', 'speed', 'quality_vpx', 'rc_lookahead_altref', 'sharpness'] },
+            'Alliance for Open Media AV1 [libaom AV1]': { value: 'libaom-av1', widgets: ['framerate', 'pixel_format', 'cpu_used_av1', 'auto_alt_ref', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'aq_mode_av1', 'crf_63', 'static_thresh', 'drop_threshold', 'denoise_noise_level', 'denoise_block_size', 'undershoot_pct', 'overshoot_pct', 'minsection_pct', 'maxsection_pct', 'frame_parallel', 'tiles', 'tile_columns', 'tile_rows', 'row_mt', 'enable_cdef', 'enable_global_motion', 'enable_intrabc', 'enable_restoration', 'usage', 'tune', 'still_picture', 'dolbyvision', 'enable_rect_partitions', 'enable_1to4_partitions', 'enable_ab_partitions', 'enable_angle_delta', 'enable_cfl_intra', 'enable_filter_intra', 'enable_intra_edge_filter', 'enable_smooth_intra', 'enable_paeth_intra', 'enable_palette', 'enable_flip_idtx', 'enable_tx64', 'reduced_tx_type_set', 'use_intra_dct_only', 'use_inter_dct_only', 'use_intra_default_tx_only', 'enable_ref_frame_mvs', 'enable_reduced_reference_set', 'enable_obmc', 'enable_dual_filter', 'enable_diff_wtd_comp', 'enable_dist_wtd_comp', 'enable_onesided_comp', 'enable_interinter_wedge', 'enable_interintra_wedge', 'enable_masked_comp', 'enable_interintra_comp', 'enable_smooth_interintra', 'aom_params'] },
             'Alliance for Open Media AV1 [SVT-AV1]': { value: 'libsvtav1', widgets: ['framerate', 'pixel_format', 'preset_av1', 'crf_63', 'qp_av1', 'svtav1_params', 'dolbyvision'] },
             'MPEG-2 video': { value: 'mpeg2video', widgets: ['framerate_DYN', 'pixel_format', 'gop_timecode', 'drop_frame_timecode', 'scan_offset', 'timecode_frame_start', 'b_strategy', 'b_sensitivity', 'brd_scale', 'intra_vlc', 'non_linear_quant', 'alternate_scan', 'a53cc', 'seq_disp_ext', 'video_format', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_init_cplx', 'rc_eq', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'motion_est_mpeg', 'mepc', 'mepre', 'intra_penalty'] },
             'MPEG-4 part 2': { value: 'mpeg4', widgets: ['framerate', 'pixel_format', 'data_partitioning', 'alternate_scan', 'mpeg_quant', 'b_strategy', 'b_sensitivity', 'brd_scale', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_eq', 'rc_init_cplx', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'motion_est_mpeg', 'mepc', 'mepre', 'intra_penalty'] },
@@ -750,7 +879,7 @@ export const formats = {
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
         videoCodecs: {
-            'H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10': { value: 'libx264', widgets: ['framerate', 'pixel_format', 'preset', 'tune_h264', 'profile_h264', 'fastfirstpass', 'level', 'wpredp', 'a53cc', 'x264opts', 'crf_63', 'crf_max', 'qp', 'aq_mode_h264', 'aq_strength', 'psy', 'psy_rd', 'rc_lookahead_frametype', 'weightb', 'weightp', 'ssim', 'intra_refresh', 'bluray_compat', 'b_bias', 'b_pyramid', 'mixed_refs', '8x8dct', 'fast_pskip', 'aud', 'mbtree', 'deblock', 'cplxblur', 'partitions', 'direct_pred', 'slice_max_size', 'stats', 'nal_hrd_mp4', 'avcintra_class', 'motion_est_h264', 'forced_idr', 'coder', 'b_strategy', 'chromaoffset', 'sc_threshold', 'noise_reduction', 'udu_sei', 'x264_params', 'mb_info'] },
+            'H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10': { value: 'libx264', widgets: ['framerate', 'pixel_format', 'preset', 'tune_h264', 'profile_h264', 'fastfirstpass', 'codec_level', 'wpredp', 'a53cc', 'x264opts', 'crf_63', 'crf_max', 'qp', 'aq_mode_h264', 'aq_strength', 'psy', 'psy_rd', 'rc_lookahead_frametype', 'weightb', 'weightp', 'ssim', 'intra_refresh', 'bluray_compat', 'b_bias', 'b_pyramid', 'mixed_refs', '8x8dct', 'fast_pskip', 'aud', 'mbtree', 'deblock', 'cplxblur', 'partitions', 'direct_pred', 'slice_max_size', 'nal_hrd_mp4', 'avcintra_class', 'motion_est_h264', 'forced_idr', 'coder', 'b_strategy', 'chromaoffset', 'sc_threshold', 'noise_reduction', 'udu_sei', 'x264_params', 'mb_info'] },
             'H.265 / HEVC': { value: 'libx265', widgets: ['framerate', 'pixel_format', 'crf_51', 'qp', 'forced_idr', 'preset', 'tune_h265', 'profile_h265', 'udu_sei', 'a53cc', 'x265_params', 'dolbyvision'] },
             'Apple ProRes (iCodec Pro)': { value: 'prores', widgets: ['framerate', 'pixel_format', 'vendor'] },
             'VC3 / DNxHD': { value: 'dnxhd', widgets: ['framerate', 'pixel_format', 'nitris_compat', 'ibias', 'profile_dnxhd'] },
@@ -796,9 +925,9 @@ export const formats = {
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
         videoCodecs: {
-            'On2 VP8': { value: 'libvpx', widgets: ['framerate', 'pixel_format', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'arnr_type', 'tune', 'deadline', 'error_resilient', 'max_intra_rate', 'crf_63', 'static_thresh', 'drop_threshold', 'noise_sensitivity', 'undershoot_pct', 'overshoot_pct', 'ts_parameters', 'auto_alt_ref', 'cpu_used_vpx', 'screen_content_mode', 'speed', 'quality', 'vp8flags', 'rc_lookahead_altref', 'sharpness'] },
-            'Google VP9': { value: 'libvpx-vp9', widgets: ['framerate', 'pixel_format', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'arnr_type', 'tune', 'deadline', 'error_resilient', 'max_intra_rate', 'crf_63', 'static_thresh', 'drop_threshold', 'noise_sensitivity', 'undershoot_pct', 'overshoot_pct', 'ts_parameters', 'auto_alt_ref_vp9', 'cpu_used_vp9', 'lossless', 'tile_columns', 'tile_rows_vp9', 'frame_parallel', 'aq_mode_vp9', 'level_vp9', 'row_mt', 'tune_content', 'corpus_complexity', 'enable_tpl', 'min_gf_interval', 'speed', 'quality', 'rc_lookahead_altref', 'sharpness'] },
-            'Alliance for Open Media AV1 [libaom AV1]': { value: 'libaom-av1', widgets: ['framerate', 'pixel_format', 'cpu_used_av1', 'auto_alt_ref', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'aq_mode_av1', 'error_resilience', 'crf_63', 'static_thresh', 'drop_threshold', 'denoise_noise_level', 'denoise_block_size', 'undershoot_pct', 'overshoot_pct', 'minsection_pct', 'maxsection_pct', 'frame_parallel', 'tiles', 'tile_columns', 'tile_rows', 'row_mt', 'enable_cdef', 'enable_global_motion', 'enable_intrabc', 'enable_restoration', 'usage', 'tune', 'still_picture', 'dolbyvision', 'enable_rect_partitions', 'enable_1to4_partitions', 'enable_ab_partitions', 'enable_angle_delta', 'enable_cfl_intra', 'enable_filter_intra', 'enable_intra_edge_filter', 'enable_smooth_intra', 'enable_paeth_intra', 'enable_palette', 'enable_flip_idtx', 'enable_tx64', 'reduced_tx_type_set', 'use_intra_dct_only', 'use_inter_dct_only', 'use_intra_default_tx_only', 'enable_ref_frame_mvs', 'enable_reduced_reference_set', 'enable_obmc', 'enable_dual_filter', 'enable_diff_wtd_comp', 'enable_dist_wtd_comp', 'enable_onesided_comp', 'enable_interinter_wedge', 'enable_interintra_wedge', 'enable_masked_comp', 'enable_interintra_comp', 'enable_smooth_interintra', 'aom_params'] },
+            'On2 VP8': { value: 'libvpx', widgets: ['framerate', 'pixel_format', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'arnr_type', 'tune', 'deadline', 'error_resilient', 'max_intra_rate', 'crf_63', 'static_thresh', 'drop_threshold', 'noise_sensitivity', 'undershoot_pct', 'overshoot_pct', 'ts_parameters', 'auto_alt_ref', 'cpu_used_vpx', 'screen_content_mode', 'speed', 'quality_vpx', 'vp8flags', 'rc_lookahead_altref', 'sharpness'] },
+            'Google VP9': { value: 'libvpx-vp9', widgets: ['framerate', 'pixel_format', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'arnr_type', 'tune', 'deadline', 'error_resilient', 'max_intra_rate', 'crf_63', 'static_thresh', 'drop_threshold', 'noise_sensitivity', 'undershoot_pct', 'overshoot_pct', 'ts_parameters', 'auto_alt_ref_vp9', 'cpu_used_vp9', 'lossless', 'tile_columns', 'tile_rows_vp9', 'frame_parallel', 'aq_mode_vp9', 'level_vp9', 'row_mt', 'tune_content', 'corpus_complexity', 'enable_tpl', 'min_gf_interval', 'speed', 'quality_vpx', 'rc_lookahead_altref', 'sharpness'] },
+            'Alliance for Open Media AV1 [libaom AV1]': { value: 'libaom-av1', widgets: ['framerate', 'pixel_format', 'cpu_used_av1', 'auto_alt_ref', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'aq_mode_av1', 'crf_63', 'static_thresh', 'drop_threshold', 'denoise_noise_level', 'denoise_block_size', 'undershoot_pct', 'overshoot_pct', 'minsection_pct', 'maxsection_pct', 'frame_parallel', 'tiles', 'tile_columns', 'tile_rows', 'row_mt', 'enable_cdef', 'enable_global_motion', 'enable_intrabc', 'enable_restoration', 'usage', 'tune', 'still_picture', 'dolbyvision', 'enable_rect_partitions', 'enable_1to4_partitions', 'enable_ab_partitions', 'enable_angle_delta', 'enable_cfl_intra', 'enable_filter_intra', 'enable_intra_edge_filter', 'enable_smooth_intra', 'enable_paeth_intra', 'enable_palette', 'enable_flip_idtx', 'enable_tx64', 'reduced_tx_type_set', 'use_intra_dct_only', 'use_inter_dct_only', 'use_intra_default_tx_only', 'enable_ref_frame_mvs', 'enable_reduced_reference_set', 'enable_obmc', 'enable_dual_filter', 'enable_diff_wtd_comp', 'enable_dist_wtd_comp', 'enable_onesided_comp', 'enable_interinter_wedge', 'enable_interintra_wedge', 'enable_masked_comp', 'enable_interintra_comp', 'enable_smooth_interintra', 'aom_params'] },
             'Alliance for Open Media AV1 [SVT-AV1]': { value: 'libsvtav1', widgets: ['framerate', 'pixel_format', 'preset_av1', 'crf_63', 'qp_av1', 'svtav1_params', 'dolbyvision'] },
         },
         audioCodecs: {
@@ -814,7 +943,7 @@ export const formats = {
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
         videoCodecs: {
             'FLV / Sorenson Spark / Sorenson H.263 (Flash Video)': { value: 'flv1', widgets: ['framerate', 'pixel_format', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_eq', 'rc_init_cplx', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'motion_est_mpeg', 'mepc', 'mepre', 'intra_penalty'] },
-            'H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10': { value: 'libx264', widgets: ['framerate', 'pixel_format', 'preset', 'tune_h264', 'profile_h264', 'fastfirstpass', 'level', 'wpredp', 'a53cc', 'x264opts', 'crf_63', 'crf_max', 'qp', 'aq_mode_h264', 'aq_strength', 'psy', 'psy_rd', 'rc_lookahead_frametype', 'weightb', 'weightp', 'ssim', 'intra_refresh', 'bluray_compat', 'b_bias', 'b_pyramid', 'mixed_refs', '8x8dct', 'fast_pskip', 'aud', 'mbtree', 'deblock', 'cplxblur', 'partitions', 'direct_pred', 'slice_max_size', 'stats', 'nal_hrd_mp4', 'avcintra_class', 'motion_est_h264', 'forced_idr', 'coder', 'b_strategy', 'chromaoffset', 'sc_threshold', 'noise_reduction', 'udu_sei', 'x264_params', 'mb_info'] },
+            'H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10': { value: 'libx264', widgets: ['framerate', 'pixel_format', 'preset', 'tune_h264', 'profile_h264', 'fastfirstpass', 'codec_level', 'wpredp', 'a53cc', 'x264opts', 'crf_63', 'crf_max', 'qp', 'aq_mode_h264', 'aq_strength', 'psy', 'psy_rd', 'rc_lookahead_frametype', 'weightb', 'weightp', 'ssim', 'intra_refresh', 'bluray_compat', 'b_bias', 'b_pyramid', 'mixed_refs', '8x8dct', 'fast_pskip', 'aud', 'mbtree', 'deblock', 'cplxblur', 'partitions', 'direct_pred', 'slice_max_size', 'nal_hrd_mp4', 'avcintra_class', 'motion_est_h264', 'forced_idr', 'coder', 'b_strategy', 'chromaoffset', 'sc_threshold', 'noise_reduction', 'udu_sei', 'x264_params', 'mb_info'] },
         },
         audioCodecs: {
             'MP3 (MPEG audio layer 3)': { value: 'libmp3lame', widgets: ['sample_rate', 'sample_format', 'channel_layout', 'reservoir', 'joint_stereo', 'abr', 'copyright_flag', 'original_flag'] },
@@ -864,8 +993,8 @@ export const formats = {
     jpeg: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     jpg: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     png: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
-    gif: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
-    webp: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    gif: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: [...generalImageWidgets, 'loop', 'delay', 'dispose', 'coalesce'] },
+    webp: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: [...generalImageWidgets, 'loop', 'delay', 'dispose', 'coalesce'] },
     // Uncompressed & Lossless Raster Formats
     bmp: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     dib: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
@@ -881,8 +1010,8 @@ export const formats = {
     heif: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     jp2: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     j2k: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
-    jxr: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },  // magick: UnableToOpenConfigureFile `delegates.xml' @ warning/configure.c/GetConfigureOptions/722.
-    // magick: DelegateFailed `mv "%i" "%i.tiff"; "JxrEncApp" -i "%i.tiff" -o "%o.jxr"; mv "%i.tiff" "%i"; mv "%o.jxr" "%o"' @ error/delegate.c/InvokeDelegate/1920.
+    jxr: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    wdp: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     ico: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },  // WidthOrHeightExceedsLimit
     cur: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets }, // WidthOrHeightExceedsLimit
     // Professional & Design Formats
@@ -890,8 +1019,8 @@ export const formats = {
     xcf: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     ai: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     eps: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
-    pdf: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
-    ps: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    pdf: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: [...generalImageWidgets, 'page'] },
+    ps: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: [...generalImageWidgets, 'page'] },
     // Specialized Raster Formats
     pcx: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     tga: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
@@ -981,6 +1110,7 @@ function getMajorFileType(exts) {
     return Object.entries(counts).reduce((best, [grp, cnt]) => (cnt > best[1] ? [grp, cnt] : best), [null, 0])[0];
 }
 
+// Returns output formats grouped by type. Only formats supported by ALL selected files are included, preserving all*Formats insertion order.
 function getOutputFormats(filePaths) {
     if (!filePaths.length) return {};
     const exts = filePaths.map(getExtension).filter(ext => formats[ext]);
@@ -998,9 +1128,6 @@ function getOutputFormats(filePaths) {
         grouped[group].push(ext);
     }
 
-    for (const group in grouped) {
-        grouped[group].sort();
-    }
     return grouped;
 }
 

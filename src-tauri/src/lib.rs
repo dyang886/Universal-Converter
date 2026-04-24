@@ -275,8 +275,16 @@ pub async fn run_cli_command(handle: &AppHandle, original_path_str: &str, progra
     if let Some(path_var) = std::env::var_os("PATH") {
         let mut paths = std::env::split_paths(&path_var).collect::<Vec<_>>();
         paths.insert(0, resource_dir.clone());
+        // Make JxrEncApp/JxrDecApp discoverable for ImageMagick's JXR delegate
+        paths.insert(0, resource_dir.join("binaries").join("ImageMagick").join("LibJXR"));
         let new_path = std::env::join_paths(paths).unwrap_or_else(|_| OsStr::new("").to_os_string());
         new_env.insert("PATH".to_string(), new_path);
+    }
+    if program == "magick" {
+        new_env.insert(
+            "MAGICK_CONFIGURE_PATH".to_string(),
+            resource_dir.join("binaries").join("ImageMagick").into_os_string(),
+        );
     }
 
     let (mut rx, _child) = handle
