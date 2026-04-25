@@ -45,7 +45,11 @@
     "waiting_for_conversion": "等待转换开始...",
     "converting": "正在转换 {{file}}",
     "success": "成功转换 {{file}}",
-    "failure": "转换失败 {{file}}"
+    "failure": "转换失败 {{file}}",
+    "files": "个文件",
+    "verb_converting": "正在转换",
+    "verb_success": "成功转换",
+    "verb_failed": "转换失败"
   },
   "prompt": {
     "duplicated_file": "重复文件",
@@ -489,6 +493,7 @@
       "intent": "ICC 渲染意图 (与 -profile 配合使用)",
       "range_threshold": "范围阈值 (格式：<低黑>,<低白>,<高白>,<高黑>)",
       "interpolate": "像素插值方法 (用于扭曲变形 / FX)",
+      "combine_inputs": "合并为单个文件",
       "ico_sizes": "嵌入尺寸"
     }
   }

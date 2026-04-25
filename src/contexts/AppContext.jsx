@@ -26,6 +26,7 @@ export function AppProvider({ children }) {
     const [selectedAudioCodec, setSelectedAudioCodec] = useState('');
     const [advancedOptionValues, setAdvancedOptionValues] = useState({});
     const [activeTab, setActiveTab] = useState('general');
+    const [conversionMeta, setConversionMeta] = useState(null);
 
     // Text truncation
     function MiddleEllipsis({ text }) {
@@ -36,49 +37,56 @@ export function AppProvider({ children }) {
             const element = ref.current;
             if (!element) return;
 
-            const observer = new ResizeObserver(entries => {
-                if (entries[0]) {
-                    const availableWidth = entries[0].contentRect.width;
-                    if (availableWidth === 0) return;
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
 
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const style = window.getComputedStyle(element);
-                    const font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
-                    ctx.font = font;
+            const updateDisplay = () => {
+                const availableWidth = element.clientWidth;
+                if (availableWidth === 0) return;
 
-                    if (ctx.measureText(text).width <= availableWidth) {
-                        setDisplay(text);
-                        return;
-                    }
+                const style = window.getComputedStyle(element);
+                const font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+                ctx.font = font;
 
-                    let low = 0;
-                    let high = text.length;
-                    let best = text;
-
-                    while (low < high) {
-                        const mid = Math.floor((low + high) / 2);
-                        const keepFront = Math.ceil(mid / 2);
-                        const keepBack = Math.floor(mid / 2);
-                        const candidate = text.slice(0, keepFront) + '…' + text.slice(text.length - keepBack);
-
-                        if (ctx.measureText(candidate).width <= availableWidth) {
-                            best = candidate;
-                            low = mid + 1;
-                        } else {
-                            high = mid;
-                        }
-                    }
-                    setDisplay(best);
+                if (ctx.measureText(text).width <= availableWidth) {
+                    setDisplay(text);
+                    return;
                 }
-            });
+
+                let low = 0;
+                let high = text.length;
+                let best = text;
+
+                while (low < high) {
+                    const mid = Math.floor((low + high) / 2);
+                    const keepFront = Math.ceil(mid / 2);
+                    const keepBack = Math.floor(mid / 2);
+                    const candidate = text.slice(0, keepFront) + '…' + text.slice(text.length - keepBack);
+
+                    if (ctx.measureText(candidate).width <= availableWidth) {
+                        best = candidate;
+                        low = mid + 1;
+                    } else {
+                        high = mid;
+                    }
+                }
+
+                setDisplay(best);
+            };
+
+            const observer = new ResizeObserver(updateDisplay);
 
             observer.observe(element);
+            updateDisplay();
+
             return () => observer.disconnect();
-        }, [text, ref.current?.offsetWidth]);
+        }, [text]);
 
         return (
-            <span ref={ref} className="block truncate" title={text}>{display}</span>
+            <span ref={ref} className="block max-w-full overflow-hidden whitespace-nowrap" title={text}>
+                {display}
+            </span>
         );
     }
 
@@ -157,11 +165,14 @@ export function AppProvider({ children }) {
             const videoCodecInfo = config.videoCodecs?.[selectedVideoCodec];
             const audioCodecInfo = config.audioCodecs?.[selectedAudioCodec] || config.codecs?.[selectedAudioCodec];
 
+            const combineInputs = advancedOptionValues['combine_inputs'] === true;
+
             const groupedArgs = {};
             for (const widgetKey in advancedOptionValues) {
                 const value = advancedOptionValues[widgetKey];
                 const definition = widgetDefinitions[widgetKey];
                 if (!definition) continue;
+                if (definition.meta) continue;
 
                 if (definition.type === 'group') {
                     if (definition.arg && value) {
@@ -222,6 +233,7 @@ export function AppProvider({ children }) {
                 finalOptions[arg] = combinedValue === '' ? '' : combinedValue;
             }
 
+            setConversionMeta({ combine: combineInputs, outputExt, totalCount: filePaths.length });
             setIsConverting(true);
             setTerminalLogs([]);
             navigate('/terminal');
@@ -229,7 +241,7 @@ export function AppProvider({ children }) {
             const result = await invoke('convert_files', {
                 inputPaths: filePaths,
                 outputExt: outputExt,
-                request: { tool: config['tool'], options: finalOptions },
+                request: { tool: config['tool'], options: finalOptions, combine: combineInputs },
             });
 
             if (result) {
@@ -293,7 +305,8 @@ export function AppProvider({ children }) {
         selectedVideoCodec, setSelectedVideoCodec,
         selectedAudioCodec, setSelectedAudioCodec,
         advancedOptionValues, setAdvancedOptionValues,
-        activeTab, setActiveTab
+        activeTab, setActiveTab,
+        conversionMeta,
     };
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

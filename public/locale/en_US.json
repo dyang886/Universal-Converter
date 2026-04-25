@@ -45,7 +45,11 @@
     "waiting_for_conversion": "Waiting for conversion to start...",
     "converting": "Converting {{file}}",
     "success": "Successfully converted {{file}}",
-    "failure": "Failed to convert {{file}}"
+    "failure": "Failed to convert {{file}}",
+    "files": "files",
+    "verb_converting": "Converting",
+    "verb_success": "Successfully converted",
+    "verb_failed": "Failed to convert"
   },
   "prompt": {
     "duplicated_file": "Duplicated file",
@@ -489,6 +493,7 @@
       "intent": "ICC Rendering Intent (used with -profile)",
       "range_threshold": "Range Threshold (Format: <low-black>,<low-white>,<high-white>,<high-black>)",
       "interpolate": "Pixel Interpolation Method (for Distort / FX)",
+      "combine_inputs": "Combine Into Single File",
       "ico_sizes": "Embedded Sizes"
     }
   }

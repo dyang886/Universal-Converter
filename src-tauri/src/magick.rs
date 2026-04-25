@@ -6,50 +6,51 @@ use tauri::AppHandle;
 use crate::{emit_error, emit_success, run_cli_command};
 
 pub async fn run_conversion(
-    handle: AppHandle, input_paths: Vec<String>, output_ext: String, options: HashMap<String, String>,
+    handle: AppHandle, input_paths: Vec<String>, output_ext: String, options: HashMap<String, String>, combine: bool,
 ) -> Result<bool, String> {
-    let mut all_files_converted_successfully = true;
+    let batches: Vec<&[String]> = if combine {
+        vec![input_paths.as_slice()]
+    } else {
+        input_paths.chunks(1).collect()
+    };
 
-    for path_str in input_paths {
-        let original_input_path = PathBuf::from(&path_str);
+    let mut all_ok = true;
 
-        let original_file_stem = original_input_path.file_stem().unwrap_or_default().to_string_lossy();
-        let new_file_name = format!("{}_UCT.{}", original_file_stem, output_ext);
-        let output_path = original_input_path.with_file_name(new_file_name);
+    for batch in batches {
+        let representative = PathBuf::from(&batch[0]);
+        let output = representative.with_file_name(format!(
+            "{}_UCT.{}",
+            representative.file_stem().unwrap_or_default().to_string_lossy(),
+            output_ext
+        ));
 
-        let mut magick_args: Vec<String> = vec![original_input_path.to_string_lossy().to_string()];
+        let mut args: Vec<String> = batch.to_vec();
+        append_options(&mut args, &options);
+        args.push(output.to_string_lossy().to_string());
 
-        let mut push_split = |s: &str| {
-            for part in s.split_whitespace() {
-                let cleaned = part.trim_matches('"').trim_matches('\'').to_string();
-                magick_args.push(cleaned);
-            }
-        };
+        println!("Full magick command: magick {}", args.join(" "));
 
-        for (key, value) in &options {
-            push_split(key);
-            if !value.is_empty() {
-                push_split(value);
+        match run_cli_command(&handle, &batch[0], "magick", &args).await {
+            Ok(log) => emit_success(&handle, &batch[0], &representative, log),
+            Err(e) => {
+                emit_error(&handle, &batch[0], &representative, e);
+                all_ok = false;
             }
         }
-
-        // Add the output path
-        magick_args.push(output_path.to_string_lossy().to_string());
-
-        // Print the full command for debugging
-        let full_command = format!("magick {}", magick_args.join(" "));
-        println!("Full magick command: {}", full_command);
-
-        match run_cli_command(&handle, &path_str, "magick", &magick_args).await {
-            Ok(magick_log) => {
-                emit_success(&handle, &path_str, &original_input_path, magick_log);
-            }
-            Err(e) => {
-                emit_error(&handle, &path_str, &original_input_path, e);
-                all_files_converted_successfully = false;
-            }
-        };
     }
 
-    Ok(all_files_converted_successfully)
+    Ok(all_ok)
+}
+
+fn append_options(args: &mut Vec<String>, options: &HashMap<String, String>) {
+    for (key, value) in options {
+        for part in key.split_whitespace() {
+            args.push(part.trim_matches('"').trim_matches('\'').to_string());
+        }
+        if !value.is_empty() {
+            for part in value.split_whitespace() {
+                args.push(part.trim_matches('"').trim_matches('\'').to_string());
+            }
+        }
+    }
 }

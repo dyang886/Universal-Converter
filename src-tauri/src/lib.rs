@@ -47,6 +47,8 @@ struct ConversionLogPayload {
 pub struct ConversionRequest {
     tool: String,
     options: HashMap<String, String>,
+    #[serde(default)]
+    combine: bool,
 }
 
 impl Default for AppSettings {
@@ -155,7 +157,7 @@ async fn convert_files(handle: AppHandle, input_paths: Vec<String>, output_ext: 
 
     match request.tool.as_str() {
         "ffmpeg" => ffmpeg::run_conversion(handle, input_paths, output_ext, request.options).await,
-        "magick" => magick::run_conversion(handle, input_paths, output_ext, request.options).await,
+        "magick" => magick::run_conversion(handle, input_paths, output_ext, request.options, request.combine).await,
         _ => Err(format!("Unsupported tool requested: {}", request.tool)),
     }
 }

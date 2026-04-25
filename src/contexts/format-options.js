@@ -641,6 +641,7 @@ export const widgetDefinitions = {
     intent: { arg: "-intent", labelKey: "advanced.image.intent", type: "select", options: widgetOptions.rendering_intent },
     range_threshold: { arg: "-range-threshold", labelKey: "advanced.image.range_threshold", type: "input-txt" },
     interpolate: { arg: "-interpolate", labelKey: "advanced.image.interpolate", type: "select", options: widgetOptions.interpolate_method },
+    combine_inputs: { type: 'checkbox-novalue', labelKey: 'advanced.image.combine_inputs', meta: true },
     ico_sizes: {
         type: 'group', arg: '-define', prefix: 'icon:auto-resize=', separator: ',', labelKey: 'advanced.image.ico_sizes',
         widgets: [
@@ -1005,12 +1006,12 @@ export const formats = {
     jpeg: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     jpg: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     png: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
-    gif: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: [...generalImageWidgets, 'loop', 'delay', 'dispose', 'coalesce'] },
-    webp: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: [...generalImageWidgets, 'loop', 'delay', 'dispose', 'coalesce'] },
+    gif: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: ['combine_inputs', 'loop', 'delay', 'dispose', 'coalesce', ...generalImageWidgets] },
+    webp: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: ['combine_inputs', 'loop', 'delay', 'dispose', 'coalesce', ...generalImageWidgets] },
     // Uncompressed & Lossless Raster Formats
     bmp: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     dib: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
-    tiff: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
+    tiff: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: ['combine_inputs', ...generalImageWidgets] },
     pnm: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     ppm: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     pgm: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
@@ -1024,15 +1025,15 @@ export const formats = {
     j2k: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     jxr: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     wdp: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
-    ico: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: [...generalImageWidgets, 'ico_sizes'] },  // WidthOrHeightExceedsLimit
-    cur: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: [...generalImageWidgets, 'ico_sizes'] }, // WidthOrHeightExceedsLimit
+    ico: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: ['ico_sizes', ...generalImageWidgets] },
+    cur: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: ['ico_sizes', ...generalImageWidgets] },
     // Professional & Design Formats
     psd: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     xcf: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     ai: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     eps: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
-    pdf: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: [...generalImageWidgets, 'page'] },
-    ps: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: [...generalImageWidgets, 'page'] },
+    pdf: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: ['combine_inputs', 'page', ...generalImageWidgets] },
+    ps: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: ['combine_inputs', 'page', ...generalImageWidgets] },
     // Specialized Raster Formats
     pcx: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     tga: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
