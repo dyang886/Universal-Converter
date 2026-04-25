@@ -145,21 +145,17 @@ export function Checkbox({ color = 'dark/zinc', className, ...props }) {
 
 export function TriStateCheckbox({ value, onChange, color = 'dark/zinc', className, ...props }) {
   const handleClick = () => {
-    // Defines the cycle: not used -> checked -> unchecked
-    if (value === '') {
-      onChange(1);
-    } else if (value === 1) {
-      onChange(0);
-    } else {
-      onChange('');
-    }
+    // Cycle: null (not used) -> true (checked) -> false (unchecked) -> null
+    if (value === null) onChange(true);
+    else if (value === true) onChange(false);
+    else onChange(null);
   };
 
   return (
     <Headless.Checkbox
       data-slot="control"
-      data-not-used={value === ''}
-      checked={value === 1}
+      data-not-used={value === null}
+      checked={value === true}
       onChange={handleClick}
       {...props}
       className={clsx(className, 'group inline-flex focus:outline-none')}
@@ -194,19 +190,14 @@ export function TriStateCheckbox({ value, onChange, color = 'dark/zinc', classNa
 
 export function DualStateCheckbox({ value, onChange, color = 'dark/zinc', className, ...props }) {
   const handleClick = () => {
-    // Toggles between: not-used -> checked
-    if (value === '') {
-      onChange('1');
-    } else {
-      onChange('');
-    }
+    onChange(!value);
   };
 
   return (
     <Headless.Checkbox
       data-slot="control"
-      data-not-used={value === ''}
-      checked={value === '1'}
+      data-not-used={value !== true}
+      checked={value === true}
       onChange={handleClick}
       {...props}
       className={clsx(className, 'group inline-flex focus:outline-none')}

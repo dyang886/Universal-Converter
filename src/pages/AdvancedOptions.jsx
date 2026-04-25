@@ -13,13 +13,14 @@ import { Navbar, NavbarItem, NavbarSection } from '@/components/navbar';
 import { ClipboardIcon } from '@heroicons/react/24/outline';
 
 
-function WidgetRenderer({ widgetKey, value, codecValue, onChange }) {
+function WidgetRenderer({ widgetKey, inlineDef, value, codecValue, onChange }) {
     const { t } = useTranslation();
     const [dynamicOptions, setDynamicOptions] = useState([]);
 
-    const definition = widgetDefinitions[widgetKey];
+    const definition = inlineDef ?? widgetDefinitions[widgetKey];
     if (!definition) return null;
     const isDynamic = definition.options === 'dynamic';
+    const labelText = definition.label ?? t(definition.labelKey);
 
     const formatRangeNumber = (num) => {
         if (typeof num === 'number' && Math.abs(num) > 9999) {
@@ -57,7 +58,7 @@ function WidgetRenderer({ widgetKey, value, codecValue, onChange }) {
         <>
             {definition.type === 'select' && (
                 <Field as="div">
-                    <Label>{t(definition.labelKey)}</Label>
+                    <Label>{labelText}</Label>
                     <Listbox value={value} onChange={handleChange} placeholder={t('advanced.not_selected')}>
                         <ListboxOption value="">{t('advanced.not_selected')}</ListboxOption>
                         {(isDynamic ? dynamicOptions : Object.entries(definition.options)).map(opt => {
@@ -70,21 +71,21 @@ function WidgetRenderer({ widgetKey, value, codecValue, onChange }) {
 
             {definition.type === 'input-int' && (
                 <Field as="div">
-                    <Label>{t(definition.labelKey)} {`[${formatRangeNumber(definition.options[0])}, ${formatRangeNumber(definition.options[1])}]`}</Label>
+                    <Label>{labelText} {`[${formatRangeNumber(definition.options[0])}, ${formatRangeNumber(definition.options[1])}]`}</Label>
                     <IntegerInput value={value} onChange={handleChange} min={definition.options[0]} max={definition.options[1]} />
                 </Field>
             )}
 
             {definition.type === 'input-flt' && (
                 <Field as="div">
-                    <Label>{t(definition.labelKey)} {`[${formatRangeNumber(definition.options[0])}, ${formatRangeNumber(definition.options[1])}]`}</Label>
+                    <Label>{labelText} {`[${formatRangeNumber(definition.options[0])}, ${formatRangeNumber(definition.options[1])}]`}</Label>
                     <FloatInput value={value} onChange={handleChange} min={definition.options[0]} max={definition.options[1]} />
                 </Field>
             )}
 
             {definition.type === 'input-txt' && (
                 <Field as="div">
-                    <Label>{t(definition.labelKey)}</Label>
+                    <Label>{labelText}</Label>
                     <TextInput value={value} onChange={handleChange} />
                 </Field>
             )}
@@ -92,14 +93,14 @@ function WidgetRenderer({ widgetKey, value, codecValue, onChange }) {
             {definition.type === 'checkbox' && (
                 <Field as="div" className="flex items-center gap-2">
                     <TriStateCheckbox value={value} onChange={handleChange} />
-                    <Label>{t(definition.labelKey)}</Label>
+                    <Label>{labelText}</Label>
                 </Field>
             )}
 
             {definition.type === 'checkbox-novalue' && (
                 <Field as="div" className="flex items-center gap-2">
                     <DualStateCheckbox value={value} onChange={handleChange} />
-                    <Label>{t(definition.labelKey)}</Label>
+                    <Label>{labelText}</Label>
                 </Field>
             )}
         </>
@@ -190,6 +191,23 @@ export default function AdvancedOptions() {
                     newOptions[widgetKey] = prevValues[widgetKey];
                 }
             }
+            for (const widgetKey of currentWidgetKeys) {
+                if (!(widgetKey in newOptions)) {
+                    const def = widgetDefinitions[widgetKey];
+                    if (def?.type === 'group') {
+                        const init = {};
+                        def.widgets.forEach(sw => {
+                            init[sw.arg] = sw.default !== undefined ? sw.default
+                                : sw.type === 'checkbox' ? null
+                                : sw.type === 'checkbox-novalue' ? false
+                                : '';
+                        });
+                        newOptions[widgetKey] = init;
+                    } else if (def?.default !== undefined) {
+                        newOptions[widgetKey] = def.default;
+                    }
+                }
+            }
             return newOptions;
         });
     }, [widgetsToDisplay.all.join(','), setAdvancedOptionValues]);
@@ -204,6 +222,13 @@ export default function AdvancedOptions() {
         setAdvancedOptionValues(prev => ({ ...prev, [widgetKey]: value }));
     };
 
+    const handleGroupChange = (groupKey, subArg, newValue) => {
+        setAdvancedOptionValues(prev => ({
+            ...prev,
+            [groupKey]: { ...(prev[groupKey] || {}), [subArg]: newValue },
+        }));
+    };
+
     // Memoize the final command string
     const commandString = useMemo(() => {
         // a set of arguments to exclude from the command string
@@ -214,28 +239,51 @@ export default function AdvancedOptions() {
         for (const widgetKey in advancedOptionValues) {
             const value = advancedOptionValues[widgetKey];
             const definition = widgetDefinitions[widgetKey];
+            if (!definition) continue;
 
-            if (definition && !excludedArgs.has(definition.arg) && value !== '' && value !== null && value !== undefined) {
+            if (definition.type === 'group') {
+                if (definition.arg && value) {
+                    const selected = definition.widgets.filter(sw => value[sw.arg]).map(sw => sw.arg);
+                    if (selected.length > 0) {
+                        if (!groupedArgs[definition.arg]) groupedArgs[definition.arg] = [];
+                        groupedArgs[definition.arg].push((definition.prefix || '') + selected.join(definition.separator || ','));
+                    }
+                } else if (!definition.arg && value) {
+                    definition.widgets.forEach(sw => {
+                        const subVal = value[sw.arg];
+                        const swInclude = sw.type === 'checkbox-novalue' ? subVal === true
+                            : sw.type === 'checkbox' ? (subVal === true || subVal === false)
+                            : subVal !== undefined && subVal !== '' && subVal !== null;
+                        if (swInclude) {
+                            if (!groupedArgs[sw.arg]) groupedArgs[sw.arg] = [];
+                            const pushVal = sw.type === 'checkbox-novalue' ? ''
+                                : sw.type === 'checkbox' ? (subVal === true ? '1' : '0')
+                                : subVal;
+                            groupedArgs[sw.arg].push(pushVal);
+                        }
+                    });
+                }
+                continue;
+            }
+
+            const shouldInclude = definition.type === 'checkbox-novalue' ? value === true
+                : definition.type === 'checkbox' ? (value === true || value === false)
+                : value !== '' && value !== null && value !== undefined;
+
+            if (!excludedArgs.has(definition.arg) && shouldInclude) {
                 const arg = definition.arg;
-                // Initialize the array if it's the first time we see this arg
-                if (!groupedArgs[arg]) {
-                    groupedArgs[arg] = [];
-                }
-                // Apply prefix and suffix if they exist in the definition
-                let finalValue = value;
-                if (definition.prefix) {
-                    finalValue = `${definition.prefix}${finalValue}`;
-                }
-                if (definition.suffix) {
-                    finalValue = `${finalValue}${definition.suffix}`;
-                }
-
-                // For checkbox-novalue, push empty string as placeholder (arg only, no value)
+                if (!groupedArgs[arg]) groupedArgs[arg] = [];
+                let finalValue;
                 if (definition.type === 'checkbox-novalue') {
-                    groupedArgs[arg].push('');
+                    finalValue = '';
+                } else if (definition.type === 'checkbox') {
+                    finalValue = value === true ? '1' : '0';
                 } else {
-                    groupedArgs[arg].push(finalValue);
+                    finalValue = value;
+                    if (definition.prefix) finalValue = `${definition.prefix}${finalValue}`;
+                    if (definition.suffix) finalValue = `${finalValue}${definition.suffix}`;
                 }
+                groupedArgs[arg].push(finalValue);
             }
         }
 
@@ -297,8 +345,30 @@ export default function AdvancedOptions() {
         return widgetKeys.map(widgetKey => {
             const def = widgetDefinitions[widgetKey];
             if (!def) return null;
-            const value = advancedOptionValues[widgetKey] ?? '';
 
+            if (def.type === 'group') {
+                const groupValue = advancedOptionValues[widgetKey] || {};
+                const groupLabel = def.label ?? t(def.labelKey);
+                return (
+                    <div key={widgetKey} className="relative mt-2 rounded-lg border border-zinc-700 px-3 pb-3 pt-4">
+                        <span className="absolute -top-2.5 left-3 bg-white px-1 text-sm/6 font-medium text-zinc-950 select-none dark:bg-zinc-900 dark:text-white">{groupLabel}</span>
+                        <div className="flex flex-wrap gap-x-4 gap-y-2 pt-2">
+                            {def.widgets.map((sw, i) => (
+                                <WidgetRenderer
+                                    key={i}
+                                    widgetKey={`${widgetKey}:${sw.arg}`}
+                                    inlineDef={sw}
+                                    value={groupValue[sw.arg] ?? ''}
+                                    codecValue={codecValue}
+                                    onChange={(_, newVal) => handleGroupChange(widgetKey, sw.arg, newVal)}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                );
+            }
+
+            const value = advancedOptionValues[widgetKey] ?? '';
             return (
                 <WidgetRenderer
                     key={`${widgetKey}-${codecValue || 'general'}`}
@@ -326,7 +396,9 @@ export default function AdvancedOptions() {
 
             const widgetsWithHeights = generalWidgets.map(key => {
                 const definition = widgetDefinitions[key];
-                const height = WIDGET_HEIGHT_PX[definition.type];
+                const height = definition?.type === 'group'
+                    ? 32 + definition.widgets.length * 24
+                    : WIDGET_HEIGHT_PX[definition?.type] ?? 24;
                 return { key, height };
             }).sort((a, b) => b.height - a.height);
 
@@ -417,7 +489,9 @@ export default function AdvancedOptions() {
             widgetsToDisplay.codecAudio.forEach((widgetKey, index) => {
                 const definition = widgetDefinitions[widgetKey];
                 if (definition) {
-                    const height = WIDGET_HEIGHT_PX[definition.type];
+                    const height = definition.type === 'group'
+                        ? 32 + definition.widgets.length * 24
+                        : WIDGET_HEIGHT_PX[definition.type] ?? 24;
                     itemsToDistribute.push({
                         key: widgetKey,
                         height: height,

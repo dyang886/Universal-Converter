@@ -641,6 +641,18 @@ export const widgetDefinitions = {
     intent: { arg: "-intent", labelKey: "advanced.image.intent", type: "select", options: widgetOptions.rendering_intent },
     range_threshold: { arg: "-range-threshold", labelKey: "advanced.image.range_threshold", type: "input-txt" },
     interpolate: { arg: "-interpolate", labelKey: "advanced.image.interpolate", type: "select", options: widgetOptions.interpolate_method },
+    ico_sizes: {
+        type: 'group', arg: '-define', prefix: 'icon:auto-resize=', separator: ',', labelKey: 'advanced.image.ico_sizes',
+        widgets: [
+            { arg: '256', label: '256×256', type: 'checkbox-novalue', default: true },
+            { arg: '128', label: '128×128', type: 'checkbox-novalue', default: true },
+            { arg: '64',  label: '64×64',   type: 'checkbox-novalue', default: true },
+            { arg: '48',  label: '48×48',   type: 'checkbox-novalue', default: true },
+            { arg: '32',  label: '32×32',   type: 'checkbox-novalue', default: true },
+            { arg: '24',  label: '24×24',   type: 'checkbox-novalue', default: false },
+            { arg: '16',  label: '16×16',   type: 'checkbox-novalue', default: true },
+        ],
+    },
 };
 
 // ===========================================================================
@@ -1012,8 +1024,8 @@ export const formats = {
     j2k: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     jxr: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     wdp: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
-    ico: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },  // WidthOrHeightExceedsLimit
-    cur: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets }, // WidthOrHeightExceedsLimit
+    ico: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: [...generalImageWidgets, 'ico_sizes'] },  // WidthOrHeightExceedsLimit
+    cur: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: [...generalImageWidgets, 'ico_sizes'] }, // WidthOrHeightExceedsLimit
     // Professional & Design Formats
     psd: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },
     xcf: { group: 'image', tool: 'magick', outputs: allImageFormats, widgets: generalImageWidgets },

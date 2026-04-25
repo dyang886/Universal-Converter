@@ -488,7 +488,8 @@
       "transparent_color": "GIF/PNG 输出透明色",
       "intent": "ICC 渲染意图 (与 -profile 配合使用)",
       "range_threshold": "范围阈值 (格式：<低黑>,<低白>,<高白>,<高黑>)",
-      "interpolate": "像素插值方法 (用于扭曲变形 / FX)"
+      "interpolate": "像素插值方法 (用于扭曲变形 / FX)",
+      "ico_sizes": "嵌入尺寸"
     }
   }
 }

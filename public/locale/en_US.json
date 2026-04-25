@@ -488,7 +488,8 @@
       "transparent_color": "Transparent Color for GIF/PNG Output",
       "intent": "ICC Rendering Intent (used with -profile)",
       "range_threshold": "Range Threshold (Format: <low-black>,<low-white>,<high-white>,<high-black>)",
-      "interpolate": "Pixel Interpolation Method (for Distort / FX)"
+      "interpolate": "Pixel Interpolation Method (for Distort / FX)",
+      "ico_sizes": "Embedded Sizes"
     }
   }
 }

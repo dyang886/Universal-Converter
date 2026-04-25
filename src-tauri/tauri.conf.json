@@ -33,9 +33,9 @@
       "binaries/Updater"
     ],
     "resources": {
-      "binaries/ImageMagick/delegates.xml": "binaries/ImageMagick/delegates.xml",
-      "binaries/ImageMagick/LibJXR/JXREncApp.exe": "binaries/ImageMagick/LibJXR/JXREncApp.exe",
-      "binaries/ImageMagick/LibJXR/JXRDecApp.exe": "binaries/ImageMagick/LibJXR/JXRDecApp.exe"
+      "binaries/ImageMagick/delegates.xml": "resources/ImageMagick/delegates.xml",
+      "binaries/ImageMagick/LibJXR/JXREncApp.exe": "resources/ImageMagick/LibJXR/JXREncApp.exe",
+      "binaries/ImageMagick/LibJXR/JXRDecApp.exe": "resources/ImageMagick/LibJXR/JXRDecApp.exe"
     },
     "targets": "all",
     "icon": [
