@@ -43,13 +43,10 @@
   },
   "terminal": {
     "waiting_for_conversion": "等待转换开始...",
-    "converting": "正在转换 {{file}}",
-    "success": "成功转换 {{file}}",
-    "failure": "转换失败 {{file}}",
-    "files": "个文件",
-    "verb_converting": "正在转换",
-    "verb_success": "成功转换",
-    "verb_failed": "转换失败"
+    "converting": "正在转换",
+    "success": "成功转换",
+    "failure": "转换失败",
+    "files": "个文件"
   },
   "prompt": {
     "duplicated_file": "重复文件",
@@ -377,6 +374,7 @@
       "gaussian_blur": "高斯模糊 (格式：<半径>x<标准差>)",
       "sharpen": "锐化 (格式：<半径>x<标准差>)",
       "unsharp": "USM 锐化 (格式：<半径>x<标准差>{+<量>}{+<阈值>})",
+      "flatten": "拼合图层 (填充透明度)",
       "background": "背景颜色",
       "foreground": "前景颜色",
       "fill": "填充颜色",

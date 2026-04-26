@@ -4,7 +4,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { useTranslation } from 'react-i18next';
 
 import { useApp } from '@/contexts/AppContext';
-import { formats, widgetDefinitions } from '@/contexts/format-options';
+import { formats, widgetDefinitions, buildGroupedArgs } from '@/contexts/format-options';
 import { TriStateCheckbox, DualStateCheckbox } from '@/components/checkbox';
 import { Field, Label } from '@/components/fieldset';
 import { IntegerInput, FloatInput, TextInput } from '@/components/input';
@@ -231,63 +231,12 @@ export default function AdvancedOptions() {
 
     // Memoize the final command string
     const commandString = useMemo(() => {
-        // a set of arguments to exclude from the command string
-        const excludedArgs = new Set(['--qmc-mmkv', '--qmc-mmkv-key', '--kgg-db', '--update-metadata']);
-
         const combineInputs = advancedOptionValues['combine_inputs'] === true;
 
         // 1. Group all selected options by their argument
-        const groupedArgs = {};
-        for (const widgetKey in advancedOptionValues) {
-            const value = advancedOptionValues[widgetKey];
-            const definition = widgetDefinitions[widgetKey];
-            if (!definition) continue;
-            if (definition.meta) continue;
-
-            if (definition.type === 'group') {
-                if (definition.arg && value) {
-                    const selected = definition.widgets.filter(sw => value[sw.arg]).map(sw => sw.arg);
-                    if (selected.length > 0) {
-                        if (!groupedArgs[definition.arg]) groupedArgs[definition.arg] = [];
-                        groupedArgs[definition.arg].push((definition.prefix || '') + selected.join(definition.separator || ','));
-                    }
-                } else if (!definition.arg && value) {
-                    definition.widgets.forEach(sw => {
-                        const subVal = value[sw.arg];
-                        const swInclude = sw.type === 'checkbox-novalue' ? subVal === true
-                            : sw.type === 'checkbox' ? (subVal === true || subVal === false)
-                            : subVal !== undefined && subVal !== '' && subVal !== null;
-                        if (swInclude) {
-                            if (!groupedArgs[sw.arg]) groupedArgs[sw.arg] = [];
-                            const pushVal = sw.type === 'checkbox-novalue' ? ''
-                                : sw.type === 'checkbox' ? (subVal === true ? '1' : '0')
-                                : subVal;
-                            groupedArgs[sw.arg].push(pushVal);
-                        }
-                    });
-                }
-                continue;
-            }
-
-            const shouldInclude = definition.type === 'checkbox-novalue' ? value === true
-                : definition.type === 'checkbox' ? (value === true || value === false)
-                : value !== '' && value !== null && value !== undefined;
-
-            if (!excludedArgs.has(definition.arg) && shouldInclude) {
-                const arg = definition.arg;
-                if (!groupedArgs[arg]) groupedArgs[arg] = [];
-                let finalValue;
-                if (definition.type === 'checkbox-novalue') {
-                    finalValue = '';
-                } else if (definition.type === 'checkbox') {
-                    finalValue = value === true ? '1' : '0';
-                } else {
-                    finalValue = value;
-                    if (definition.prefix) finalValue = `${definition.prefix}${finalValue}`;
-                    if (definition.suffix) finalValue = `${finalValue}${definition.suffix}`;
-                }
-                groupedArgs[arg].push(finalValue);
-            }
+        const groupedArgs = buildGroupedArgs(advancedOptionValues);
+        for (const arg of ['--qmc-mmkv', '--qmc-mmkv-key', '--kgg-db', '--update-metadata']) {
+            delete groupedArgs[arg];
         }
 
         // 2. Build the command string based on the tool

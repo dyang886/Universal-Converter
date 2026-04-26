@@ -481,43 +481,44 @@ export const widgetDefinitions = {
     // ====== image ======
     // Common ImageMagick Arguments
     quality: { arg: "-quality", labelKey: "advanced.image.quality", type: "input-int", options: [0, 100] },
-    depth: { arg: "-depth", labelKey: "advanced.image.depth", type: "input-int", options: [1, 32] },
-    density: { arg: "-density", labelKey: "advanced.image.density", type: "input-txt" },
-    compress: { arg: "-compress", labelKey: "advanced.image.compress", type: "select", options: widgetOptions.compress },
-    colorspace: { arg: "-colorspace", labelKey: "advanced.image.colorspace", type: "select", options: widgetOptions.colorspace },
-    type: { arg: "-type", labelKey: "advanced.image.type", type: "select", options: widgetOptions.type_image },
-    interlace: { arg: "-interlace", labelKey: "advanced.image.interlace", type: "select", options: widgetOptions.interlace },
-    sampling_factor: { arg: "-sampling-factor", labelKey: "advanced.image.sampling_factor", type: "input-txt" },
     strip: { arg: "-strip", labelKey: "advanced.image.strip", type: "checkbox-novalue" },
+    auto_orient: { arg: "-auto-orient", labelKey: "advanced.image.auto_orient", type: "checkbox-novalue" },
+    flatten: { arg: "-flatten", labelKey: "advanced.image.flatten", type: "checkbox-novalue" },
+    background: { arg: "-background", labelKey: "advanced.image.background", type: "input-txt" },
     resize: { arg: "-resize", labelKey: "advanced.image.resize", type: "input-txt" },
     scale: { arg: "-scale", labelKey: "advanced.image.scale", type: "input-txt" },
     thumbnail: { arg: "-thumbnail", labelKey: "advanced.image.thumbnail", type: "input-txt" },
-    crop: { arg: "-crop", labelKey: "advanced.image.crop", type: "input-txt" },
     gravity: { arg: "-gravity", labelKey: "advanced.image.gravity", type: "select", options: widgetOptions.gravity },
+    crop: { arg: "-crop", labelKey: "advanced.image.crop", type: "input-txt" },
     extent: { arg: "-extent", labelKey: "advanced.image.extent", type: "input-txt" },
     trim: { arg: "-trim", labelKey: "advanced.image.trim", type: "checkbox-novalue" },
     shave: { arg: "-shave", labelKey: "advanced.image.shave", type: "input-txt" },
     rotate: { arg: "-rotate", labelKey: "advanced.image.rotate", type: "input-flt", options: [-360, 360] },
     flip: { arg: "-flip", labelKey: "advanced.image.flip", type: "checkbox-novalue" },
     flop: { arg: "-flop", labelKey: "advanced.image.flop", type: "checkbox-novalue" },
-    auto_orient: { arg: "-auto-orient", labelKey: "advanced.image.auto_orient", type: "checkbox-novalue" },
+    colorspace: { arg: "-colorspace", labelKey: "advanced.image.colorspace", type: "select", options: widgetOptions.colorspace },
+    grayscale: { arg: "-grayscale", labelKey: "advanced.image.grayscale", type: "select", options: widgetOptions.grayscale_method },
     brightness_contrast: { arg: "-brightness-contrast", labelKey: "advanced.image.brightness_contrast", type: "input-txt" },
-    modulate: { arg: "-modulate", labelKey: "advanced.image.modulate", type: "input-txt" },
-    gamma: { arg: "-gamma", labelKey: "advanced.image.gamma", type: "input-flt", options: [0.1, 10] },
-    level: { arg: "-level", labelKey: "advanced.image.level", type: "input-txt" },
+    normalize: { arg: "-normalize", labelKey: "advanced.image.normalize", type: "checkbox-novalue" },
     auto_gamma: { arg: "-auto-gamma", labelKey: "advanced.image.auto_gamma", type: "checkbox-novalue" },
     auto_level: { arg: "-auto-level", labelKey: "advanced.image.auto_level", type: "checkbox-novalue" },
-    normalize: { arg: "-normalize", labelKey: "advanced.image.normalize", type: "checkbox-novalue" },
-    equalize: { arg: "-equalize", labelKey: "advanced.image.equalize", type: "checkbox-novalue" },
-    grayscale: { arg: "-grayscale", labelKey: "advanced.image.grayscale", type: "select", options: widgetOptions.grayscale_method },
     negate: { arg: "-negate", labelKey: "advanced.image.negate", type: "checkbox-novalue" },
     blur: { arg: "-blur", labelKey: "advanced.image.blur", type: "input-txt" },
     gaussian_blur: { arg: "-gaussian-blur", labelKey: "advanced.image.gaussian_blur", type: "input-txt" },
     sharpen: { arg: "-sharpen", labelKey: "advanced.image.sharpen", type: "input-txt" },
     unsharp: { arg: "-unsharp", labelKey: "advanced.image.unsharp", type: "input-txt" },
-    background: { arg: "-background", labelKey: "advanced.image.background", type: "input-txt" },
+    depth: { arg: "-depth", labelKey: "advanced.image.depth", type: "input-int", options: [1, 32] },
+    density: { arg: "-density", labelKey: "advanced.image.density", type: "input-txt" },
+    compress: { arg: "-compress", labelKey: "advanced.image.compress", type: "select", options: widgetOptions.compress },
+    type: { arg: "-type", labelKey: "advanced.image.type", type: "select", options: widgetOptions.type_image },
+    interlace: { arg: "-interlace", labelKey: "advanced.image.interlace", type: "select", options: widgetOptions.interlace },
+    sampling_factor: { arg: "-sampling-factor", labelKey: "advanced.image.sampling_factor", type: "input-txt" },
     foreground: { arg: "-foreground", labelKey: "advanced.image.foreground", type: "input-txt" },
     fill: { arg: "-fill", labelKey: "advanced.image.fill", type: "input-txt" },
+    modulate: { arg: "-modulate", labelKey: "advanced.image.modulate", type: "input-txt" },
+    gamma: { arg: "-gamma", labelKey: "advanced.image.gamma", type: "input-flt", options: [0.1, 10] },
+    level: { arg: "-level", labelKey: "advanced.image.level", type: "input-txt" },
+    equalize: { arg: "-equalize", labelKey: "advanced.image.equalize", type: "checkbox-novalue" },
     stroke: { arg: "-stroke", labelKey: "advanced.image.stroke", type: "input-txt" },
     strokewidth: { arg: "-strokewidth", labelKey: "advanced.image.strokewidth", type: "input-int", options: [1, 1000] },
     border: { arg: "-border", labelKey: "advanced.image.border", type: "input-txt" },
@@ -525,6 +526,7 @@ export const widgetDefinitions = {
     font: { arg: "-font", labelKey: "advanced.image.font", type: "input-txt" },
     pointsize: { arg: "-pointsize", labelKey: "advanced.image.pointsize", type: "input-int", options: [1, 1000] },
 
+    // Rest of ImageMagick Arguments
     adaptive_blur: { arg: "-adaptive-blur", labelKey: "advanced.image.adaptive_blur", type: "input-txt" },
     adaptive_resize: { arg: "-adaptive-resize", labelKey: "advanced.image.adaptive_resize", type: "input-txt" },
     adaptive_sharpen: { arg: "-adaptive-sharpen", labelKey: "advanced.image.adaptive_sharpen", type: "input-txt" },
@@ -676,13 +678,13 @@ const allImageFormats = [
 const generalVideoWidgets = ['disable_video', 'disable_subtitle', 'fast_start', 'pass', 'frame_size', 'video_rotate', 'video_flip', 'video_bitrate', 'vframes', 'aspect_ratio'];
 const generalAudioWidgets = ['audio_volume', 'audio_speed', 'audio_quality', 'audio_bitrate', 'audio_channels', 'aframes'];
 const generalImageWidgets = [
-    'quality', 'depth', 'density', 'compress', 'colorspace', 'type', 'interlace', 'sampling_factor',
-    'strip', 'resize', 'scale', 'thumbnail', 'crop', 'gravity', 'extent', 'trim', 'shave', 'rotate',
-    'flip', 'flop', 'auto_orient', 'brightness_contrast', 'modulate', 'gamma', 'level', 'auto_gamma',
-    'auto_level', 'normalize', 'equalize', 'grayscale', 'negate', 'blur', 'gaussian_blur', 'sharpen',
-    'unsharp', 'background', 'foreground', 'fill', 'stroke', 'strokewidth', 'border', 'bordercolor',
-    'font', 'pointsize', 'adaptive_blur', 'adaptive_resize', 'adaptive_sharpen', 'affine', 'alpha',
-    'annotate', 'antialias', 'attenuate', 'auto_threshold', 'liquid_rescale', 'resample', 'chop',
+    'quality', 'strip', 'auto_orient', 'flatten', 'background', 'resize', 'scale', 'thumbnail',
+    'gravity', 'crop', 'extent', 'trim', 'shave', 'rotate', 'flip', 'flop', 'colorspace', 'grayscale',
+    'brightness_contrast', 'normalize', 'auto_gamma', 'auto_level', 'negate', 'blur', 'gaussian_blur',
+    'sharpen', 'unsharp', 'depth', 'density', 'compress', 'type', 'interlace', 'sampling_factor',
+    'foreground', 'fill', 'modulate', 'gamma', 'level', 'equalize', 'stroke', 'strokewidth', 'border',
+    'bordercolor', 'font', 'pointsize', 'adaptive_blur', 'adaptive_resize', 'adaptive_sharpen', 'affine',
+    'alpha', 'annotate', 'antialias', 'attenuate', 'auto_threshold', 'liquid_rescale', 'resample', 'chop',
     'roll', 'repage', 'transpose', 'transverse', 'deskew', 'threshold', 'black_threshold',
     'white_threshold', 'posterize', 'solarize', 'colorize', 'tint', 'sigmoidal_contrast',
     'contrast_stretch', 'bilateral_blur', 'selective_blur', 'motion_blur', 'rotational_blur',
@@ -1142,6 +1144,62 @@ function getOutputFormats(filePaths) {
     }
 
     return grouped;
+}
+
+export function buildGroupedArgs(advancedOptionValues) {
+    const groupedArgs = {};
+    for (const widgetKey in advancedOptionValues) {
+        const value = advancedOptionValues[widgetKey];
+        const definition = widgetDefinitions[widgetKey];
+        if (!definition) continue;
+        if (definition.meta) continue;
+
+        if (definition.type === 'group') {
+            if (definition.arg && value) {
+                const selected = definition.widgets.filter(sw => value[sw.arg]).map(sw => sw.arg);
+                if (selected.length > 0) {
+                    if (!groupedArgs[definition.arg]) groupedArgs[definition.arg] = [];
+                    groupedArgs[definition.arg].push((definition.prefix || '') + selected.join(definition.separator || ','));
+                }
+            } else if (!definition.arg && value) {
+                definition.widgets.forEach(sw => {
+                    const subVal = value[sw.arg];
+                    const swInclude = sw.type === 'checkbox-novalue' ? subVal === true
+                        : sw.type === 'checkbox' ? (subVal === true || subVal === false)
+                        : subVal !== undefined && subVal !== '' && subVal !== null;
+                    if (swInclude) {
+                        if (!groupedArgs[sw.arg]) groupedArgs[sw.arg] = [];
+                        const pushVal = sw.type === 'checkbox-novalue' ? ''
+                            : sw.type === 'checkbox' ? (subVal === true ? '1' : '0')
+                            : subVal;
+                        groupedArgs[sw.arg].push(pushVal);
+                    }
+                });
+            }
+            continue;
+        }
+
+        const shouldInclude = definition.type === 'checkbox-novalue' ? value === true
+            : definition.type === 'checkbox' ? (value === true || value === false)
+            : value !== '' && value !== null && value !== undefined;
+
+        if (shouldInclude) {
+            const arg = definition.arg;
+            if (!groupedArgs[arg]) groupedArgs[arg] = [];
+            let finalValue;
+            if (definition.type === 'checkbox-novalue') {
+                finalValue = '';
+            } else if (definition.type === 'checkbox') {
+                finalValue = value === true ? '1' : '0';
+            } else {
+                finalValue = value;
+                if (definition.prefix) finalValue = `${definition.prefix}${finalValue}`;
+                if (definition.suffix) finalValue = `${finalValue}${definition.suffix}`;
+            }
+            groupedArgs[arg].push(finalValue);
+        }
+    }
+    return groupedArgs;
 }
 
 export function truncateMiddle(str, maxLen = 40) {

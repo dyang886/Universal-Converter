@@ -26,6 +26,7 @@ tauri-plugin-shell = "2"
 directories = "6.0.0"
 dark-light = "2.0.0"
 sys-locale = "0.3.2"
+indexmap = { version = "2", features = ["serde"] }
 lazy_static = "1.5.0"
 reqwest = { version = "0.12.22", features = ["json"] }
 obfstr = "0.4.4"

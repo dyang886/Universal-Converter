@@ -5,7 +5,7 @@ import { listen } from '@tauri-apps/api/event';
 
 import { useTranslation } from 'react-i18next';
 
-import { formats, widgetDefinitions, processFiles, truncateMiddle } from '@/contexts/format-options';
+import { formats, widgetDefinitions, processFiles, truncateMiddle, buildGroupedArgs } from '@/contexts/format-options';
 import i18n from '@/contexts/i18n';
 
 
@@ -167,58 +167,7 @@ export function AppProvider({ children }) {
 
             const combineInputs = advancedOptionValues['combine_inputs'] === true;
 
-            const groupedArgs = {};
-            for (const widgetKey in advancedOptionValues) {
-                const value = advancedOptionValues[widgetKey];
-                const definition = widgetDefinitions[widgetKey];
-                if (!definition) continue;
-                if (definition.meta) continue;
-
-                if (definition.type === 'group') {
-                    if (definition.arg && value) {
-                        const selected = definition.widgets.filter(sw => value[sw.arg]).map(sw => sw.arg);
-                        if (selected.length > 0) {
-                            if (!groupedArgs[definition.arg]) groupedArgs[definition.arg] = [];
-                            groupedArgs[definition.arg].push((definition.prefix || '') + selected.join(definition.separator || ','));
-                        }
-                    } else if (!definition.arg && value) {
-                        definition.widgets.forEach(sw => {
-                            const subVal = value[sw.arg];
-                            const swInclude = sw.type === 'checkbox-novalue' ? subVal === true
-                                : sw.type === 'checkbox' ? (subVal === true || subVal === false)
-                                : subVal !== undefined && subVal !== '' && subVal !== null;
-                            if (swInclude) {
-                                if (!groupedArgs[sw.arg]) groupedArgs[sw.arg] = [];
-                                const pushVal = sw.type === 'checkbox-novalue' ? ''
-                                    : sw.type === 'checkbox' ? (subVal === true ? '1' : '0')
-                                    : subVal;
-                                groupedArgs[sw.arg].push(pushVal);
-                            }
-                        });
-                    }
-                    continue;
-                }
-
-                const shouldInclude = definition.type === 'checkbox-novalue' ? value === true
-                    : definition.type === 'checkbox' ? (value === true || value === false)
-                    : value !== '' && value !== null && value !== undefined;
-
-                if (shouldInclude) {
-                    const arg = definition.arg;
-                    if (!groupedArgs[arg]) groupedArgs[arg] = [];
-                    let finalValue;
-                    if (definition.type === 'checkbox-novalue') {
-                        finalValue = '';
-                    } else if (definition.type === 'checkbox') {
-                        finalValue = value === true ? '1' : '0';
-                    } else {
-                        finalValue = value;
-                        if (definition.prefix) finalValue = `${definition.prefix}${finalValue}`;
-                        if (definition.suffix) finalValue = `${finalValue}${definition.suffix}`;
-                    }
-                    groupedArgs[arg].push(finalValue);
-                }
-            }
+            const groupedArgs = buildGroupedArgs(advancedOptionValues);
 
             const finalOptions = {};
             if (selectedVideoCodec && videoCodecInfo) {

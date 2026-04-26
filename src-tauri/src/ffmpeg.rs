@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use indexmap::IndexMap;
 use std::env;
 use std::path::PathBuf;
 
@@ -15,7 +15,7 @@ const ENCRYPTED_AUDIO_EXTENSIONS: &[&str] = &[
 ];
 
 pub async fn run_conversion(
-    handle: AppHandle, input_paths: Vec<String>, output_ext: String, mut options: HashMap<String, String>,
+    handle: AppHandle, input_paths: Vec<String>, output_ext: String, mut options: IndexMap<String, String>,
 ) -> Result<bool, String> {
     let mut all_files_converted_successfully = true;
 
@@ -106,7 +106,7 @@ pub async fn run_conversion(
         };
 
         for arg in um_specific_args {
-            options.remove(arg);
+            options.shift_remove(arg);
         }
 
         let original_file_stem = original_input_path.file_stem().unwrap_or_default().to_string_lossy();

@@ -34,8 +34,21 @@
     ],
     "resources": {
       "binaries/ImageMagick/delegates.xml": "resources/ImageMagick/delegates.xml",
-      "binaries/ImageMagick/LibJXR/JXREncApp.exe": "resources/ImageMagick/LibJXR/JXREncApp.exe",
-      "binaries/ImageMagick/LibJXR/JXRDecApp.exe": "resources/ImageMagick/LibJXR/JXRDecApp.exe"
+      "binaries/ImageMagick/colors.xml": "resources/ImageMagick/colors.xml",
+      "binaries/ImageMagick/thresholds.xml": "resources/ImageMagick/thresholds.xml",
+      "binaries/ImageMagick/sRGB.icc": "resources/ImageMagick/sRGB.icc",
+      "binaries/ImageMagick/english.xml": "resources/ImageMagick/english.xml",
+      "binaries/ImageMagick/locale.xml": "resources/ImageMagick/locale.xml",
+      "binaries/ImageMagick/libjxr/JXREncApp.exe": "resources/ImageMagick/libjxr/JXREncApp.exe",
+      "binaries/ImageMagick/libjxr/JXRDecApp.exe": "resources/ImageMagick/libjxr/JXRDecApp.exe",
+      "binaries/ImageMagick/libheif/heif-enc.exe": "resources/ImageMagick/libheif/heif-enc.exe",
+      "binaries/ImageMagick/libheif/heif.dll": "resources/ImageMagick/libheif/heif.dll",
+      "binaries/ImageMagick/libheif/libde265.dll": "resources/ImageMagick/libheif/libde265.dll",
+      "binaries/ImageMagick/libheif/libx265.dll": "resources/ImageMagick/libheif/libx265.dll",
+      "binaries/ImageMagick/libheif/aom.dll": "resources/ImageMagick/libheif/aom.dll",
+      "binaries/ImageMagick/libheif/libpng16.dll": "resources/ImageMagick/libheif/libpng16.dll",
+      "binaries/ImageMagick/libheif/jpeg62.dll": "resources/ImageMagick/libheif/jpeg62.dll",
+      "binaries/ImageMagick/libheif/z.dll": "resources/ImageMagick/libheif/z.dll"
     },
     "targets": "all",
     "icon": [

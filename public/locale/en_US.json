@@ -43,13 +43,10 @@
   },
   "terminal": {
     "waiting_for_conversion": "Waiting for conversion to start...",
-    "converting": "Converting {{file}}",
-    "success": "Successfully converted {{file}}",
-    "failure": "Failed to convert {{file}}",
-    "files": "files",
-    "verb_converting": "Converting",
-    "verb_success": "Successfully converted",
-    "verb_failed": "Failed to convert"
+    "converting": "Converting",
+    "success": "Successfully converted",
+    "failure": "Failed to convert",
+    "files": "files"
   },
   "prompt": {
     "duplicated_file": "Duplicated file",
@@ -377,6 +374,7 @@
       "gaussian_blur": "Gaussian Blur (Format: <radius>x<sigma>)",
       "sharpen": "Sharpen (Format: <radius>x<sigma>)",
       "unsharp": "Unsharp Mask (Format: <radius>x<sigma>{+<amount>}{+<threshold>})",
+      "flatten": "Flatten (Fill Transparency)",
       "background": "Background Color",
       "foreground": "Foreground Color",
       "fill": "Fill Color",

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use indexmap::IndexMap;
 use std::path::PathBuf;
 
 use tauri::AppHandle;
@@ -6,7 +6,7 @@ use tauri::AppHandle;
 use crate::{emit_error, emit_success, run_cli_command};
 
 pub async fn run_conversion(
-    handle: AppHandle, input_paths: Vec<String>, output_ext: String, options: HashMap<String, String>, combine: bool,
+    handle: AppHandle, input_paths: Vec<String>, output_ext: String, options: IndexMap<String, String>, combine: bool,
 ) -> Result<bool, String> {
     let batches: Vec<&[String]> = if combine {
         vec![input_paths.as_slice()]
@@ -42,7 +42,7 @@ pub async fn run_conversion(
     Ok(all_ok)
 }
 
-fn append_options(args: &mut Vec<String>, options: &HashMap<String, String>) {
+fn append_options(args: &mut Vec<String>, options: &IndexMap<String, String>) {
     for (key, value) in options {
         for part in key.split_whitespace() {
             args.push(part.trim_matches('"').trim_matches('\'').to_string());

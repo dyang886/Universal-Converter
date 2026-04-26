@@ -145,6 +145,7 @@ export default function TerminalOutput() {
                 terminalLogs.map((log, index) => {
                     const isExpandable = log.output && log.output.length > 0;
 
+                    const verb = t(log.messageKey);
                     const inputName = log.path.split(/[\\/]/).pop();
                     const inputStem = inputName.replace(/\.[^.]+$/, '');
                     const outputName = conversionMeta ? `${inputStem}_UCT.${conversionMeta.outputExt}` : '';
@@ -152,11 +153,6 @@ export default function TerminalOutput() {
                     const inputDisplay = isCombined
                         ? `${inputName} +${conversionMeta.totalCount - 1} ${t('terminal.files')}`
                         : inputName;
-
-                    const verbKey = !log.isFinished ? 'terminal.verb_converting'
-                        : log.success ? 'terminal.verb_success'
-                        : 'terminal.verb_failed';
-                    const verb = t(verbKey);
 
                     return (
                         <div key={log.path} className="mb-2">

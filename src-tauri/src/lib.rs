@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use indexmap::IndexMap;
 use std::env;
 use std::ffi::OsStr;
 use std::fs;
@@ -46,7 +47,7 @@ struct ConversionLogPayload {
 #[derive(Deserialize, Debug)]
 pub struct ConversionRequest {
     tool: String,
-    options: HashMap<String, String>,
+    options: IndexMap<String, String>,
     #[serde(default)]
     combine: bool,
 }
@@ -277,8 +278,8 @@ pub async fn run_cli_command(handle: &AppHandle, original_path_str: &str, progra
     if let Some(path_var) = std::env::var_os("PATH") {
         let mut paths = std::env::split_paths(&path_var).collect::<Vec<_>>();
         paths.insert(0, resource_dir.clone());
-        // Make JxrEncApp/JxrDecApp discoverable for ImageMagick's JXR delegate
-        paths.insert(0, resource_dir.join("resources").join("ImageMagick").join("LibJXR"));
+        paths.insert(0, resource_dir.join("resources").join("ImageMagick").join("libjxr"));
+        paths.insert(0, resource_dir.join("resources").join("ImageMagick").join("libheif"));
         let new_path = std::env::join_paths(paths).unwrap_or_else(|_| OsStr::new("").to_os_string());
         new_env.insert("PATH".to_string(), new_path);
     }
