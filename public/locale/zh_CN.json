@@ -12,7 +12,8 @@
     "light": "浅色",
     "dark": "深色",
     "language": "语言",
-    "auto_update": "自动检查更新"
+    "auto_update": "自动检查更新",
+    "max_threads": "最大同时转换数"
   },
   "about": {
     "title": "关于",
@@ -36,6 +37,7 @@
     "output_format": "输出格式",
     "no_files_selected": "未选择文件",
     "convert": "转换",
+    "stop": "停止",
     "files_selected": "已选择文件",
     "current_file_type": "当前文件类型",
     "file_path": "文件路径",
@@ -46,6 +48,7 @@
     "converting": "正在转换",
     "success": "成功转换",
     "failure": "转换失败",
+    "cancelled": "已取消",
     "files": "个文件"
   },
   "prompt": {

@@ -1,9 +1,11 @@
-use std::collections::HashMap;
 use indexmap::IndexMap;
+use std::collections::HashMap;
 use std::env;
 use std::ffi::OsStr;
 use std::fs;
 use std::path::PathBuf;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant};
 
 use directories::BaseDirs;
@@ -28,6 +30,7 @@ struct AppSettings {
     theme: String,
     language: String,
     auto_update: bool,
+    max_threads: u8,
 }
 
 #[derive(Serialize, Clone, Debug)]
@@ -50,6 +53,10 @@ pub struct ConversionRequest {
     options: IndexMap<String, String>,
     #[serde(default)]
     combine: bool,
+}
+
+pub struct AppState {
+    pub cancel_flag: Arc<AtomicBool>,
 }
 
 impl Default for AppSettings {
@@ -75,6 +82,7 @@ impl Default for AppSettings {
             theme,
             language,
             auto_update: true,
+            max_threads: 3,
         }
     }
 }
@@ -153,12 +161,40 @@ async fn launch_updater(app_handle: AppHandle, latest_version: String, theme: St
 }
 
 #[tauri::command]
-async fn convert_files(handle: AppHandle, input_paths: Vec<String>, output_ext: String, request: ConversionRequest) -> Result<bool, String> {
-    println!("\nReceived request to convert {} files to .{}", input_paths.len(), output_ext);
+fn stop_conversion(state: tauri::State<'_, AppState>) {
+    state.cancel_flag.store(true, Ordering::Relaxed);
+}
+
+#[tauri::command]
+async fn convert_files(
+    handle: AppHandle, state: tauri::State<'_, AppState>, input_paths: Vec<String>, output_ext: String, request: ConversionRequest,
+) -> Result<bool, String> {
+    let max_threads = load_settings().max_threads as usize;
+
+    println!(
+        "\nReceived request to convert {} files to .{} (max_threads={})",
+        input_paths.len(),
+        output_ext,
+        max_threads
+    );
+
+    state.cancel_flag.store(false, Ordering::Relaxed);
+    let cancel_flag = Arc::clone(&state.cancel_flag);
 
     match request.tool.as_str() {
-        "ffmpeg" => ffmpeg::run_conversion(handle, input_paths, output_ext, request.options).await,
-        "magick" => magick::run_conversion(handle, input_paths, output_ext, request.options, request.combine).await,
+        "ffmpeg" => ffmpeg::run_conversion(handle, input_paths, output_ext, request.options, cancel_flag, max_threads).await,
+        "magick" => {
+            magick::run_conversion(
+                handle,
+                input_paths,
+                output_ext,
+                request.options,
+                request.combine,
+                cancel_flag,
+                max_threads,
+            )
+            .await
+        }
         _ => Err(format!("Unsupported tool requested: {}", request.tool)),
     }
 }
@@ -224,8 +260,7 @@ pub fn create_vars(file_path: String) -> HashMap<String, String> {
     vars
 }
 
-/// Emit a conversion success event
-pub fn emit_success(handle: &AppHandle, path_str: &str, original_path: &PathBuf, final_log: String) {
+pub fn emit_success(handle: &AppHandle, path_str: &str, original_path: &PathBuf) {
     handle
         .emit(
             "conversion-log",
@@ -235,15 +270,14 @@ pub fn emit_success(handle: &AppHandle, path_str: &str, original_path: &PathBuf,
                     key: "terminal.success".to_string(),
                     vars: create_vars(original_path.display().to_string()),
                 },
-                terminal_output: Some(final_log),
+                terminal_output: None,
                 success: Some(true),
             },
         )
         .unwrap();
 }
 
-/// Emit a conversion error event
-pub fn emit_error(handle: &AppHandle, path_str: &str, original_path: &PathBuf, error_log: String) {
+pub fn emit_error(handle: &AppHandle, path_str: &str, original_path: &PathBuf) {
     handle
         .emit(
             "conversion-log",
@@ -253,14 +287,49 @@ pub fn emit_error(handle: &AppHandle, path_str: &str, original_path: &PathBuf, e
                     key: "terminal.failure".to_string(),
                     vars: create_vars(original_path.display().to_string()),
                 },
-                terminal_output: Some(error_log),
+                terminal_output: None,
                 success: Some(false),
             },
         )
         .unwrap();
 }
 
-/// Finds the first file within a given directory.
+pub fn emit_cancelled(handle: &AppHandle, path_str: &str, original_path: &PathBuf) {
+    handle
+        .emit(
+            "conversion-log",
+            &ConversionLogPayload {
+                file_path: path_str.to_string(),
+                status_message: LocalizedText {
+                    key: "terminal.cancelled".to_string(),
+                    vars: create_vars(original_path.display().to_string()),
+                },
+                terminal_output: None,
+                success: Some(false),
+            },
+        )
+        .unwrap();
+}
+
+/// Emit a raw output delta for a file that is still converting.
+/// An empty chunk registers the file in the terminal log without any output.
+pub fn emit_delta(handle: &AppHandle, path_str: &str, original_path: &PathBuf, chunk: String) {
+    handle
+        .emit(
+            "conversion-log",
+            &ConversionLogPayload {
+                file_path: path_str.to_string(),
+                status_message: LocalizedText {
+                    key: "terminal.converting".to_string(),
+                    vars: create_vars(original_path.display().to_string()),
+                },
+                terminal_output: Some(chunk),
+                success: None,
+            },
+        )
+        .unwrap();
+}
+
 pub async fn find_first_file_in_dir(dir: &PathBuf) -> Result<Option<PathBuf>, String> {
     let mut entries = async_fs::read_dir(dir).await.map_err(|e| e.to_string())?;
     if let Some(entry) = entries.next_entry().await.map_err(|e| e.to_string())? {
@@ -270,8 +339,10 @@ pub async fn find_first_file_in_dir(dir: &PathBuf) -> Result<Option<PathBuf>, St
     }
 }
 
-/// Run an external CLI command and stream its output
-pub async fn run_cli_command(handle: &AppHandle, original_path_str: &str, program: &str, args: &[String]) -> Result<String, String> {
+/// Returns `Err("cancelled")` if the cancel flag fires mid-run, `Err(_)` on process failure.
+pub async fn run_cli_command(
+    handle: &AppHandle, original_path_str: &str, program: &str, args: &[String], cancel_flag: &Arc<AtomicBool>,
+) -> Result<(), String> {
     let resource_dir = handle.path().resource_dir().map_err(|e| e.to_string())?;
 
     let mut new_env = HashMap::new();
@@ -290,7 +361,7 @@ pub async fn run_cli_command(handle: &AppHandle, original_path_str: &str, progra
         );
     }
 
-    let (mut rx, _child) = handle
+    let (mut rx, child) = handle
         .shell()
         .command(program)
         .args(args)
@@ -298,52 +369,57 @@ pub async fn run_cli_command(handle: &AppHandle, original_path_str: &str, progra
         .spawn()
         .map_err(|e| format!("Failed to spawn '{}'. Error: {}", program, e))?;
 
-    let mut terminal_output = String::new();
+    let mut unsent = String::new();
     let mut last_update = Instant::now();
-    let display_path = PathBuf::from(original_path_str).display().to_string();
-    let mut final_code: Option<i32> = None;
+    let original_path = PathBuf::from(original_path_str);
+    let mut succeeded = false;
 
-    while let Some(event) = rx.recv().await {
-        match event {
-            CommandEvent::Stderr(line) | CommandEvent::Stdout(line) => {
-                terminal_output.push_str(&String::from_utf8_lossy(&line));
+    loop {
+        if cancel_flag.load(Ordering::Relaxed) {
+            let _ = child.kill();
+            return Err("cancelled".to_string());
+        }
+
+        match tokio::time::timeout(Duration::from_millis(50), rx.recv()).await {
+            Ok(Some(CommandEvent::Stderr(line) | CommandEvent::Stdout(line))) => {
+                unsent.push_str(&String::from_utf8_lossy(&line));
 
                 if last_update.elapsed() >= THROTTLE_INTERVAL {
-                    handle
-                        .emit(
-                            "conversion-log",
-                            &ConversionLogPayload {
-                                file_path: original_path_str.to_string(),
-                                status_message: LocalizedText {
-                                    key: "terminal.converting".to_string(),
-                                    vars: create_vars(display_path.clone()),
-                                },
-                                terminal_output: Some(terminal_output.clone()),
-                                success: None,
-                            },
-                        )
-                        .unwrap();
+                    emit_delta(handle, original_path_str, &original_path, std::mem::take(&mut unsent));
                     last_update = Instant::now();
                 }
             }
-            CommandEvent::Terminated(payload) => {
-                final_code = payload.code;
+            Ok(Some(CommandEvent::Terminated(payload))) => {
+                succeeded = payload.code == Some(0);
+                break;
             }
-            _ => {}
+            Ok(None) => break,
+            Ok(Some(_)) => {}
+            Err(_) => {} // timeout — loop back to check cancel flag
         }
     }
 
-    if final_code != Some(0) {
-        return Err(terminal_output);
+    // Flush remaining unsent output
+    emit_delta(handle, original_path_str, &original_path, std::mem::take(&mut unsent));
+
+    if cancel_flag.load(Ordering::Relaxed) {
+        return Err("cancelled".to_string());
     }
 
-    Ok(terminal_output)
+    if !succeeded {
+        return Err("failed".to_string());
+    }
+
+    Ok(())
 }
 
 // --- Main application entry point ---
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .manage(AppState {
+            cancel_flag: Arc::new(AtomicBool::new(false)),
+        })
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
@@ -354,6 +430,7 @@ pub fn run() {
             check_for_updates,
             launch_updater,
             convert_files,
+            stop_conversion,
             get_dynamic_options
         ])
         .run(tauri::generate_context!())

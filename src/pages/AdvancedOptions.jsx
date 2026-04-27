@@ -203,6 +203,10 @@ export default function AdvancedOptions() {
                                 : '';
                         });
                         newOptions[widgetKey] = init;
+                    } else if (def?.type === 'checkbox') {
+                        newOptions[widgetKey] = null;
+                    } else if (def?.type === 'checkbox-novalue') {
+                        newOptions[widgetKey] = false;
                     } else if (def?.default !== undefined) {
                         newOptions[widgetKey] = def.default;
                     }
@@ -323,7 +327,10 @@ export default function AdvancedOptions() {
                 );
             }
 
-            const value = advancedOptionValues[widgetKey] ?? '';
+            const value = widgetKey in advancedOptionValues ? advancedOptionValues[widgetKey]
+                : def?.type === 'checkbox' ? null
+                : def?.type === 'checkbox-novalue' ? false
+                : '';
             return (
                 <WidgetRenderer
                     key={`${widgetKey}-${codecValue || 'general'}`}

@@ -207,6 +207,15 @@ export function AppProvider({ children }) {
         }
     }, [filePaths, outputExt, advancedOptionValues, selectedVideoCodec, selectedAudioCodec]);
 
+    const OUTPUT_CAP = 100_000;
+
+    function capOutput(str) {
+        if (str.length <= OUTPUT_CAP) return str;
+        const tail = str.slice(str.length - OUTPUT_CAP);
+        const nl = tail.indexOf('\n');
+        return nl !== -1 ? tail.slice(nl + 1) : tail;
+    }
+
     useEffect(() => {
         const unlisten = listen('conversion-log', (event) => {
             const { file_path, status_message, terminal_output, success } = event.payload;
@@ -215,10 +224,13 @@ export function AppProvider({ children }) {
                 const newLogs = [...prevLogs];
                 const existingLogIndex = newLogs.findIndex(log => log.path === file_path);
 
+                const existing = existingLogIndex !== -1 ? newLogs[existingLogIndex] : null;
                 const newLogData = {
                     messageKey: status_message.key,
                     messageVars: status_message.vars,
-                    output: terminal_output ? terminal_output : "",
+                    output: terminal_output !== null
+                        ? capOutput((existing?.output ?? "") + terminal_output)
+                        : (existing?.output ?? ""),
                     isFinished: success !== null,
                     success: success,
                 };
@@ -240,6 +252,10 @@ export function AppProvider({ children }) {
         };
     }, []);
 
+    const stopConversion = useCallback(() => {
+        invoke('stop_conversion').catch(console.error);
+    }, []);
+
     const value = {
         MiddleEllipsis,
         settings, setSettings,
@@ -249,6 +265,7 @@ export function AppProvider({ children }) {
         outputOptions,
         handleFileSelection,
         handleConvert,
+        stopConversion,
         terminalLogs, setTerminalLogs,
         isConverting, setIsConverting,
         selectedVideoCodec, setSelectedVideoCodec,

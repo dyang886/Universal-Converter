@@ -12,7 +12,8 @@
     "light": "Light",
     "dark": "Dark",
     "language": "Language",
-    "auto_update": "Check software update automatically"
+    "auto_update": "Check software update automatically",
+    "max_threads": "Max Concurrent Conversions"
   },
   "about": {
     "title": "About",
@@ -36,6 +37,7 @@
     "output_format": "Output Format",
     "no_files_selected": "No Files Selected",
     "convert": "Convert",
+    "stop": "Stop",
     "files_selected": "Files Selected",
     "current_file_type": "Current File Type",
     "file_path": "File Path",
@@ -46,6 +48,7 @@
     "converting": "Converting",
     "success": "Successfully converted",
     "failure": "Failed to convert",
+    "cancelled": "Cancelled",
     "files": "files"
   },
   "prompt": {

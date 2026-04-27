@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useApp } from '@/contexts/AppContext';
 import { Field, Label } from '@/components/fieldset';
+import { Input } from '@/components/input';
 import { Select } from '@/components/select';
 import { Switch } from '@/components/switch';
 
@@ -63,6 +64,17 @@ export default function SettingsPage() {
                         <Switch checked={settings?.auto_update} onChange={checked => updateSetting('auto_update', checked)} />
                         <Label>{t('settings.auto_update')}</Label>
                     </Headless.Field>
+
+                    <Field>
+                        <Label>{t('settings.max_threads')}</Label>
+                        <Input
+                            type="number"
+                            min={1}
+                            max={16}
+                            value={settings?.max_threads}
+                            onChange={e => updateSetting('max_threads', Math.min(16, Math.max(1, parseInt(e.target.value) || 1)))}
+                        />
+                    </Field>
 
                 </div>
             </main>

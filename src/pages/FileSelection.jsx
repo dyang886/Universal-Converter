@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { open } from '@tauri-apps/plugin-dialog';
 
-import { InformationCircleIcon, MusicalNoteIcon, PaperAirplaneIcon, PhotoIcon, TrashIcon, VideoCameraIcon } from '@heroicons/react/24/solid';
+import { InformationCircleIcon, MusicalNoteIcon, PaperAirplaneIcon, PhotoIcon, StopIcon, TrashIcon, VideoCameraIcon } from '@heroicons/react/24/solid';
 import { useTranslation } from 'react-i18next';
 
 import { useApp } from '@/contexts/AppContext';
@@ -18,7 +18,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 export default function FileSelection() {
     const { t } = useTranslation();
 
-    const { MiddleEllipsis, filePaths, setFilePaths, fileType, outputExt, setOutputExt, outputOptions, handleFileSelection, handleConvert, isConverting } = useApp();
+    const { MiddleEllipsis, filePaths, setFilePaths, fileType, outputExt, setOutputExt, outputOptions, handleFileSelection, handleConvert, stopConversion, isConverting } = useApp();
     const { showPrompt } = usePrompt();
 
     const [isOverDropZone, setIsOverDropZone] = useState(false);
@@ -119,9 +119,21 @@ export default function FileSelection() {
                         </Listbox>
                     </Field>
 
-                    <Button color="emerald" className="mt-2" disabled={filePaths.length === 0 || isConverting} onClick={() => handleConvert(showPrompt)}>
-                        {t('file_selection.convert')}<PaperAirplaneIcon />
-                    </Button>
+                    <div className="relative mt-2">
+                        <Button
+                            color="emerald"
+                            className={`w-full transition-opacity duration-150 ${isConverting ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+                            disabled={filePaths.length === 0}
+                            onClick={() => handleConvert(showPrompt)}
+                        >
+                            {t('file_selection.convert')}<PaperAirplaneIcon />
+                        </Button>
+                        <div className={`absolute inset-0 transition-opacity duration-150 ${isConverting ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                            <Button color="red" className="w-full h-full" onClick={stopConversion}>
+                                {t('file_selection.stop')}<StopIcon />
+                            </Button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
