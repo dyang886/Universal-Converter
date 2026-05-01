@@ -20,6 +20,7 @@ export default function AboutPage() {
     const [currentVersion, setCurrentVersion] = useState('');
     const [latestVersion, setLatestVersion] = useState(t('about.loading'));
     const [updateAvailable, setUpdateAvailable] = useState(false);
+    const [loadFailed, setLoadFailed] = useState(false);
 
     useEffect(() => {
         getVersion().then(localVersion => {
@@ -36,6 +37,7 @@ export default function AboutPage() {
                 .catch((err) => {
                     console.error("Error checking for updates:", err);
                     setLatestVersion(t('about.load_failed'));
+                    setLoadFailed(true);
                 });
         }).catch((err) => {
             console.error("Error getting local version:", err);
@@ -90,7 +92,7 @@ export default function AboutPage() {
                                     </div>
                                     <div>
                                         <span>{t('about.latest_version')}</span>
-                                        <span className={clsx(updateAvailable && 'text-green-500')}>
+                                        <span className={clsx(updateAvailable && 'text-green-500', loadFailed && 'text-red-500')}>
                                             {latestVersion}
                                         </span>
                                     </div>

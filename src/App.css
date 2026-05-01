@@ -7,6 +7,8 @@
     --animate-fadeOut: fadeOut 0.3s ease-in-out forwards;
     --animate-fadeInShift: fadeInShift 0.3s ease-in-out forwards;
     --animate-fadeOutShift: fadeOutShift 0.3s ease-in-out forwards;
+    --animate-slideInRight: slideInRight 0.3s ease-out forwards;
+    --animate-slideOutRight: slideOutRight 0.3s ease-in forwards;
 
     @keyframes fadeIn {
         from {
@@ -25,6 +27,28 @@
 
         to {
             opacity: 0;
+        }
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideOutRight {
+        from {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateX(20px);
         }
     }
 

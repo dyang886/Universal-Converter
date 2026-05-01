@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getVersion } from '@tauri-apps/api/app';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 
@@ -7,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 import { formats, widgetDefinitions, processFiles, truncateMiddle, buildGroupedArgs } from '@/contexts/format-options';
 import i18n from '@/contexts/i18n';
+import { usePrompt } from '@/components/prompt';
 
 
 const AppContext = createContext(null);
@@ -14,6 +16,7 @@ const AppContext = createContext(null);
 export function AppProvider({ children }) {
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const { showPrompt } = usePrompt();
     const [filePaths, setFilePaths] = useState([]);
     const [fileType, setFileType] = useState('');
     const [outputExt, setOutputExt] = useState('');
@@ -104,7 +107,12 @@ export function AppProvider({ children }) {
         setAdvancedOptionValues({});
     }, [outputExt]);
 
+    const initRanRef = useRef(false);
+
     useEffect(() => {
+        if (initRanRef.current) return;
+        initRanRef.current = true;
+
         const initializeApp = async () => {
             try {
                 const loadedSettings = await invoke('load_settings');
@@ -115,6 +123,30 @@ export function AppProvider({ children }) {
                 }
 
                 document.documentElement.classList.toggle('dark', loadedSettings.theme === 'dark');
+
+                if (loadedSettings.auto_update) {
+                    try {
+                        const localVersion = await getVersion();
+                        const serverVersion = await invoke('check_for_updates', { appName: 'UCT' });
+                        if (serverVersion > localVersion) {
+                            showPrompt('update', t('prompt.update_available'), {
+                                currentVersion: localVersion,
+                                latestVersion: serverVersion,
+                                duration: 10000,
+                                actions: [{
+                                    label: t('about.update_now'),
+                                    onClick: () => invoke('launch_updater', {
+                                        latestVersion: serverVersion,
+                                        theme: loadedSettings.theme,
+                                        language: loadedSettings.language,
+                                    }).catch(console.error),
+                                }],
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Auto-update check failed:", e);
+                    }
+                }
 
             } catch (error) {
                 console.error("Failed to initialize app:", error);

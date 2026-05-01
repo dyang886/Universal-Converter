@@ -52,6 +52,7 @@
     "files": "个文件"
   },
   "prompt": {
+    "update_available": "发现新版本",
     "duplicated_file": "重复文件",
     "unsupported_file": "不支持的文件",
     "select_same_type": "请选择相同类型的文件",

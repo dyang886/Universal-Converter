@@ -180,7 +180,7 @@ export default function TerminalOutput() {
                                 )}
                             </div>
                             {log.isExpanded && log.output && (
-                                <pre className="mt-2 whitespace-pre-wrap rounded-md bg-zinc-800 p-3 text-xs text-zinc-300">
+                                <pre className="mt-2 whitespace-pre-wrap rounded-md bg-zinc-200 dark:bg-zinc-800 p-3 text-xs text-zinc-700 dark:text-zinc-300">
                                     {log.output}
                                 </pre>
                             )}

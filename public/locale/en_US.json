@@ -52,6 +52,7 @@
     "files": "files"
   },
   "prompt": {
+    "update_available": "Update Available",
     "duplicated_file": "Duplicated file",
     "unsupported_file": "Unsupported file",
     "select_same_type": "Please select files from the same type",

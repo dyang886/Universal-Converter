@@ -525,10 +525,10 @@ export default function AdvancedOptions() {
                     )}
 
                     {/* Command Display */}
-                    <div className="mt-3 flex-shrink-0 rounded-lg bg-zinc-800 p-4 font-mono text-sm text-zinc-300">
+                    <div className="mt-3 flex-shrink-0 rounded-lg bg-zinc-200 dark:bg-zinc-800 p-4 font-mono text-sm text-zinc-700 dark:text-zinc-300">
                         <div className="flex justify-between items-center mb-2">
-                            <span className="font-semibold text-zinc-400">{t('advanced.command')}</span>
-                            <button onClick={() => navigator.clipboard.writeText(commandString)} className="p-1 rounded-md hover:bg-zinc-700 active:bg-zinc-600">
+                            <span className="font-semibold text-zinc-500 dark:text-zinc-400">{t('advanced.command')}</span>
+                            <button onClick={() => navigator.clipboard.writeText(commandString)} className="p-1 rounded-md hover:bg-zinc-300 dark:hover:bg-zinc-700 active:bg-zinc-400 dark:active:bg-zinc-600">
                                 <ClipboardIcon className="h-5 w-5" />
                             </button>
                         </div>
