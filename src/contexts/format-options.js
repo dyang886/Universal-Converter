@@ -3,8 +3,9 @@
 //     list all codecs: -hide_banner -codecs
 
 // ===========================================================================
-// 1. WIDGET OPTIONS
-// Centralized, reusable option sets for UI widgets like dropdowns.
+// WIDGET OPTIONS
+// Reusable dropdown option sets for select widgets.
+// Shape: { "Display Label": "ffmpeg_value" }
 // ===========================================================================
 export const widgetOptions = {
     // ====== video.general ======
@@ -13,13 +14,13 @@ export const widgetOptions = {
     video_flip: { "Horizontal Flip": "hflip", "Vertical Flip": "vflip" },
 
     // dnxhd
-    profile_dnxhd: { "DNxHD": "0", "DNxHR LB": "1", "DNxHR SQ": "2", "DNxHR HQ": "3", "DNxHR HQX": "4", "DNxHR 444": "5" },
+    profile_dnxhd: { "DNxHD": "dnxhd", "DNxHR LB": "dnxhr_lb", "DNxHR SQ": "dnxhr_sq", "DNxHR HQ": "dnxhr_hq", "DNxHR HQX": "dnxhr_hqx", "DNxHR 444": "dnxhr_444" },
 
     // ffv1
-    coder_ffv1: { "Golomb Rice": "0", "Range Coder (Default Table)": "-2", "Range Coder (Custom Table)": "2", "Range Coder (AC)": "1" },
+    coder_ffv1: { "Golomb Rice": "rice", "Range Coder (Default Table)": "range_def", "Range Coder (Custom Table)": "range_tab", "Range Coder (AC)": "ac" },
 
     // huffyuv
-    pred_huffyuv: { "Left": "0", "Plane": "1", "Median": "2" },
+    pred_huffyuv: { "Left": "left", "Plane": "plane", "Median": "median" },
 
     // dvvideo
     framerate_dvvideo: { "30000/1001": "30000/1001", "25/1": "25/1", "60000/1001": "60000/1001", "50/1": "50/1" },
@@ -31,40 +32,40 @@ export const widgetOptions = {
     profile_h264: { "Baseline": "baseline", "Main": "main", "High": "high", "High10": "high10", "High422": "high422", "High444": "high444" },
     profile_h265: { "Main": "main", "Main Intra": "main-intra", "Main Still Picture": "mainstillpicture", "Main 10": "main10", "Main 10 Intra": "main10-intra", "Main 12": "main12", "Main 12 Intra": "main12-intra", "Main 4:2:2 10": "main422-10", "Main 4:2:2 10 Intra": "main422-10-intra", "Main 4:2:2 12": "main422-12", "Main 4:2:2 12 Intra": "main422-12-intra", "Main 4:4:4 8-bit": "main444-8", "Main 4:4:4 Intra": "main444-intra", "Main 4:4:4 Still Picture": "main444-stillpicture", "Main 4:4:4 10": "main444-10", "Main 4:4:4 10 Intra": "main444-10-intra", "Main 4:4:4 12": "main444-12", "Main 4:4:4 12 Intra": "main444-12-intra", "Main 4:4:4 16 Intra": "main444-16-intra", "Main 4:4:4 16 Still Picture": "main444-16-stillpicture" },
     level: { "1.0": "1.0", "1.1": "1.1", "1.2": "1.2", "1.3": "1.3", "2.0": "2.0", "2.1": "2.1", "2.2": "2.2", "3.0": "3.0", "3.1": "3.1", "3.2": "3.2", "4.0": "4.0", "4.1": "4.1", "4.2": "4.2", "5.0": "5.0", "5.1": "5.1", "5.2": "5.2" },
-    aq_mode_h264: { "None": "0", "Variance": "1", "Auto-variance": "2", "Auto-variance Biased": "3" },
-    weightp: { "None": "0", "Simple": "1", "Smart": "2" },
-    b_pyramid: { "None": "0", "Strict": "1", "Normal": "2" },
+    aq_mode_h264: { "None": "none", "Variance": "variance", "Auto-variance": "autovariance", "Auto-variance Biased": "autovariance-biased" },
+    weightp: { "None": "none", "Simple": "simple", "Smart": "smart" },
+    b_pyramid: { "None": "none", "Strict": "strict", "Normal": "normal" },
     partitions: { "p8x8": "p8x8", "p4x4": "p4x4", "b8x8": "b8x8", "i8x8": "i8x8", "i4x4": "i4x4", "None": "none", "All": "all" },
-    direct_pred: { "None": "0", "Spatial": "1", "Temporal": "2", "Auto": "3" },
-    nal_hrd: { "None": "0", "VBR": "1", "CBR": "2" },
-    nal_hrd_mp4: { "None": "0", "VBR": "1" },
+    direct_pred: { "None": "none", "Spatial": "spatial", "Temporal": "temporal", "Auto": "auto" },
+    nal_hrd: { "None": "none", "VBR": "vbr", "CBR": "cbr" },
+    nal_hrd_mp4: { "None": "none", "VBR": "vbr" },
     avcintra_class: { "50": "50", "100": "100", "200": "200", "300": "300", "480": "480" },
     motion_est_h264: { "Diamond": "dia", "Hexagon": "hex", "Uneven Multi-hexagon": "umh", "Exhaustive": "esa", "Transformed Exhaustive": "tesa" },
-    coder: { "Default": "-1", "CAVLC / VLC": "0", "CABAC / AC": "1" },
+    coder: { "Default": "default", "CAVLC / VLC": "cavlc", "CABAC / AC": "cabac" },
 
     // mpeg1, mpeg2
     b_strategy: { "I-frames": "0", "P-frames": "1", "B-frames": "2" },
-    motion_est_mpeg: { "Zero": "0", "EPZS": "1", "Xone": "2" },
+    motion_est_mpeg: { "Zero": "zero", "EPZS": "epzs", "Xone": "xone" },
     mpv_flags: { "Skip RD": "skip_rd", "Strict GOP": "strict_gop", "QP RD": "qp_rd", "CBP RD": "cbp_rd", "Normalize AQ": "naq", "MV Zero": "mv0" },
-    skip_cmp: { "SAD": "0", "SSE": "1", "SATD": "2", "DCT": "3", "PSNR": "4", "Bit": "5", "RD": "6", "Zero": "7", "VSAD": "8", "VSSE": "9", "NSSE": "10", "DCT264": "14", "DCTMAX": "13", "Chroma": "256", "MSAD": "15" },
-    seq_disp_ext: { "Auto": "-1", "Never": "0", "Always": "1" },
-    video_format: { "Component": "0", "PAL": "1", "NTSC": "2", "SECAM": "3", "MAC": "4", "Unspecified": "5" },
+    skip_cmp: { "SAD": "sad", "SSE": "sse", "SATD": "satd", "DCT": "dct", "PSNR": "psnr", "Bit": "bit", "RD": "rd", "Zero": "zero", "VSAD": "vsad", "VSSE": "vsse", "NSSE": "nsse", "DCT264": "dct264", "DCTMAX": "dctmax", "Chroma": "256", "MSAD": "msad" },
+    seq_disp_ext: { "Auto": "auto", "Never": "never", "Always": "always" },
+    video_format: { "Component": "component", "PAL": "pal", "NTSC": "ntsc", "SECAM": "secam", "MAC": "mac", "Unspecified": "unspecified" },
 
     // mjpeg
-    huffman: { "Default": "0", "Optimal": "1" },
+    huffman: { "Default": "default", "Optimal": "optimal" },
 
     // av1
-    aq_mode_av1: { "None": "0", "Variance": "1", "Complexity": "2", "Cyclic Refresh": "3" },
-    usage: { "Good Quality": "0", "Realtime": "1", "All Intra": "2" },
-    tune: { "PSNR": "0", "SSIM": "1" },
+    aq_mode_av1: { "None": "none", "Variance": "variance", "Complexity": "complexity", "Cyclic Refresh": "cyclic" },
+    usage: { "Good Quality": "good", "Realtime": "realtime", "All Intra": "allintra" },
+    tune: { "PSNR": "psnr", "SSIM": "ssim" },
 
     // vp8, vp9
-    arnr_type: { "Backward": "1", "Forward": "2", "Centered": "3" },
-    deadline: { "Best": "0", "Good": "1000000", "Realtime": "1" },
+    arnr_type: { "Backward": "backward", "Forward": "forward", "Centered": "centered" },
+    deadline: { "Best": "best", "Good": "good", "Realtime": "realtime" },
     error_resilient: { "Default": "default", "Partitions": "partitions" },
     vp8flags: { "Error Resilient": "error_resilient", "Alternate Reference": "altref" },
-    aq_mode_vp9: { "None": "0", "Variance": "1", "Complexity": "2", "Cyclic Refresh": "3", "Equator 360": "4" },
-    tune_content: { "Default": "0", "Screen": "1", "Film": "2" },
+    aq_mode_vp9: { "None": "none", "Variance": "variance", "Complexity": "complexity", "Cyclic Refresh": "cyclic", "Equator 360": "equator360" },
+    tune_content: { "Default": "default", "Screen": "screen", "Film": "film" },
 
     // h264_nvenc / hevc_nvenc / av1_nvenc (shared NVENC options)
     preset_nvenc_h264: { "Default": "default", "Slow (HQ 2-pass)": "slow", "Medium (HQ 1-pass)": "medium", "Fast (HP 1-pass)": "fast", "HP": "hp", "HQ": "hq", "BD": "bd", "Low Latency": "ll", "Low Latency HQ": "llhq", "Low Latency HP": "llhp", "Lossless": "lossless", "Lossless HP": "losslesshp", "P1 (Fastest)": "p1", "P2 (Faster)": "p2", "P3 (Fast)": "p3", "P4 (Medium)": "p4", "P5 (Slow)": "p5", "P6 (Slower)": "p6", "P7 (Slowest)": "p7" },
@@ -93,28 +94,28 @@ export const widgetOptions = {
     channel_layout_mono: { "mono": "mono" },
 
     // aac
-    aac_coder: { "ANMR": "0", "Two Loop": "1", "Fast": "2" },
+    aac_coder: { "Two Loop": "twoloop", "Fast": "fast" },
 
     // flac
-    lpc_type: { "None": "0", "Fixed": "1", "Levinson": "2", "Cholesky": "3" },
-    prediction_order_method: { "Estimation": "0", "2-Level": "1", "4-Level": "2", "8-Level": "3", "Search": "4", "Log": "5" },
-    ch_mode: { "Auto": "-1", "Independent": "0", "Left Side": "1", "Right Side": "2", "Mid Side": "3" },
+    lpc_type: { "None": "none", "Fixed": "fixed", "Levinson": "levinson", "Cholesky": "cholesky" },
+    prediction_order_method: { "Estimation": "estimation", "2-Level": "2level", "4-Level": "4level", "8-Level": "8level", "Search": "search", "Log": "log" },
+    ch_mode: { "Auto": "auto", "Independent": "indep", "Left Side": "left_side", "Right Side": "right_side", "Mid Side": "mid_side" },
 
     // opus
-    application: { "VoIP": "2048", "Audio": "2049", "Low Delay": "2051" },
-    vbr: { "Constant Bitrate (CBR)": "0", "Variable Bitrate (VBR)": "1", "Constrained VBR": "2" },
+    application: { "VoIP": "voip", "Audio": "audio", "Low Delay": "lowdelay" },
+    vbr: { "Constant Bitrate (CBR)": "off", "Variable Bitrate (VBR)": "on", "Constrained VBR": "constrained" },
 
     // ac3
-    room_type: { "Not Indicated": "0", "Large Room": "1", "Small Room": "2" },
-    dsur_mode: { "Not Indicated": "0", "Not Dolby Surround": "1", "Dolby Surround": "2" },
-    dmix_mode: { "Not Indicated": "0", "Lt/Rt Downmix": "1", "Lo/Ro Downmix": "2", "Dolby Pro Logic II": "3" },
-    dsurex_mode: { "Not Indicated": "0", "Not Dolby Surround EX": "1", "Dolby Surround EX": "2", "Dolby Pro Logic IIz": "3" },
-    dheadphone_mode: { "Not Indicated": "0", "Not Dolby Headphone": "1", "Dolby Headphone": "2" },
-    ad_conv_type: { "Standard": "0", "HDCD": "1" },
+    room_type: { "Not Indicated": "notindicated", "Large Room": "large", "Small Room": "small" },
+    dsur_mode: { "Not Indicated": "notindicated", "Not Dolby Surround": "off", "Dolby Surround": "on" },
+    dmix_mode: { "Not Indicated": "notindicated", "Lt/Rt Downmix": "ltrt", "Lo/Ro Downmix": "loro", "Dolby Pro Logic II": "dplii" },
+    dsurex_mode: { "Not Indicated": "notindicated", "Not Dolby Surround EX": "off", "Dolby Surround EX": "on", "Dolby Pro Logic IIz": "dpliiz" },
+    dheadphone_mode: { "Not Indicated": "notindicated", "Not Dolby Headphone": "off", "Dolby Headphone": "on" },
+    ad_conv_type: { "Standard": "standard", "HDCD": "hdcd" },
 
     // truehd
-    lpc_type_truehd: { "Levinson": "2", "Cholesky": "3" },
-    prediction_order_truehd: { "Estimation": "0", "Search": "4" },
+    lpc_type_truehd: { "Levinson": "levinson", "Cholesky": "cholesky" },
+    prediction_order_truehd: { "Estimation": "estimation", "Search": "search" },
 
     // ====== image.general ======
     alpha: { "Activate": "activate", "Associate": "associate", "Background": "background", "Copy": "copy", "Deactivate": "deactivate", "Disassociate": "disassociate", "Extract": "extract", "Off": "off", "Off if Opaque": "off-if-opaque", "On": "on", "Opaque": "opaque", "Remove": "remove", "Set": "set", "Shape": "shape", "Transparent": "transparent" },
@@ -141,8 +142,25 @@ export const widgetOptions = {
 };
 
 // ===========================================================================
-// 2. WIDGET DEFINITIONS
-// Blueprints for each UI widget, defining its type, label, and options.
+// WIDGET DEFINITIONS
+// Blueprints consumed by each codec's widgets[] array.
+// Shape: { arg, labelKey, type, ...extras }
+//
+// Types:
+//   checkbox          — toggle flag; emits `arg 1` (on) or `arg 0` (off)
+//   checkbox-novalue  — presence flag; emits `arg` when checked, nothing when not
+//   input-int         — integer field; options: [min, max]
+//   input-flt         — float field;   options: [min, max]
+//   input-txt         — free-text field
+//   select            — dropdown;      options: widgetOptions ref | 'dynamic' (runtime-populated)
+//   group             — multi-checkbox; joins selected items with separator and prepends prefix
+//
+// Extra fields:
+//   prefix    — string prepended to the value before passing to FFmpeg (e.g. 'scale=')
+//   suffix    — string appended to the value
+//   separator — group join delimiter (default ',')
+//   meta      — marks a UI-behavior widget that emits no FFmpeg arg
+//   default   — default checked state for group sub-widgets
 // ===========================================================================
 export const widgetDefinitions = {
     // ====== video.general ======
@@ -719,51 +737,11 @@ export const widgetDefinitions = {
 };
 
 // ===========================================================================
-// 3. FORMATS
-// The main format-centric configuration.
-// ===========================================================================
-const allVideoFormats = [
-    'mp4', 'mkv', 'webm', 'mov', 'avi', 'wmv', 'flv', 'm4v', 'ts', 'm2ts', 'mpeg', 'vob',
-    '3gp', 'qt', 'ogv', 'f4v', 'asf', 'divx', 'mxf', 'swf', 'rm', 'rmvb', '3g2', 'ogx',
-    'ps', 'm2p', 'dat', 'mts', 'amv', 'dv', 'gxf'
-];
-const allAudioFormats = ['mp3', 'flac', 'wav', 'aac', 'm4a', 'ogg', 'opus', 'wma', 'aiff'];
-const allImageFormats = [
-    'jpeg', 'png', 'webp', 'gif', 'bmp', 'tiff', 'heic', 'jp2', 'svg', 'heif', 'j2k', 'ico',
-    'pdf', 'eps', 'psd', 'tga', 'xcf', 'dds', 'pcx', 'jxr', 'wdp', 'cur', 'ai', 'ps', 'ora', 'emf',
-    'wmf', 'lbm', 'thm', 'iff', 'dcx', 'pnm', 'ppm', 'pgm', 'pbm', 'xpm', 'xbm', 'dib',
-    'raw', 'cr2', 'crw', 'nef', 'dng', 'arw', 'raf', 'rw2', 'orf', 'pef', 'x3f', 'srw', 'iiq',
-    '3fr', 'mef', 'mrw', 'mos', 'kdc', 'dcr', 'erf', 'ptx', 'pxn', 'sr2', 'srf', 'mdc', 'gp4', 'bay'
-];
-const generalVideoWidgets = ['disable_video', 'disable_subtitle', 'fast_start', 'pass', 'frame_size', 'video_rotate', 'video_flip', 'video_bitrate', 'vframes', 'aspect_ratio'];
-const generalAudioWidgets = ['audio_volume', 'audio_speed', 'audio_quality', 'audio_bitrate', 'audio_channels', 'aframes'];
-const generalImageWidgets = [
-    'quality', 'strip', 'auto_orient', 'flatten', 'background', 'resize', 'scale', 'thumbnail',
-    'gravity', 'crop', 'extent', 'trim', 'shave', 'rotate', 'flip', 'flop', 'colorspace', 'grayscale',
-    'brightness_contrast', 'normalize', 'auto_gamma', 'auto_level', 'negate', 'blur', 'gaussian_blur',
-    'sharpen', 'unsharp', 'depth', 'density', 'compress', 'type', 'interlace', 'sampling_factor',
-    'foreground', 'fill', 'modulate', 'gamma', 'level', 'equalize', 'stroke', 'strokewidth', 'border',
-    'bordercolor', 'font', 'pointsize', 'adaptive_blur', 'adaptive_resize', 'adaptive_sharpen', 'affine',
-    'alpha', 'annotate', 'antialias', 'attenuate', 'auto_threshold', 'liquid_rescale', 'resample', 'chop',
-    'roll', 'repage', 'transpose', 'transverse', 'deskew', 'threshold', 'black_threshold',
-    'white_threshold', 'posterize', 'solarize', 'colorize', 'tint', 'sigmoidal_contrast',
-    'contrast_stretch', 'bilateral_blur', 'selective_blur', 'motion_blur', 'rotational_blur',
-    'kuwahara', 'median', 'mean_shift', 'despeckle', 'enhance', 'noise_add', 'noise_reduce', 'edge',
-    'canny', 'morphology', 'charcoal', 'emboss', 'sketch', 'paint', 'sepia_tone', 'blue_shift',
-    'vignette', 'polaroid', 'implode', 'swirl', 'wave', 'spread', 'shade', 'shadow', 'raise', 'lower',
-    'undercolor', 'style', 'weight', 'family', 'kerning', 'transparent', 'opaque', 'mattecolor',
-    'fuzz', 'comment', 'label', 'profile_apply', 'profile_remove', 'layers', 'channel', 'distort',
-    'evaluate', 'convolve', 'image_function', 'fx', 'dither', 'ordered_dither', 'statistic', 'clahe',
-    'kmeans', 'lat', 'color_matrix', 'channel_fx', 'separate', 'colors', 'monochrome', 'unique_colors',
-    'clamp', 'white_balance', 'linear_stretch', 'level_colors', 'wavelet_denoise', 'random_threshold',
-    'filter', 'virtual_pixel', 'shear', 'splice', 'frame', 'stretch', 'interline_spacing',
-    'interword_spacing', 'units', 'define', 'draw', 'contrast', 'contrast_reduce', 'transparent_color',
-    'intent', 'range_threshold', 'interpolate'
-];
-// ===========================================================================
-// Codec definitions — reusable { value, widgets } entries referenced by
-// format definitions below. VC = video codecs, AC = audio codecs.
-// Keys are camelCase forms of the FFmpeg encoder identifier.
+// CODEC DEFINITIONS
+// Reusable codec entries referenced by format videoCodecs/audioCodecs arrays.
+// VC = video codecs, AC = audio codecs.
+// Shape: { label, value (FFmpeg encoder name), widgets[] (widgetDefinition keys) }
+// Keys are camelCase of the FFmpeg encoder name.
 // ===========================================================================
 const VC = {
     libx264: { label: 'H.264 (libx264)', value: 'libx264', widgets: ['framerate', 'pixel_format', 'preset', 'tune_h264', 'profile_h264', 'fastfirstpass', 'codec_level', 'wpredp', 'a53cc', 'x264opts', 'crf_63', 'crf_max', 'qp', 'aq_mode_h264', 'aq_strength', 'psy', 'psy_rd', 'rc_lookahead_frametype', 'weightb', 'weightp', 'ssim', 'intra_refresh', 'bluray_compat', 'b_bias', 'b_pyramid', 'mixed_refs', '8x8dct', 'fast_pskip', 'aud', 'mbtree', 'deblock', 'cplxblur', 'partitions', 'direct_pred', 'slice_max_size', 'nal_hrd_mp4', 'avcintra_class', 'motion_est_h264', 'forced_idr', 'coder', 'b_strategy', 'chromaoffset', 'sc_threshold', 'noise_reduction', 'udu_sei', 'x264_params', 'mb_info'] },
@@ -841,6 +819,53 @@ const AC = {
     g726: { label: 'G.726', value: 'g726', widgets: ['sample_rate_8000', 'sample_format', 'channel_layout_mono', 'code_size'] },
     real_144: { label: 'RealAudio 1.0', value: 'real_144', widgets: [] },
 };
+
+const allVideoFormats = [
+    'mp4', 'mkv', 'webm', 'mov', 'avi', 'wmv', 'flv', 'm4v', 'ts', 'm2ts', 'mpeg', 'vob',
+    '3gp', 'qt', 'ogv', 'f4v', 'asf', 'divx', 'mxf', 'swf', 'rm', 'rmvb', '3g2', 'ogx',
+    'ps', 'm2p', 'dat', 'mts', 'amv', 'dv', 'gxf'
+];
+const allAudioFormats = ['mp3', 'flac', 'wav', 'aac', 'm4a', 'ogg', 'opus', 'wma', 'aiff'];
+const allImageFormats = [
+    'jpeg', 'png', 'webp', 'gif', 'bmp', 'tiff', 'heic', 'jp2', 'svg', 'heif', 'j2k', 'ico',
+    'pdf', 'eps', 'psd', 'tga', 'xcf', 'dds', 'pcx', 'jxr', 'wdp', 'cur', 'ai', 'ps', 'ora', 'emf',
+    'wmf', 'lbm', 'thm', 'iff', 'dcx', 'pnm', 'ppm', 'pgm', 'pbm', 'xpm', 'xbm', 'dib',
+    'raw', 'cr2', 'crw', 'nef', 'dng', 'arw', 'raf', 'rw2', 'orf', 'pef', 'x3f', 'srw', 'iiq',
+    '3fr', 'mef', 'mrw', 'mos', 'kdc', 'dcr', 'erf', 'ptx', 'pxn', 'sr2', 'srf', 'mdc', 'gp4', 'bay'
+];
+const generalVideoWidgets = ['disable_video', 'disable_subtitle', 'fast_start', 'pass', 'frame_size', 'video_rotate', 'video_flip', 'video_bitrate', 'vframes', 'aspect_ratio'];
+const generalAudioWidgets = ['audio_volume', 'audio_speed', 'audio_quality', 'audio_bitrate', 'audio_channels', 'aframes'];
+const generalImageWidgets = [
+    'quality', 'strip', 'auto_orient', 'flatten', 'background', 'resize', 'scale', 'thumbnail',
+    'gravity', 'crop', 'extent', 'trim', 'shave', 'rotate', 'flip', 'flop', 'colorspace', 'grayscale',
+    'brightness_contrast', 'normalize', 'auto_gamma', 'auto_level', 'negate', 'blur', 'gaussian_blur',
+    'sharpen', 'unsharp', 'depth', 'density', 'compress', 'type', 'interlace', 'sampling_factor',
+    'foreground', 'fill', 'modulate', 'gamma', 'level', 'equalize', 'stroke', 'strokewidth', 'border',
+    'bordercolor', 'font', 'pointsize', 'adaptive_blur', 'adaptive_resize', 'adaptive_sharpen', 'affine',
+    'alpha', 'annotate', 'antialias', 'attenuate', 'auto_threshold', 'liquid_rescale', 'resample', 'chop',
+    'roll', 'repage', 'transpose', 'transverse', 'deskew', 'threshold', 'black_threshold',
+    'white_threshold', 'posterize', 'solarize', 'colorize', 'tint', 'sigmoidal_contrast',
+    'contrast_stretch', 'bilateral_blur', 'selective_blur', 'motion_blur', 'rotational_blur',
+    'kuwahara', 'median', 'mean_shift', 'despeckle', 'enhance', 'noise_add', 'noise_reduce', 'edge',
+    'canny', 'morphology', 'charcoal', 'emboss', 'sketch', 'paint', 'sepia_tone', 'blue_shift',
+    'vignette', 'polaroid', 'implode', 'swirl', 'wave', 'spread', 'shade', 'shadow', 'raise', 'lower',
+    'undercolor', 'style', 'weight', 'family', 'kerning', 'transparent', 'opaque', 'mattecolor',
+    'fuzz', 'comment', 'label', 'profile_apply', 'profile_remove', 'layers', 'channel', 'distort',
+    'evaluate', 'convolve', 'image_function', 'fx', 'dither', 'ordered_dither', 'statistic', 'clahe',
+    'kmeans', 'lat', 'color_matrix', 'channel_fx', 'separate', 'colors', 'monochrome', 'unique_colors',
+    'clamp', 'white_balance', 'linear_stretch', 'level_colors', 'wavelet_denoise', 'random_threshold',
+    'filter', 'virtual_pixel', 'shear', 'splice', 'frame', 'stretch', 'interline_spacing',
+    'interword_spacing', 'units', 'define', 'draw', 'contrast', 'contrast_reduce', 'transparent_color',
+    'intent', 'range_threshold', 'interpolate'
+];
+
+// ===========================================================================
+// FORMATS
+// Main format table; each key is a file extension.
+// Shape: { group, tool, outputs[], videoCodecs?, audioCodecs?, codecs?, widgets? }
+//   group: 'video' | 'audio' | 'image'
+//   tool:  'ffmpeg' | 'magick'
+// ===========================================================================
 export const formats = {
     // ====== Audio Formats ======
     mp3: {
@@ -931,24 +956,24 @@ export const formats = {
         outputs: [...allVideoFormats, ...allAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
-        videoCodecs: [VC.libx264, VC.libx265, VC.libaomAv1, VC.libsvtav1, VC.librav1e, VC.mpeg4, VC.mpeg2video, VC.mjpeg, VC.prores, VC.h264Nvenc, VC.hevcNvenc, VC.av1Nvenc, VC.h264Amf, VC.hevcAmf, VC.av1Amf, VC.h264Qsv, VC.hevcQsv],
-        audioCodecs: [AC.aac, AC.libmp3lame, AC.ac3, AC.eac3, AC.libopus, AC.dca, AC.alac, AC.flac]
+        videoCodecs: [VC.libx264, VC.h264Nvenc, VC.h264Amf, VC.h264Qsv, VC.libx265, VC.hevcNvenc, VC.hevcAmf, VC.hevcQsv, VC.libaomAv1, VC.libsvtav1, VC.librav1e, VC.av1Nvenc, VC.av1Amf, VC.mpeg4, VC.mpeg2video, VC.mjpeg, VC.prores],
+        audioCodecs: [AC.aac, AC.ac3, AC.eac3, AC.dca, AC.alac, AC.flac, AC.libopus, AC.libmp3lame]
     },
     mkv: {
         group: 'video', tool: 'ffmpeg',
         outputs: [...allVideoFormats, ...allAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
-        videoCodecs: [VC.libx264, VC.libx265, VC.libvpx, VC.libvpxVp9, VC.libaomAv1, VC.libsvtav1, VC.librav1e, VC.mpeg2video, VC.mpeg4, VC.prores, VC.dnxhd, VC.ffv1, VC.huffyuv, VC.h264Nvenc, VC.hevcNvenc, VC.av1Nvenc, VC.h264Amf, VC.hevcAmf, VC.av1Amf, VC.h264Qsv, VC.hevcQsv],
-        audioCodecs: [AC.aac, AC.libmp3lame, AC.mp2, AC.ac3, AC.eac3, AC.libopus, AC.libvorbis, AC.dca, AC.alac, AC.flac, AC.truehd]
+        videoCodecs: [VC.libx264, VC.h264Nvenc, VC.h264Amf, VC.h264Qsv, VC.libx265, VC.hevcNvenc, VC.hevcAmf, VC.hevcQsv, VC.libaomAv1, VC.libsvtav1, VC.librav1e, VC.av1Nvenc, VC.av1Amf, VC.libvpx, VC.libvpxVp9, VC.mpeg4, VC.mpeg2video, VC.prores, VC.dnxhd, VC.ffv1, VC.huffyuv],
+        audioCodecs: [AC.aac, AC.ac3, AC.eac3, AC.dca, AC.truehd, AC.alac, AC.flac, AC.libopus, AC.libvorbis, AC.libmp3lame, AC.mp2]
     },
     mov: {
         group: 'video', tool: 'ffmpeg',
         outputs: [...allVideoFormats, ...allAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
-        videoCodecs: [VC.libx264, VC.libx265, VC.prores, VC.dnxhd, VC.mjpeg, VC.dvvideo, VC.qtrle, VC.cinepak, VC.rpza, VC.h264Nvenc, VC.hevcNvenc, VC.h264Amf, VC.hevcAmf, VC.h264Qsv, VC.hevcQsv],
-        audioCodecs: [AC.aac, AC.alac, AC.libmp3lame, AC.pcm_s16le, AC.pcm_s24be]
+        videoCodecs: [VC.libx264, VC.h264Nvenc, VC.h264Amf, VC.h264Qsv, VC.libx265, VC.hevcNvenc, VC.hevcAmf, VC.hevcQsv, VC.prores, VC.dnxhd, VC.mjpeg, VC.dvvideo, VC.qtrle, VC.cinepak, VC.rpza],
+        audioCodecs: [AC.aac, AC.alac, AC.pcm_s16le, AC.pcm_s24be, AC.libmp3lame]
     },
     avi: {
         group: 'video', tool: 'ffmpeg',
@@ -988,30 +1013,30 @@ export const formats = {
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
         videoCodecs: [VC.mpeg1video, VC.mpeg2video],
-        audioCodecs: [AC.mp2, AC.libmp3lame, AC.pcm_dvd, AC.pcm_s16be, AC.ac3, AC.dca]
+        audioCodecs: [AC.mp2, AC.libmp3lame, AC.ac3, AC.dca, AC.pcm_dvd, AC.pcm_s16be]
     },
     m4v: {
         group: 'video', tool: 'ffmpeg',
         outputs: [...allVideoFormats, ...allAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
-        videoCodecs: [VC.libx264, VC.libx265, VC.libaomAv1, VC.libsvtav1, VC.mpeg4, VC.mpeg2video, VC.mjpeg, VC.h264Nvenc, VC.hevcNvenc, VC.h264Amf, VC.hevcAmf, VC.h264Qsv, VC.hevcQsv],
-        audioCodecs: [AC.aac, AC.libmp3lame, AC.ac3, AC.alac, AC.dca]
+        videoCodecs: [VC.libx264, VC.h264Nvenc, VC.h264Amf, VC.h264Qsv, VC.libx265, VC.hevcNvenc, VC.hevcAmf, VC.hevcQsv, VC.libaomAv1, VC.libsvtav1, VC.mpeg4, VC.mpeg2video, VC.mjpeg],
+        audioCodecs: [AC.aac, AC.ac3, AC.dca, AC.alac, AC.libmp3lame]
     },
     ts: {
         group: 'video', tool: 'ffmpeg',
         outputs: [...allVideoFormats, ...allAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
-        videoCodecs: [VC.libx264, VC.libx265, VC.mpeg2video, VC.mpeg1video, VC.libaomAv1, VC.librav1e, VC.h264Nvenc, VC.hevcNvenc, VC.av1Nvenc, VC.h264Amf, VC.hevcAmf, VC.h264Qsv, VC.hevcQsv],
-        audioCodecs: [AC.aac, AC.ac3, AC.eac3, AC.mp2, AC.libmp3lame, AC.dca, AC.truehd]
+        videoCodecs: [VC.libx264, VC.h264Nvenc, VC.h264Amf, VC.h264Qsv, VC.libx265, VC.hevcNvenc, VC.hevcAmf, VC.hevcQsv, VC.libaomAv1, VC.librav1e, VC.av1Nvenc, VC.mpeg2video, VC.mpeg1video],
+        audioCodecs: [AC.aac, AC.ac3, AC.eac3, AC.dca, AC.truehd, AC.mp2, AC.libmp3lame]
     },
     m2ts: {
         group: 'video', tool: 'ffmpeg',
         outputs: [...allVideoFormats, ...allAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
-        videoCodecs: [VC.libx264, VC.libx265, VC.mpeg2video, VC.mpeg1video, VC.h264Nvenc, VC.hevcNvenc, VC.h264Amf, VC.hevcAmf, VC.h264Qsv, VC.hevcQsv],
+        videoCodecs: [VC.libx264, VC.h264Nvenc, VC.h264Amf, VC.h264Qsv, VC.libx265, VC.hevcNvenc, VC.hevcAmf, VC.hevcQsv, VC.mpeg2video, VC.mpeg1video],
         audioCodecs: [AC.aac, AC.ac3, AC.eac3, AC.dca, AC.truehd, AC.mp2]
     },
     vob: {
@@ -1020,7 +1045,7 @@ export const formats = {
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
         videoCodecs: [VC.mpeg2video, VC.mpeg1video],
-        audioCodecs: [AC.ac3, AC.dca, AC.pcm_dvd, AC.mp2]
+        audioCodecs: [AC.ac3, AC.dca, AC.mp2, AC.pcm_dvd]
     },
     '3gp': {
         group: 'video', tool: 'ffmpeg',
@@ -1051,7 +1076,7 @@ export const formats = {
         outputs: [...allVideoFormats, ...allAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
-        videoCodecs: [VC.libx264, VC.mpeg4, VC.h264Nvenc, VC.h264Amf, VC.h264Qsv],
+        videoCodecs: [VC.libx264, VC.h264Nvenc, VC.h264Amf, VC.h264Qsv, VC.mpeg4],
         audioCodecs: [AC.aac, AC.libmp3lame]
     },
     asf: {
@@ -1067,7 +1092,7 @@ export const formats = {
         outputs: [...allVideoFormats, ...allAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
-        videoCodecs: [VC.mpeg4, VC.libxvid, VC.libx264, VC.mpeg2video],
+        videoCodecs: [VC.libx264, VC.mpeg4, VC.libxvid, VC.mpeg2video],
         audioCodecs: [AC.libmp3lame, AC.aac, AC.ac3, AC.pcm_s16le]
     },
     mxf: {
@@ -1075,7 +1100,7 @@ export const formats = {
         outputs: [...allVideoFormats, ...allAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
-        videoCodecs: [VC.libx264, VC.libx265, VC.mpeg2video, VC.dnxhd, VC.dvvideo, VC.mjpeg, VC.mpeg4, VC.h264Nvenc, VC.hevcNvenc, VC.h264Amf, VC.hevcAmf],
+        videoCodecs: [VC.libx264, VC.h264Nvenc, VC.h264Amf, VC.libx265, VC.hevcNvenc, VC.hevcAmf, VC.mpeg4, VC.mpeg2video, VC.dnxhd, VC.dvvideo, VC.mjpeg],
         audioCodecs: [AC.pcm_s16le, AC.pcm_s24le, AC.pcm_s32le, AC.aac, AC.ac3, AC.eac3]
     },
     swf: {
@@ -1139,7 +1164,7 @@ export const formats = {
         outputs: [...allVideoFormats, ...allAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
-        videoCodecs: [VC.libx264, VC.libx265, VC.mpeg2video, VC.h264Nvenc, VC.hevcNvenc, VC.h264Amf, VC.hevcAmf, VC.h264Qsv, VC.hevcQsv],
+        videoCodecs: [VC.libx264, VC.h264Nvenc, VC.h264Amf, VC.h264Qsv, VC.libx265, VC.hevcNvenc, VC.hevcAmf, VC.hevcQsv, VC.mpeg2video],
         audioCodecs: [AC.aac, AC.ac3, AC.eac3, AC.dca, AC.truehd, AC.mp2]
     },
     amv: {
@@ -1244,7 +1269,7 @@ export const formats = {
 };
 
 // ===========================================================================
-// Add copy codec option to all audio/video codecs
+// Prepend copy-codec to every format's codec list.
 // ===========================================================================
 Object.keys(formats).forEach(ext => {
     const format = formats[ext];
@@ -1261,7 +1286,7 @@ Object.keys(formats).forEach(ext => {
 });
 
 // ===========================================================================
-// HELPER FUNCTIONS (Preserving existing logic, adapted for the new structure)
+// HELPER FUNCTIONS
 // ===========================================================================
 
 const extToGroup = Object.entries(formats).reduce((acc, [ext, data]) => {
