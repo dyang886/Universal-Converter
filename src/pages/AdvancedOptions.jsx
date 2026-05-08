@@ -124,8 +124,8 @@ export default function AdvancedOptions() {
 
     // Memoize the available codecs based on the selected format
     const { videoCodecs, audioCodecs } = useMemo(() => {
-        const video = config?.videoCodecs || {};
-        const audio = config?.audioCodecs || config?.codecs || {};
+        const video = config?.videoCodecs || [];
+        const audio = config?.audioCodecs || config?.codecs || [];
         return { videoCodecs: video, audioCodecs: audio };
     }, [config]);
 
@@ -162,11 +162,11 @@ export default function AdvancedOptions() {
         if (config.group === 'video') {
             outputGeneralVideo = config.videoWidgets || [];
             outputGeneralAudio = config.audioWidgets || [];
-            codecVideo = selectedVideoCodec ? videoCodecs[selectedVideoCodec]?.widgets || [] : [];
-            codecAudio = selectedAudioCodec ? audioCodecs[selectedAudioCodec]?.widgets || [] : [];
+            codecVideo = selectedVideoCodec ? videoCodecs.find(c => c.value === selectedVideoCodec)?.widgets || [] : [];
+            codecAudio = selectedAudioCodec ? audioCodecs.find(c => c.value === selectedAudioCodec)?.widgets || [] : [];
         } else if (config.group === 'audio') {
             outputDirect = config.widgets || [];
-            codecAudio = selectedAudioCodec ? audioCodecs[selectedAudioCodec]?.widgets || [] : [];
+            codecAudio = selectedAudioCodec ? audioCodecs.find(c => c.value === selectedAudioCodec)?.widgets || [] : [];
         } else if (config.group === 'image') {
             outputDirect = config.widgets || [];
         }
@@ -267,14 +267,11 @@ export default function AdvancedOptions() {
 
         } else if (tool === 'ffmpeg') {
             cmd = `ffmpeg -i "${t("advanced.input_file")}"`;
-            const videoCodecInfo = videoCodecs[selectedVideoCodec];
-            const audioCodecInfo = audioCodecs[selectedAudioCodec];
-
-            if (selectedVideoCodec && videoCodecInfo) {
-                cmd += ` -c:v ${videoCodecInfo.value}`;
+            if (selectedVideoCodec) {
+                cmd += ` -c:v ${selectedVideoCodec}`;
             }
-            if (selectedAudioCodec && audioCodecInfo) {
-                cmd += ` -c:a ${audioCodecInfo.value}`;
+            if (selectedAudioCodec) {
+                cmd += ` -c:a ${selectedAudioCodec}`;
             }
 
             // Build the command string from the grouped arguments
@@ -295,10 +292,10 @@ export default function AdvancedOptions() {
 
     const renderWidgets = (widgetKeys, codecType = null) => {
         let codecValue = null;
-        if (codecType === 'video' && selectedVideoCodec && videoCodecs[selectedVideoCodec]) {
-            codecValue = videoCodecs[selectedVideoCodec].value;
-        } else if (codecType === 'audio' && selectedAudioCodec && audioCodecs[selectedAudioCodec]) {
-            codecValue = audioCodecs[selectedAudioCodec].value;
+        if (codecType === 'video' && selectedVideoCodec) {
+            codecValue = selectedVideoCodec;
+        } else if (codecType === 'audio' && selectedAudioCodec) {
+            codecValue = selectedAudioCodec;
         }
 
         return widgetKeys.map(widgetKey => {
@@ -397,13 +394,13 @@ export default function AdvancedOptions() {
             return (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                     <div className="flex flex-col gap-y-6">
-                        {Object.keys(videoCodecs).length > 0 && (
+                        {videoCodecs.length > 0 && (
                             <Field>
                                 <Label>{t('advanced.video.codec')}</Label>
                                 <Listbox value={selectedVideoCodec} onChange={setSelectedVideoCodec} placeholder={t('advanced.not_selected')}>
                                     <ListboxOption value="">{t('advanced.not_selected')}</ListboxOption>
-                                    {Object.keys(videoCodecs).map(name => (
-                                        <ListboxOption key={name} value={name}>{t(name)}</ListboxOption>
+                                    {videoCodecs.map(codec => (
+                                        <ListboxOption key={codec.value} value={codec.value}>{t(codec.label)}</ListboxOption>
                                     ))}
                                 </Listbox>
                             </Field>
@@ -411,13 +408,13 @@ export default function AdvancedOptions() {
                         {renderWidgets(widgetsToDisplay.codecVideo, 'video')}
                     </div>
                     <div className="flex flex-col gap-y-6">
-                        {Object.keys(audioCodecs).length > 0 && (
+                        {audioCodecs.length > 0 && (
                             <Field>
                                 <Label>{t('advanced.audio.codec')}</Label>
                                 <Listbox value={selectedAudioCodec} onChange={setSelectedAudioCodec} placeholder={t('advanced.not_selected')}>
                                     <ListboxOption value="">{t('advanced.not_selected')}</ListboxOption>
-                                    {Object.keys(audioCodecs).map(name => (
-                                        <ListboxOption key={name} value={name}>{t(name)}</ListboxOption>
+                                    {audioCodecs.map(codec => (
+                                        <ListboxOption key={codec.value} value={codec.value}>{t(codec.label)}</ListboxOption>
                                     ))}
                                 </Listbox>
                             </Field>
@@ -433,7 +430,7 @@ export default function AdvancedOptions() {
             let originalIndex = 0;
 
             // 1. Add the codec selector as an item to be distributed
-            if (Object.keys(audioCodecs).length > 0) {
+            if (audioCodecs.length > 0) {
                 itemsToDistribute.push({
                     key: 'audio-codec-selector',
                     height: WIDGET_HEIGHT_PX['select'],
@@ -443,8 +440,8 @@ export default function AdvancedOptions() {
                             <Label>{t('advanced.audio.codec')}</Label>
                             <Listbox value={selectedAudioCodec} onChange={setSelectedAudioCodec} placeholder={t('advanced.not_selected')}>
                                 <ListboxOption value="">{t('advanced.not_selected')}</ListboxOption>
-                                {Object.keys(audioCodecs).map(name => (
-                                    <ListboxOption key={name} value={name}>{t(name)}</ListboxOption>
+                                {audioCodecs.map(codec => (
+                                    <ListboxOption key={codec.value} value={codec.value}>{t(codec.label)}</ListboxOption>
                                 ))}
                             </Listbox>
                         </Field>

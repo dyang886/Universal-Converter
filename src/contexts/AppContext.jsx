@@ -194,19 +194,16 @@ export function AppProvider({ children }) {
     const handleConvert = useCallback(async (showPrompt) => {
         try {
             const config = formats[outputExt] || {};
-            const videoCodecInfo = config.videoCodecs?.[selectedVideoCodec];
-            const audioCodecInfo = config.audioCodecs?.[selectedAudioCodec] || config.codecs?.[selectedAudioCodec];
-
             const combineInputs = advancedOptionValues['combine_inputs'] === true;
 
             const groupedArgs = buildGroupedArgs(advancedOptionValues);
 
             const finalOptions = {};
-            if (selectedVideoCodec && videoCodecInfo) {
-                finalOptions['-c:v'] = videoCodecInfo.value;
+            if (selectedVideoCodec) {
+                finalOptions['-c:v'] = selectedVideoCodec;
             }
-            if (selectedAudioCodec && audioCodecInfo) {
-                finalOptions['-c:a'] = audioCodecInfo.value;
+            if (selectedAudioCodec) {
+                finalOptions['-c:a'] = selectedAudioCodec;
             }
 
             for (const arg in groupedArgs) {
