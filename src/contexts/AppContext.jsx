@@ -6,7 +6,7 @@ import { listen } from '@tauri-apps/api/event';
 
 import { useTranslation } from 'react-i18next';
 
-import { formats, widgetDefinitions, processFiles, truncateMiddle, buildGroupedArgs } from '@/contexts/format-options';
+import { formats, widgetDefinitions, processFiles, truncateMiddle, buildGroupedArgs, formatTags, getTaggedFormatExts } from '@/contexts/format-options';
 import i18n from '@/contexts/i18n';
 import { usePrompt } from '@/components/prompt';
 
@@ -211,6 +211,16 @@ export function AppProvider({ children }) {
                 finalOptions[arg] = combinedValue === '' ? '' : combinedValue;
             }
 
+            const encryptedInputExts = new Set(getTaggedFormatExts(formatTags.encrypted));
+            const umInputPaths = filePaths.filter(path => {
+                const ext = path.split('.').pop()?.toLowerCase() || '';
+                return encryptedInputExts.has(ext);
+            });
+            const audioInputPaths = filePaths.filter(path => {
+                const ext = path.split('.').pop()?.toLowerCase() || '';
+                return formats[ext]?.group === 'audio';
+            });
+
             setConversionMeta({ combine: combineInputs, outputExt, totalCount: filePaths.length });
             setIsConverting(true);
             setTerminalLogs([]);
@@ -219,7 +229,7 @@ export function AppProvider({ children }) {
             const result = await invoke('convert_files', {
                 inputPaths: filePaths,
                 outputExt: outputExt,
-                request: { tool: config['tool'], options: finalOptions, combine: combineInputs },
+                request: { tool: config['tool'], group: config['group'], options: finalOptions, combine: combineInputs, umInputPaths, audioInputPaths },
             });
 
             if (result) {

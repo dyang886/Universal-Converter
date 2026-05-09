@@ -4,16 +4,68 @@ import { invoke } from '@tauri-apps/api/core';
 import { useTranslation } from 'react-i18next';
 
 import { useApp } from '@/contexts/AppContext';
-import { formats, widgetDefinitions, buildGroupedArgs } from '@/contexts/format-options';
+import { formats, widgetDefinitions, buildGroupedArgs, formatTags, specialHintKeys, getInputWidgetExtMapForTag } from '@/contexts/format-options';
 import { TriStateCheckbox, DualStateCheckbox } from '@/components/checkbox';
 import { Field, Label } from '@/components/fieldset';
 import { IntegerInput, FloatInput, TextInput } from '@/components/input';
 import { Listbox, ListboxOption } from '@/components/listbox';
 import { Navbar, NavbarItem, NavbarSection } from '@/components/navbar';
 import { ClipboardIcon } from '@heroicons/react/24/outline';
+import { InformationCircleIcon } from '@heroicons/react/24/solid';
 
 
-function WidgetRenderer({ widgetKey, inlineDef, value, codecValue, onChange }) {
+function getWidgetHintText(widgetKey, definition, filePaths, t) {
+    if (!definition.hintKey) return null;
+
+    // Special case: show which selected encrypted input extensions this widget applies to.
+    if (definition.hintKey === specialHintKeys.encryptedInput) {
+        const encryptedInputExtsByWidget = getInputWidgetExtMapForTag(formatTags.encrypted);
+        const applicableExts = encryptedInputExtsByWidget[widgetKey];
+        if (!applicableExts) return null;
+
+        const selectedExts = Array.from(new Set(
+            filePaths
+                .map(path => path.split('.').pop()?.toLowerCase() || '')
+                .filter(ext => applicableExts.includes(ext))
+        ));
+
+        if (selectedExts.length === 0) return null;
+        return t('advanced.hints.applies_to_selected', { exts: selectedExts.map(ext => `.${ext}`).join(', ') });
+    }
+
+    // Future special hint keys can be handled above before falling back to static translation keys.
+    return t(definition.hintKey);
+}
+
+function HintIcon({ hintText }) {
+    if (!hintText) return null;
+
+    return (
+        <span
+            className="group relative inline-flex items-center align-middle"
+            onClick={(event) => event.preventDefault()}
+            onMouseDown={(event) => event.preventDefault()}
+        >
+            <InformationCircleIcon
+                className="h-4 w-4 text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+                aria-label={hintText}
+                title={hintText}
+                tabIndex={0}
+            />
+        </span>
+    );
+}
+
+function LabelWithHint({ children, hintText }) {
+    return (
+        <Label className="inline-flex items-center gap-1.5">
+            {children}
+            <HintIcon hintText={hintText} />
+        </Label>
+    );
+}
+
+function WidgetRenderer({ widgetKey, inlineDef, value, codecValue, filePaths = [], onChange }) {
     const { t } = useTranslation();
     const [dynamicOptions, setDynamicOptions] = useState([]);
 
@@ -21,6 +73,7 @@ function WidgetRenderer({ widgetKey, inlineDef, value, codecValue, onChange }) {
     if (!definition) return null;
     const isDynamic = definition.options === 'dynamic';
     const labelText = definition.label ?? t(definition.labelKey);
+    const hintText = getWidgetHintText(widgetKey, definition, filePaths, t);
 
     const formatRangeNumber = (num) => {
         if (typeof num === 'number' && Math.abs(num) > 9999) {
@@ -58,7 +111,7 @@ function WidgetRenderer({ widgetKey, inlineDef, value, codecValue, onChange }) {
         <>
             {definition.type === 'select' && (
                 <Field as="div">
-                    <Label>{labelText}</Label>
+                    <LabelWithHint hintText={hintText}>{labelText}</LabelWithHint>
                     <Listbox value={value} onChange={handleChange} placeholder={t('advanced.not_selected')}>
                         <ListboxOption value="">{t('advanced.not_selected')}</ListboxOption>
                         {(isDynamic ? dynamicOptions : Object.entries(definition.options)).map(opt => {
@@ -71,21 +124,21 @@ function WidgetRenderer({ widgetKey, inlineDef, value, codecValue, onChange }) {
 
             {definition.type === 'input-int' && (
                 <Field as="div">
-                    <Label>{labelText} {`[${formatRangeNumber(definition.options[0])}, ${formatRangeNumber(definition.options[1])}]`}</Label>
+                    <LabelWithHint hintText={hintText}>{labelText} {`[${formatRangeNumber(definition.options[0])}, ${formatRangeNumber(definition.options[1])}]`}</LabelWithHint>
                     <IntegerInput value={value} onChange={handleChange} min={definition.options[0]} max={definition.options[1]} />
                 </Field>
             )}
 
             {definition.type === 'input-flt' && (
                 <Field as="div">
-                    <Label>{labelText} {`[${formatRangeNumber(definition.options[0])}, ${formatRangeNumber(definition.options[1])}]`}</Label>
+                    <LabelWithHint hintText={hintText}>{labelText} {`[${formatRangeNumber(definition.options[0])}, ${formatRangeNumber(definition.options[1])}]`}</LabelWithHint>
                     <FloatInput value={value} onChange={handleChange} min={definition.options[0]} max={definition.options[1]} />
                 </Field>
             )}
 
             {definition.type === 'input-txt' && (
                 <Field as="div">
-                    <Label>{labelText}</Label>
+                    <LabelWithHint hintText={hintText}>{labelText}</LabelWithHint>
                     <TextInput value={value} onChange={handleChange} />
                 </Field>
             )}
@@ -93,14 +146,14 @@ function WidgetRenderer({ widgetKey, inlineDef, value, codecValue, onChange }) {
             {definition.type === 'checkbox' && (
                 <Field as="div" className="flex items-center gap-2">
                     <TriStateCheckbox value={value} onChange={handleChange} />
-                    <Label>{labelText}</Label>
+                    <LabelWithHint hintText={hintText}>{labelText}</LabelWithHint>
                 </Field>
             )}
 
             {definition.type === 'checkbox-novalue' && (
                 <Field as="div" className="flex items-center gap-2">
                     <DualStateCheckbox value={value} onChange={handleChange} />
-                    <Label>{labelText}</Label>
+                    <LabelWithHint hintText={hintText}>{labelText}</LabelWithHint>
                 </Field>
             )}
         </>
@@ -199,8 +252,8 @@ export default function AdvancedOptions() {
                         def.widgets.forEach(sw => {
                             init[sw.arg] = sw.default !== undefined ? sw.default
                                 : sw.type === 'checkbox' ? null
-                                : sw.type === 'checkbox-novalue' ? false
-                                : '';
+                                    : sw.type === 'checkbox-novalue' ? false
+                                        : '';
                         });
                         newOptions[widgetKey] = init;
                     } else if (def?.type === 'checkbox') {
@@ -305,9 +358,13 @@ export default function AdvancedOptions() {
             if (def.type === 'group') {
                 const groupValue = advancedOptionValues[widgetKey] || {};
                 const groupLabel = def.label ?? t(def.labelKey);
+                const groupHint = getWidgetHintText(widgetKey, def, filePaths, t);
                 return (
                     <div key={widgetKey} className="relative mt-2 rounded-lg border border-zinc-700 px-3 pb-3 pt-4">
-                        <span className="absolute -top-2.5 left-3 bg-white px-1 text-sm/6 font-medium text-zinc-950 select-none dark:bg-zinc-900 dark:text-white">{groupLabel}</span>
+                        <span className="absolute -top-2.5 left-3 inline-flex items-center gap-1.5 bg-white px-1 text-sm/6 font-medium text-zinc-950 select-none dark:bg-zinc-900 dark:text-white">
+                            {groupLabel}
+                            <HintIcon hintText={groupHint} />
+                        </span>
                         <div className="flex flex-wrap gap-x-4 gap-y-2 pt-2">
                             {def.widgets.map((sw, i) => (
                                 <WidgetRenderer
@@ -316,6 +373,7 @@ export default function AdvancedOptions() {
                                     inlineDef={sw}
                                     value={groupValue[sw.arg] ?? ''}
                                     codecValue={codecValue}
+                                    filePaths={filePaths}
                                     onChange={(_, newVal) => handleGroupChange(widgetKey, sw.arg, newVal)}
                                 />
                             ))}
@@ -326,14 +384,15 @@ export default function AdvancedOptions() {
 
             const value = widgetKey in advancedOptionValues ? advancedOptionValues[widgetKey]
                 : def?.type === 'checkbox' ? null
-                : def?.type === 'checkbox-novalue' ? false
-                : '';
+                    : def?.type === 'checkbox-novalue' ? false
+                        : '';
             return (
                 <WidgetRenderer
                     key={`${widgetKey}-${codecValue || 'general'}`}
                     widgetKey={widgetKey}
                     value={value}
                     codecValue={codecValue}
+                    filePaths={filePaths}
                     onChange={handleOptionChange}
                 />
             );

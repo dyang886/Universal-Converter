@@ -50,9 +50,15 @@ struct ConversionLogPayload {
 #[derive(Deserialize, Debug)]
 pub struct ConversionRequest {
     tool: String,
+    #[serde(default)]
+    group: String,
     options: IndexMap<String, String>,
     #[serde(default)]
     combine: bool,
+    #[serde(default, rename = "umInputPaths")]
+    um_input_paths: Vec<String>,
+    #[serde(default, rename = "audioInputPaths")]
+    audio_input_paths: Vec<String>,
 }
 
 pub struct AppState {
@@ -180,9 +186,23 @@ async fn convert_files(
 
     state.cancel_flag.store(false, Ordering::Relaxed);
     let cancel_flag = Arc::clone(&state.cancel_flag);
+    let is_audio_output = request.group == "audio";
 
     match request.tool.as_str() {
-        "ffmpeg" => ffmpeg::run_conversion(handle, input_paths, output_ext, request.options, cancel_flag, max_threads).await,
+        "ffmpeg" => {
+            ffmpeg::run_conversion(
+                handle,
+                input_paths,
+                output_ext,
+                request.options,
+                request.um_input_paths,
+                request.audio_input_paths,
+                is_audio_output,
+                cancel_flag,
+                max_threads,
+            )
+            .await
+        }
         "magick" => {
             magick::run_conversion(
                 handle,

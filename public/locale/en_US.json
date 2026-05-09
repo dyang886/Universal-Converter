@@ -69,6 +69,13 @@
     "general": "General Options",
     "codec": "Codec Options",
     "copy_codec": "Copy codec",
+    "hints": {
+      "applies_to_selected": "Applies to selected input extensions: {{exts}}.",
+      "video": {
+        "partitions": "Comma-separated x264 partitions. Valid values: p8x8, p4x4, b8x8, i8x8, i4x4, none, all.",
+        "rc_eq": "Free-form FFmpeg rate-control expression. Available helpers include bits2qp(bits), qp2bits(qp), and constants such as iTex, pTex, tex, mv, isI, isP, isB, avgQP, qComp, and avgTex."
+      }
+    },
     "video": {
       "disable_video": "Disable Video",
       "disable_subtitle": "Disable Subtitles",
@@ -80,6 +87,7 @@
       "vframes": "Total Video Frames",
       "aspect_ratio": "Aspect Ratio",
       "fast_start": "Enable Web Optimization (Faststart)",
+      "resolution": "Resolution",
       "framerate": "Framerate (fps)",
       "pixel_format": "Pixel Format",
       "vendor": "Vendor ID",
@@ -481,6 +489,7 @@
       "frames_per_packet": "Frames per Packet",
       "vad": "Enable Voice Activity Detection (VAD)",
       "dtx": "Enable Discontinuous Transmission (DTX)",
+      "optimize_mono": "Optimize Mono",
       "qmc_mmkv": "QMC MMKV Path (.crc file also required)",
       "qmc_mmkv_key": "QMC MMKV Password (16 ascii characters)",
       "kgg_db": "Kugou KGG DB Path (win32 kugou v11)",

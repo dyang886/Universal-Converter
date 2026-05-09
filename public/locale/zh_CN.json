@@ -69,6 +69,13 @@
     "general": "常规选项",
     "codec": "编码器选项",
     "copy_codec": "复制编码器",
+    "hints": {
+      "applies_to_selected": "适用于已选择的输入扩展名：{{exts}}。",
+      "video": {
+        "partitions": "逗号分隔的 x264 分区列表。有效值：p8x8、p4x4、b8x8、i8x8、i4x4、none、all。",
+        "rc_eq": "FFmpeg 码率控制表达式。可用辅助函数包括 bits2qp(bits)、qp2bits(qp)，常量包括 iTex、pTex、tex、mv、isI、isP、isB、avgQP、qComp、avgTex 等。"
+      }
+    },
     "video": {
       "disable_video": "禁用视频",
       "disable_subtitle": "禁用字幕",
@@ -80,6 +87,7 @@
       "vframes": "总视频帧数",
       "aspect_ratio": "宽高比",
       "fast_start": "启用Web优化 (Faststart)",
+      "resolution": "分辨率",
       "framerate": "帧率 (fps)",
       "pixel_format": "像素格式",
       "vendor": "供应商ID",
@@ -481,6 +489,7 @@
       "frames_per_packet": "每包帧数",
       "vad": "启用语音活动检测 (VAD)",
       "dtx": "启用不连续传输 (DTX)",
+      "optimize_mono": "优化单声道",
       "qmc_mmkv": "QMC MMKV文件路径 (同时需要.crc文件)",
       "qmc_mmkv_key": "QMC MMKV密码 (16位ASCII字符)",
       "kgg_db": "酷狗KGG数据库路径 (酷狗v11 win32版)",

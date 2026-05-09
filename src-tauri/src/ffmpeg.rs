@@ -1,4 +1,5 @@
 use indexmap::IndexMap;
+use std::collections::HashSet;
 use std::env;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -12,18 +13,23 @@ use uuid::Uuid;
 
 use crate::{emit_cancelled, emit_delta, emit_error, emit_success, find_first_file_in_dir, run_cli_command};
 
-const ENCRYPTED_AUDIO_EXTENSIONS: &[&str] = &[
-    "qmc0", "qmc2", "qmc3", "qmcflac", "qmcogg", "tkm", "bkcmp3", "bkcflac", "tm0", "tm2", "tm3", "tm6", "mflac", "mgg", "mflac0", "mgg1", "mggl",
-    "ofl_en", "ncm", "xm", "kwm", "kgm", "vpr", "x2m", "x3m", "mg3d",
-];
+const COVER_ART_AUDIO_OUTPUTS: &[&str] = &["mp3", "flac", "m4a", "m4b"];
+
+async fn remove_temp_dir(path: &PathBuf) {
+    if let Err(e) = fs::remove_dir_all(path).await {
+        eprintln!("Failed to clean up temp directory '{}': {}", path.display(), e);
+    }
+}
 
 pub async fn run_conversion(
-    handle: AppHandle, input_paths: Vec<String>, output_ext: String, options: IndexMap<String, String>, cancel_flag: Arc<AtomicBool>,
-    max_threads: usize,
+    handle: AppHandle, input_paths: Vec<String>, output_ext: String, options: IndexMap<String, String>, um_input_paths: Vec<String>,
+    audio_input_paths: Vec<String>, is_audio_output: bool, cancel_flag: Arc<AtomicBool>, max_threads: usize,
 ) -> Result<bool, String> {
     let semaphore = Arc::new(Semaphore::new(max_threads));
     let all_ok = Arc::new(AtomicBool::new(true));
     let mut join_set = JoinSet::new();
+    let um_input_paths: Arc<HashSet<String>> = Arc::new(um_input_paths.into_iter().collect());
+    let audio_input_paths: Arc<HashSet<String>> = Arc::new(audio_input_paths.into_iter().collect());
 
     for path_str in input_paths {
         if cancel_flag.load(Ordering::Relaxed) {
@@ -38,12 +44,16 @@ pub async fn run_conversion(
         let handle = handle.clone();
         let output_ext = output_ext.clone();
         let options = options.clone();
+        let um_input_paths = Arc::clone(&um_input_paths);
+        let audio_input_paths = Arc::clone(&audio_input_paths);
         let cancel = Arc::clone(&cancel_flag);
         let all_ok = Arc::clone(&all_ok);
 
         join_set.spawn(async move {
             let _permit = permit;
-            if !convert_single_file(&handle, path_str, &output_ext, options, &cancel).await {
+            let use_um = um_input_paths.contains(&path_str);
+            let is_audio_input = audio_input_paths.contains(&path_str);
+            if !convert_single_file(&handle, path_str, &output_ext, options, use_um, is_audio_input, is_audio_output, &cancel).await {
                 all_ok.store(false, Ordering::Relaxed);
             }
         });
@@ -55,18 +65,16 @@ pub async fn run_conversion(
 }
 
 async fn convert_single_file(
-    handle: &AppHandle, path_str: String, output_ext: &str, mut options: IndexMap<String, String>, cancel_flag: &Arc<AtomicBool>,
+    handle: &AppHandle, path_str: String, output_ext: &str, mut options: IndexMap<String, String>, use_um: bool, is_audio_input: bool,
+    is_audio_output: bool, cancel_flag: &Arc<AtomicBool>,
 ) -> bool {
     let original_input_path = PathBuf::from(&path_str);
     emit_delta(handle, &path_str, &original_input_path, String::new());
     let mut temp_dir_to_clean: Option<PathBuf> = None;
 
-    let file_ext = original_input_path.extension().and_then(|s| s.to_str()).unwrap_or("").to_lowercase();
-    let is_encrypted_file = ENCRYPTED_AUDIO_EXTENSIONS.contains(&file_ext.as_str());
-
     let um_specific_args = ["--qmc-mmkv", "--qmc-mmkv-key", "--kgg-db", "--update-metadata"];
 
-    let input_path_for_ffmpeg = if is_encrypted_file {
+    let input_path_for_ffmpeg = if use_um {
         let temp_dir = env::temp_dir().join(Uuid::new_v4().to_string());
         if let Err(e) = fs::create_dir_all(&temp_dir).await {
             emit_delta(handle, &path_str, &original_input_path, e.to_string());
@@ -106,23 +114,24 @@ async fn convert_single_file(
                         "Decryption succeeded, but no output file was found in the temporary directory.".to_string(),
                     );
                     emit_error(handle, &path_str, &original_input_path);
+                    remove_temp_dir(&temp_dir).await;
                     return false;
                 }
                 Err(e) => {
                     emit_delta(handle, &path_str, &original_input_path, e);
                     emit_error(handle, &path_str, &original_input_path);
+                    remove_temp_dir(&temp_dir).await;
                     return false;
                 }
             },
             Err(e) if e == "cancelled" => {
                 emit_cancelled(handle, &path_str, &original_input_path);
-                if let Some(path) = temp_dir_to_clean {
-                    let _ = fs::remove_dir_all(&path).await;
-                }
+                remove_temp_dir(&temp_dir).await;
                 return false;
             }
             Err(_) => {
                 emit_error(handle, &path_str, &original_input_path);
+                remove_temp_dir(&temp_dir).await;
                 return false;
             }
         }
@@ -140,13 +149,45 @@ async fn convert_single_file(
 
     let mut ffmpeg_args: Vec<String> = vec!["-i".to_string(), input_path_for_ffmpeg.to_string_lossy().to_string()];
 
-    if output_ext == "m4a" {
-        ffmpeg_args.push("-vn".to_string());
-    }
-    if let Some(codec) = options.get("-c:a") {
-        if matches!(codec.as_str(), "dca" | "truehd") {
-            ffmpeg_args.extend(vec!["-strict".to_string(), "-2".to_string()]);
+    // Special cases
+    if is_audio_output {
+        ffmpeg_args.extend(vec!["-map".to_string(), "0:a".to_string()]);
+        if is_audio_input && COVER_ART_AUDIO_OUTPUTS.contains(&output_ext) {
+            ffmpeg_args.extend(vec![
+                "-map".to_string(),
+                "0:v?".to_string(),
+                "-c:v".to_string(),
+                "copy".to_string(),
+                "-disposition:v".to_string(),
+                "attached_pic".to_string(),
+            ]);
         }
+    }
+    let audio_codec = options.get("-c:a").map(String::as_str);
+    if matches!(audio_codec, Some("libopencore_amrnb") | Some("g726") | Some("real_144")) || (output_ext == "amr" && audio_codec.is_none()) {
+        if !options.contains_key("-ar") {
+            ffmpeg_args.extend(vec!["-ar".to_string(), "8000".to_string()]);
+        }
+        if !options.contains_key("-ac") {
+            ffmpeg_args.extend(vec!["-ac".to_string(), "1".to_string()]);
+        }
+    }
+    if matches!(audio_codec, Some("libvo_amrwbenc")) {
+        if !options.contains_key("-ar") {
+            ffmpeg_args.extend(vec!["-ar".to_string(), "16000".to_string()]);
+        }
+        if !options.contains_key("-ac") {
+            ffmpeg_args.extend(vec!["-ac".to_string(), "1".to_string()]);
+        }
+    }
+    if matches!(audio_codec, Some("dca" | "truehd" | "mlp")) || matches!(output_ext, "dts" | "truehd" | "thd" | "mlp") {
+        ffmpeg_args.extend(vec!["-strict".to_string(), "-2".to_string()]);
+    }
+    if output_ext == "weba" {
+        ffmpeg_args.extend(vec!["-f".to_string(), "webm".to_string()]);
+    }
+    if output_ext == "truehd" {
+        ffmpeg_args.extend(vec!["-f".to_string(), "truehd".to_string()]);
     }
 
     let mut push_split = |s: &str| {
@@ -169,7 +210,7 @@ async fn convert_single_file(
 
     println!("Full FFmpeg command: ffmpeg {}", ffmpeg_args.join(" "));
 
-    if is_encrypted_file {
+    if use_um {
         emit_delta(
             handle,
             &path_str,
@@ -194,9 +235,7 @@ async fn convert_single_file(
     };
 
     if let Some(path) = temp_dir_to_clean {
-        if let Err(e) = fs::remove_dir_all(&path).await {
-            eprintln!("Failed to clean up temp directory '{}': {}", path.display(), e);
-        }
+        remove_temp_dir(&path).await;
     }
 
     result
