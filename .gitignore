@@ -31,8 +31,8 @@ target/
 # will have schema files for capabilities auto-completion
 **/gen/schemas/
 
-legacy/
 compile.ps1
 secret_config.rs
 src-tauri/binaries/
 unused components/
+docs/

@@ -5,7 +5,7 @@
 // ===========================================================================
 // WIDGET OPTIONS
 // Reusable dropdown option sets for select widgets.
-// Shape: { "Display Label": "ffmpeg_value" }
+// Shape: { "Display Label": "command_value" }
 // ===========================================================================
 export const widgetOptions = {
     // ====== video.general ======
@@ -47,9 +47,12 @@ export const widgetOptions = {
     b_strategy: { "I-frames": "0", "P-frames": "1", "B-frames": "2" },
     motion_est_mpeg: { "Zero": "zero", "EPZS": "epzs", "Xone": "xone" },
     mpv_flags: { "Skip RD": "skip_rd", "Strict GOP": "strict_gop", "QP RD": "qp_rd", "CBP RD": "cbp_rd", "Normalize AQ": "naq", "MV Zero": "mv0" },
+    mpv_flags_amv: { "Skip RD": "skip_rd", "Strict GOP": "strict_gop", "QP RD": "qp_rd", "CBP RD": "cbp_rd", "Normalize AQ": "naq" },
     skip_cmp: { "SAD": "sad", "SSE": "sse", "SATD": "satd", "DCT": "dct", "PSNR": "psnr", "Bit": "bit", "RD": "rd", "Zero": "zero", "VSAD": "vsad", "VSSE": "vsse", "NSSE": "nsse", "DCT264": "dct264", "DCTMAX": "dctmax", "Chroma": "256", "MSAD": "msad" },
     seq_disp_ext: { "Auto": "auto", "Never": "never", "Always": "always" },
     video_format: { "Component": "component", "PAL": "pal", "NTSC": "ntsc", "SECAM": "secam", "MAC": "mac", "Unspecified": "unspecified" },
+    // libxvid
+    ssim_xvid: { "Off": "off", "Average": "avg", "Frame": "frame" },
 
     // mjpeg
     huffman: { "Default": "default", "Optimal": "optimal" },
@@ -79,6 +82,58 @@ export const widgetOptions = {
     rgb_mode_nvenc: { "YUV 4:2:0": "yuv420", "YUV 4:4:4": "yuv444", "Disabled": "disabled" },
     tf_level_nvenc: { "Disabled": "-1", "0": "0", "4": "4" },
     lookahead_level_nvenc: { "Auto": "auto", "0": "0", "1": "1", "2": "2", "3": "3" },
+    // hevc_nvenc specific
+    profile_h265_nvenc: { "Main": "main", "Main 10": "main10", "REXT": "rext", "MV-HEVC": "mv" },
+    level_nvenc_h265: { "Auto": "auto", "1.0": "1.0", "2.0": "2.0", "2.1": "2.1", "3.0": "3.0", "3.1": "3.1", "4.0": "4.0", "4.1": "4.1", "5.0": "5.0", "5.1": "5.1", "5.2": "5.2", "6.0": "6.0", "6.1": "6.1", "6.2": "6.2" },
+    tier_nvenc: { "Main": "main", "High": "high" },
+    tune_nvenc_h265: { "High Quality": "hq", "Ultra High Quality": "uhq", "Low Latency": "ll", "Ultra Low Latency": "ull", "Lossless": "lossless" },
+    split_encode_mode_nvenc: { "Disabled": "disabled", "Auto": "auto", "Forced": "forced", "2 Strips": "2", "3 Strips": "3" },
+    // av1_nvenc specific
+    preset_nvenc_av1: { "Default": "default", "Slow (HQ 2-pass)": "slow", "Medium (HQ 1-pass)": "medium", "Fast (HP 1-pass)": "fast", "P1 (Fastest)": "p1", "P2 (Faster)": "p2", "P3 (Fast)": "p3", "P4 (Medium)": "p4", "P5 (Slow)": "p5", "P6 (Slower)": "p6", "P7 (Slowest)": "p7" },
+    level_nvenc_av1: { "Auto": "auto", "2.0": "2.0", "2.1": "2.1", "2.2": "2.2", "2.3": "2.3", "3.0": "3.0", "3.1": "3.1", "3.2": "3.2", "3.3": "3.3", "4.0": "4.0", "4.1": "4.1", "4.2": "4.2", "4.3": "4.3", "5.0": "5.0", "5.1": "5.1", "5.2": "5.2", "5.3": "5.3", "6.0": "6.0", "6.1": "6.1", "6.2": "6.2", "6.3": "6.3", "7.0": "7.0", "7.1": "7.1", "7.2": "7.2", "7.3": "7.3" },
+    tier_nvenc_av1: { "Main": "0", "High": "1" },
+    rc_nvenc_av1: { "Constant QP": "constqp", "Variable Bitrate": "vbr", "Constant Bitrate": "cbr" },
+
+    // h264_amf / hevc_amf / av1_amf (shared AMF options)
+    usage_amf: { "Transcoding": "transcoding", "Ultra Low Latency": "ultralowlatency", "Low Latency": "lowlatency", "Webcam": "webcam", "High Quality": "high_quality", "Low Latency High Quality": "lowlatency_high_quality" },
+    profile_h264_amf: { "Main": "main", "High": "high", "Constrained Baseline": "constrained_baseline", "Constrained High": "constrained_high" },
+    level_amf_h264: { "Auto": "auto", "1.0": "1.0", "1.1": "1.1", "1.2": "1.2", "1.3": "1.3", "2.0": "2.0", "2.1": "2.1", "2.2": "2.2", "3.0": "3.0", "3.1": "3.1", "3.2": "3.2", "4.0": "4.0", "4.1": "4.1", "4.2": "4.2", "5.0": "5.0", "5.1": "5.1", "5.2": "5.2", "6.0": "6.0", "6.1": "6.1", "6.2": "6.2" },
+    preset_amf: { "Balanced": "balanced", "Speed": "speed", "Quality": "quality" },
+    rc_amf: { "Constant QP": "cqp", "Constant Bitrate": "cbr", "VBR Peak": "vbr_peak", "VBR Latency": "vbr_latency", "Quality VBR": "qvbr", "HQ VBR": "hqvbr", "HQ CBR": "hqcbr" },
+    coder_amf: { "Auto": "auto", "CAVLC": "cavlc", "CABAC": "cabac" },
+    pa_activity_type_amf: { "Luma (Y)": "y", "Luma + Chroma (YUV)": "yuv" },
+    pa_sensitivity_amf: { "Low": "low", "Medium": "medium", "High": "high" },
+    pa_paq_mode_amf: { "None": "none", "CAQ": "caq" },
+    pa_taq_mode_amf: { "None": "none", "Mode 1": "1", "Mode 2": "2" },
+    pa_hmqb_mode_amf: { "None": "none", "Auto": "auto" },
+    // hevc_amf / av1_amf
+    bitdepth_amf: { "8-bit": "8", "10-bit": "10" },
+    // hevc_amf specific
+    profile_h265_amf: { "Main": "main", "Main 10": "main10" },
+    tier_amf: { "Main": "main", "High": "high" },
+    level_amf_h265: { "Auto": "auto", "1.0": "1.0", "2.0": "2.0", "2.1": "2.1", "3.0": "3.0", "3.1": "3.1", "4.0": "4.0", "4.1": "4.1", "5.0": "5.0", "5.1": "5.1", "5.2": "5.2", "6.0": "6.0", "6.1": "6.1", "6.2": "6.2" },
+    header_insertion_mode_amf: { "None": "none", "GOP": "gop", "IDR": "idr" },
+    // av1_amf specific
+    profile_av1_amf: { "Main": "main" },
+    level_amf_av1: { "Auto": "auto", "2.0": "2.0", "2.1": "2.1", "2.2": "2.2", "2.3": "2.3", "3.0": "3.0", "3.1": "3.1", "3.2": "3.2", "3.3": "3.3", "4.0": "4.0", "4.1": "4.1", "4.2": "4.2", "4.3": "4.3", "5.0": "5.0", "5.1": "5.1", "5.2": "5.2", "5.3": "5.3", "6.0": "6.0", "6.1": "6.1", "6.2": "6.2", "6.3": "6.3", "7.0": "7.0", "7.1": "7.1", "7.2": "7.2", "7.3": "7.3" },
+    preset_av1_amf: { "High Quality": "high_quality", "Quality": "quality", "Balanced": "balanced", "Speed": "speed" },
+    latency_av1_amf: { "None": "none", "Power Saving Real Time": "power_saving_real_time", "Real Time": "real_time", "Lowest Latency": "lowest_latency" },
+    header_insertion_mode_av1_amf: { "None": "none", "GOP": "gop", "Frame": "frame" },
+    aq_mode_amf: { "None": "none", "CAQ": "caq" },
+    align_av1_amf: { "64x16": "64x16", "1080p": "1080p", "None": "none" },
+
+    // h264_qsv / hevc_qsv (shared QSV options)
+    preset_qsv: { "Very Fast": "veryfast", "Faster": "faster", "Fast": "fast", "Medium": "medium", "Slow": "slow", "Slower": "slower", "Very Slow": "veryslow" },
+    profile_h264_qsv: { "Unknown": "unknown", "Baseline": "baseline", "Main": "main", "High": "high" },
+    scenario_qsv: { "Unknown": "unknown", "Display Remoting": "displayremoting", "Video Conference": "videoconference", "Archive": "archive", "Live Streaming": "livestreaming", "Camera Capture": "cameracapture", "Video Surveillance": "videosurveillance", "Game Streaming": "gamestreaming", "Remote Gaming": "remotegaming" },
+    skip_frame_qsv: { "No Skip": "no_skip", "Insert Dummy": "insert_dummy", "Insert Nothing": "insert_nothing", "BRC Only": "brc_only" },
+    dual_gfx_qsv: { "Off": "off", "On": "on", "Adaptive": "adaptive" },
+    look_ahead_downsampling_qsv: { "Auto": "auto", "Off": "off", "2x": "2x", "4x": "4x" },
+    int_ref_type_qsv: { "None": "none", "Vertical": "vertical", "Horizontal": "horizontal", "Slice": "slice" },
+    // hevc_qsv specific
+    profile_h265_qsv: { "Unknown": "unknown", "Main": "main", "Main 10": "main10", "Main SP": "mainsp", "REXT": "rext", "SCC": "scc" },
+    tier_qsv: { "Main": "main", "High": "high" },
+    load_plugin_qsv: { "None": "none", "HEVC SW": "hevc_sw", "HEVC HW": "hevc_hw" },
 
     // ====== audio.general ======
     audio_bitrate: { "8 kbps": "8k", "16 kbps": "16k", "24 kbps": "24k", "32 kbps": "32k", "40 kbps": "40k", "48 kbps": "48k", "64 kbps": "64k", "80 kbps": "80k", "96 kbps": "96k", "112 kbps": "112k", "128 kbps": "128k", "160 kbps": "160k", "192 kbps": "192k", "224 kbps": "224k", "256 kbps": "256k", "320 kbps": "320k" },
@@ -89,7 +144,10 @@ export const widgetOptions = {
     // adpcm_swf
     sample_rate_adpcm_swf: { "11025": "11025", "22050": "22050", "44100": "44100" },
 
-    // gsm, adpcm_g726
+    // amr_wb
+    sample_rate_16000: { "16000": "16000" },
+
+    // gsm, amr_nb, adpcm_g726
     sample_rate_8000: { "8000": "8000" },
     channel_layout_mono: { "mono": "mono" },
 
@@ -191,7 +249,7 @@ export const widgetDefinitions = {
     // ffv1
     slicecrc: { arg: "-slicecrc", labelKey: "advanced.video.slicecrc", type: "checkbox" },
     coder_ffv1: { arg: "-coder", labelKey: "advanced.video.coder", type: "select", options: widgetOptions.coder_ffv1 },
-    context: { arg: "-context", labelKey: "advanced.video.context", type: "input-int", options: [0, 1] },
+    context: { arg: "-context", labelKey: "advanced.video.context", type: "checkbox" },
 
     // huffyuv
     non_deterministic: { arg: "-non_deterministic", labelKey: "advanced.video.non_deterministic", type: "checkbox" },
@@ -271,7 +329,7 @@ export const widgetDefinitions = {
     gop_timecode: { arg: "-gop_timecode", labelKey: "advanced.video.gop_timecode", type: "input-txt" },
     drop_frame_timecode: { arg: "-drop_frame_timecode", labelKey: "advanced.video.drop_frame_timecode", type: "checkbox" },
     scan_offset: { arg: "-scan_offset", labelKey: "advanced.video.scan_offset", type: "checkbox" },
-    timecode_frame_start: { arg: "-timecode_frame_start", labelKey: "advanced.video.timecode_frame_start", type: "input-int", options: [-1, 9223372036854775807] },
+    timecode_frame_start: { arg: "-timecode_frame_start", labelKey: "advanced.video.timecode_frame_start", type: "input-int", options: [0, 9223372036854775807] },
     b_sensitivity: { arg: "-b_sensitivity", labelKey: "advanced.video.b_sensitivity", type: "input-int", options: [1, 2147483647] },
     brd_scale: { arg: "-brd_scale", labelKey: "advanced.video.brd_scale", type: "input-int", options: [0, 3] },
     mpv_flags: { arg: "-mpv_flags", labelKey: "advanced.video.mpv_flags", type: "select", options: widgetOptions.mpv_flags },
@@ -303,7 +361,27 @@ export const widgetDefinitions = {
     video_format: { arg: "-video_format", labelKey: "advanced.video.video_format", type: "select", options: widgetOptions.video_format },
     // mpeg4 only
     data_partitioning: { arg: "-data_partitioning", labelKey: "advanced.video.data_partitioning", type: "checkbox" },
-    mpeg_quant: { arg: "-mpeg_quant", labelKey: "advanced.video.mpeg_quant", type: "input-int", options: [0, 1] },
+    mpeg_quant: { arg: "-mpeg_quant", labelKey: "advanced.video.mpeg_quant", type: "checkbox" },
+
+    // h263p
+    umv_h263p: { arg: "-umv", labelKey: "advanced.video.umv", type: "checkbox" },
+    aiv_h263p: { arg: "-aiv", labelKey: "advanced.video.aiv", type: "checkbox" },
+    obmc_h263p: { arg: "-obmc", labelKey: "advanced.video.enable_obmc", type: "checkbox" },
+    structured_slices_h263p: { arg: "-structured_slices", labelKey: "advanced.video.structured_slices", type: "checkbox" },
+
+    // libxvid
+    lumi_aq_xvid: { arg: "-lumi_aq", labelKey: "advanced.video.lumi_aq", type: "checkbox" },
+    variance_aq_xvid: { arg: "-variance_aq", labelKey: "advanced.video.variance_aq", type: "checkbox" },
+    ssim_xvid: { arg: "-ssim", labelKey: "advanced.video.ssim", type: "select", options: widgetOptions.ssim_xvid },
+    ssim_acc_xvid: { arg: "-ssim_acc", labelKey: "advanced.video.ssim_acc", type: "input-int", options: [0, 4] },
+    gmc_xvid: { arg: "-gmc", labelKey: "advanced.video.gmc", type: "checkbox" },
+    me_quality_xvid: { arg: "-me_quality", labelKey: "advanced.video.me_quality", type: "input-int", options: [0, 6] },
+
+    // amv
+    mpv_flags_amv: { arg: "-mpv_flags", labelKey: "advanced.video.mpv_flags", type: "select", options: widgetOptions.mpv_flags_amv },
+
+    // libtheora
+    speed_level_theora: { arg: "-speed_level", labelKey: "advanced.video.speed_level", type: "input-int", options: [0, 2147483647] },
 
     // mjpeg
     huffman: { arg: "-huffman", labelKey: "advanced.video.huffman", type: "select", options: widgetOptions.huffman },
@@ -368,6 +446,13 @@ export const widgetDefinitions = {
     preset_av1: { arg: "-preset", labelKey: "advanced.video.preset", type: "input-int", options: [-2, 13] },
     qp_av1: { arg: "-qp", labelKey: "advanced.video.qp_av1", type: "input-int", options: [0, 63] },
     svtav1_params: { arg: "-svtav1-params", labelKey: "advanced.video.svtav1_params", type: "input-txt" },
+    // librav1e
+    qp_rav1e: { arg: "-qp", labelKey: "advanced.video.qp", type: "input-int", options: [0, 255] },
+    speed_rav1e: { arg: "-speed", labelKey: "advanced.video.speed", type: "input-int", options: [0, 10] },
+    tiles_rav1e: { arg: "-tiles", labelKey: "advanced.video.tiles_rav1e", type: "input-int", options: [0, 9223372036854775807] },
+    tile_rows_rav1e: { arg: "-tile-rows", labelKey: "advanced.video.tile_rows_rav1e", type: "input-int", options: [0, 9223372036854775807] },
+    tile_columns_rav1e: { arg: "-tile-columns", labelKey: "advanced.video.tile_columns_rav1e", type: "input-int", options: [0, 9223372036854775807] },
+    rav1e_params: { arg: "-rav1e-params", labelKey: "advanced.video.rav1e_params", type: "input-txt" },
 
     // vp8, vp9
     arnr_type: { arg: "-arnr-type", labelKey: "advanced.video.arnr_type", type: "select", options: widgetOptions.arnr_type },
@@ -395,19 +480,19 @@ export const widgetDefinitions = {
     enable_tpl: { arg: "-enable-tpl", labelKey: "advanced.video.enable_tpl", type: "checkbox" },
     min_gf_interval: { arg: "-min-gf-interval", labelKey: "advanced.video.min_gf_interval", type: "input-int", options: [0, 2147483647] },
 
-    // h264_nvenc
+    // h264_nvenc / hevc_nvenc / av1_nvenc
     preset_nvenc_h264: { arg: "-preset", labelKey: "advanced.video.preset", type: "select", options: widgetOptions.preset_nvenc_h264 },
     tune_nvenc: { arg: "-tune", labelKey: "advanced.video.tune", type: "select", options: widgetOptions.tune_nvenc },
     profile_h264_nvenc: { arg: "-profile:v", labelKey: "advanced.video.profile", type: "select", options: widgetOptions.profile_h264_nvenc },
     level_nvenc_h264: { arg: "-level", labelKey: "advanced.video.level", type: "select", options: widgetOptions.level_nvenc_h264 },
     rc_nvenc: { arg: "-rc", labelKey: "advanced.video.rc_mode", type: "select", options: widgetOptions.rc_nvenc },
-    qp_nvenc: { arg: "-qp", labelKey: "advanced.video.qp", type: "input-int", options: [-1, 51] },
+    qp_nvenc: { arg: "-qp", labelKey: "advanced.video.qp", type: "input-int", options: [0, 51] },
     cq_nvenc: { arg: "-cq", labelKey: "advanced.video.cq", type: "input-flt", options: [0, 51] },
-    qmin_nvenc: { arg: "-qmin", labelKey: "advanced.video.qmin", type: "input-int", options: [-1, 51] },
-    qmax_nvenc: { arg: "-qmax", labelKey: "advanced.video.qmax", type: "input-int", options: [-1, 51] },
-    init_qpI: { arg: "-init_qpI", labelKey: "advanced.video.init_qpI", type: "input-int", options: [-1, 51] },
-    init_qpP: { arg: "-init_qpP", labelKey: "advanced.video.init_qpP", type: "input-int", options: [-1, 51] },
-    init_qpB: { arg: "-init_qpB", labelKey: "advanced.video.init_qpB", type: "input-int", options: [-1, 51] },
+    qmin_nvenc: { arg: "-qmin", labelKey: "advanced.video.qmin", type: "input-int", options: [0, 51] },
+    qmax_nvenc: { arg: "-qmax", labelKey: "advanced.video.qmax", type: "input-int", options: [0, 51] },
+    init_qpI: { arg: "-init_qpI", labelKey: "advanced.video.init_qpI", type: "input-int", options: [0, 51] },
+    init_qpP: { arg: "-init_qpP", labelKey: "advanced.video.init_qpP", type: "input-int", options: [0, 51] },
+    init_qpB: { arg: "-init_qpB", labelKey: "advanced.video.init_qpB", type: "input-int", options: [0, 51] },
     qp_cb_offset: { arg: "-qp_cb_offset", labelKey: "advanced.video.qp_cb_offset", type: "input-int", options: [-12, 12] },
     qp_cr_offset: { arg: "-qp_cr_offset", labelKey: "advanced.video.qp_cr_offset", type: "input-int", options: [-12, 12] },
     multipass_nvenc: { arg: "-multipass", labelKey: "advanced.video.multipass", type: "select", options: widgetOptions.multipass_nvenc },
@@ -421,7 +506,7 @@ export const widgetDefinitions = {
     aq_strength_nvenc: { arg: "-aq-strength", labelKey: "advanced.video.aq_strength_nvenc", type: "input-int", options: [1, 15] },
     b_ref_mode_nvenc: { arg: "-b_ref_mode", labelKey: "advanced.video.b_ref_mode", type: "select", options: widgetOptions.b_ref_mode_nvenc },
     coder_nvenc: { arg: "-coder", labelKey: "advanced.video.coder", type: "select", options: widgetOptions.coder_nvenc },
-    weighted_pred: { arg: "-weighted_pred", labelKey: "advanced.video.weighted_pred", type: "input-int", options: [0, 1] },
+    weighted_pred: { arg: "-weighted_pred", labelKey: "advanced.video.weighted_pred", type: "checkbox" },
     zerolatency: { arg: "-zerolatency", labelKey: "advanced.video.zerolatency", type: "checkbox" },
     nonref_p: { arg: "-nonref_p", labelKey: "advanced.video.nonref_p", type: "checkbox" },
     strict_gop_nvenc: { arg: "-strict_gop", labelKey: "advanced.video.strict_gop", type: "checkbox" },
@@ -440,6 +525,168 @@ export const widgetDefinitions = {
     extra_sei: { arg: "-extra_sei", labelKey: "advanced.video.extra_sei", type: "checkbox" },
     s12m_tc: { arg: "-s12m_tc", labelKey: "advanced.video.s12m_tc", type: "checkbox" },
     ldkfs: { arg: "-ldkfs", labelKey: "advanced.video.ldkfs", type: "input-int", options: [0, 255] },
+    // hevc_nvenc specific
+    profile_h265_nvenc: { arg: "-profile:v", labelKey: "advanced.video.profile", type: "select", options: widgetOptions.profile_h265_nvenc },
+    level_nvenc_h265: { arg: "-level", labelKey: "advanced.video.level", type: "select", options: widgetOptions.level_nvenc_h265 },
+    tier_nvenc: { arg: "-tier", labelKey: "advanced.video.tier", type: "select", options: widgetOptions.tier_nvenc },
+    tune_nvenc_h265: { arg: "-tune", labelKey: "advanced.video.tune", type: "select", options: widgetOptions.tune_nvenc_h265 },
+    unidir_b_nvenc: { arg: "-unidir_b", labelKey: "advanced.video.unidir_b", type: "checkbox" },
+    split_encode_mode_nvenc: { arg: "-split_encode_mode", labelKey: "advanced.video.split_encode_mode", type: "select", options: widgetOptions.split_encode_mode_nvenc },
+    // av1_nvenc specific
+    preset_nvenc_av1: { arg: "-preset", labelKey: "advanced.video.preset", type: "select", options: widgetOptions.preset_nvenc_av1 },
+    level_nvenc_av1: { arg: "-level", labelKey: "advanced.video.level", type: "select", options: widgetOptions.level_nvenc_av1 },
+    tier_nvenc_av1: { arg: "-tier", labelKey: "advanced.video.tier", type: "select", options: widgetOptions.tier_nvenc_av1 },
+    rc_nvenc_av1: { arg: "-rc", labelKey: "advanced.video.rc_mode", type: "select", options: widgetOptions.rc_nvenc_av1 },
+    qp_av1_nvenc: { arg: "-qp", labelKey: "advanced.video.qp", type: "input-int", options: [0, 255] },
+    cq_av1_nvenc: { arg: "-cq", labelKey: "advanced.video.cq", type: "input-flt", options: [0, 63] },
+    qmin_av1_nvenc: { arg: "-qmin", labelKey: "advanced.video.qmin", type: "input-int", options: [0, 255] },
+    qmax_av1_nvenc: { arg: "-qmax", labelKey: "advanced.video.qmax", type: "input-int", options: [0, 255] },
+    init_qpI_av1_nvenc: { arg: "-init_qpI", labelKey: "advanced.video.init_qpI", type: "input-int", options: [0, 255] },
+    init_qpP_av1_nvenc: { arg: "-init_qpP", labelKey: "advanced.video.init_qpP", type: "input-int", options: [0, 255] },
+    init_qpB_av1_nvenc: { arg: "-init_qpB", labelKey: "advanced.video.init_qpB", type: "input-int", options: [0, 255] },
+    tile_rows_av1_nvenc: { arg: "-tile-rows", labelKey: "advanced.video.tile_rows_av1_nvenc", type: "input-int", options: [0, 64] },
+    tile_columns_av1_nvenc: { arg: "-tile-columns", labelKey: "advanced.video.tile_columns_av1_nvenc", type: "input-int", options: [0, 64] },
+    timing_info_av1_nvenc: { arg: "-timing-info", labelKey: "advanced.video.timing_info", type: "checkbox" },
+
+    // h264_amf / hevc_amf / av1_amf
+    usage_amf: { arg: "-usage", labelKey: "advanced.video.usage_amf", type: "select", options: widgetOptions.usage_amf },
+    profile_h264_amf: { arg: "-profile", labelKey: "advanced.video.profile", type: "select", options: widgetOptions.profile_h264_amf },
+    level_amf_h264: { arg: "-level", labelKey: "advanced.video.level_nvenc", type: "select", options: widgetOptions.level_amf_h264 },
+    latency_amf: { arg: "-latency", labelKey: "advanced.video.latency_amf", type: "checkbox" },
+    preset_amf: { arg: "-preset", labelKey: "advanced.video.preset_amf", type: "select", options: widgetOptions.preset_amf },
+    rc_amf: { arg: "-rc", labelKey: "advanced.video.rc_mode", type: "select", options: widgetOptions.rc_amf },
+    qvbr_quality_level_amf: { arg: "-qvbr_quality_level", labelKey: "advanced.video.qvbr_quality_level", type: "input-int", options: [0, 51] },
+    qp_i_amf: { arg: "-qp_i", labelKey: "advanced.video.qp_i", type: "input-int", options: [0, 51] },
+    qp_p_amf: { arg: "-qp_p", labelKey: "advanced.video.qp_p", type: "input-int", options: [0, 51] },
+    qp_b_amf: { arg: "-qp_b", labelKey: "advanced.video.qp_b", type: "input-int", options: [0, 51] },
+    enforce_hrd_amf: { arg: "-enforce_hrd", labelKey: "advanced.video.enforce_hrd", type: "checkbox" },
+    filler_data_amf: { arg: "-filler_data", labelKey: "advanced.video.filler_data", type: "checkbox" },
+    vbaq_amf: { arg: "-vbaq", labelKey: "advanced.video.vbaq", type: "checkbox" },
+    frame_skipping_amf: { arg: "-frame_skipping", labelKey: "advanced.video.frame_skipping", type: "checkbox" },
+    preencode_amf: { arg: "-preencode", labelKey: "advanced.video.preencode", type: "checkbox" },
+    max_au_size_amf: { arg: "-max_au_size", labelKey: "advanced.video.max_au_size", type: "input-int", options: [0, 2147483647] },
+    header_spacing_amf: { arg: "-header_spacing", labelKey: "advanced.video.header_spacing", type: "input-int", options: [0, 1000] },
+    async_depth_amf: { arg: "-async_depth", labelKey: "advanced.video.async_depth", type: "input-int", options: [1, 16] },
+    bf_delta_qp_amf: { arg: "-bf_delta_qp", labelKey: "advanced.video.bf_delta_qp", type: "input-int", options: [-10, 10] },
+    bf_ref_amf: { arg: "-bf_ref", labelKey: "advanced.video.bf_ref", type: "checkbox" },
+    bf_ref_delta_qp_amf: { arg: "-bf_ref_delta_qp", labelKey: "advanced.video.bf_ref_delta_qp", type: "input-int", options: [-10, 10] },
+    max_b_frames_amf: { arg: "-max_b_frames", labelKey: "advanced.video.max_b_frames", type: "input-int", options: [0, 3] },
+    bf_amf: { arg: "-bf", labelKey: "advanced.video.bf_amf", type: "input-int", options: [0, 3] },
+    intra_refresh_mb_amf: { arg: "-intra_refresh_mb", labelKey: "advanced.video.intra_refresh_mb", type: "input-int", options: [0, 2147483647] },
+    coder_amf: { arg: "-coder", labelKey: "advanced.video.coder_amf", type: "select", options: widgetOptions.coder_amf },
+    hmqb_amf: { arg: "-high_motion_quality_boost_enable", labelKey: "advanced.video.hmqb", type: "checkbox" },
+    me_half_pel_amf: { arg: "-me_half_pel", labelKey: "advanced.video.me_half_pel", type: "checkbox" },
+    me_quarter_pel_amf: { arg: "-me_quarter_pel", labelKey: "advanced.video.me_quarter_pel", type: "checkbox" },
+    smart_access_video_amf: { arg: "-smart_access_video", labelKey: "advanced.video.smart_access_video", type: "checkbox" },
+    preanalysis_amf: { arg: "-preanalysis", labelKey: "advanced.video.preanalysis", type: "checkbox" },
+    pa_activity_type_amf: { arg: "-pa_activity_type", labelKey: "advanced.video.pa_activity_type", type: "select", options: widgetOptions.pa_activity_type_amf },
+    pa_scene_change_detection_amf: { arg: "-pa_scene_change_detection_enable", labelKey: "advanced.video.pa_scene_change_detection", type: "checkbox" },
+    pa_scene_change_sensitivity_amf: { arg: "-pa_scene_change_detection_sensitivity", labelKey: "advanced.video.pa_scene_change_sensitivity", type: "select", options: widgetOptions.pa_sensitivity_amf },
+    pa_static_scene_detection_amf: { arg: "-pa_static_scene_detection_enable", labelKey: "advanced.video.pa_static_scene_detection", type: "checkbox" },
+    pa_static_scene_sensitivity_amf: { arg: "-pa_static_scene_detection_sensitivity", labelKey: "advanced.video.pa_static_scene_sensitivity", type: "select", options: widgetOptions.pa_sensitivity_amf },
+    pa_initial_qp_scene_change_amf: { arg: "-pa_initial_qp_after_scene_change", labelKey: "advanced.video.pa_initial_qp_scene_change", type: "input-int", options: [0, 51] },
+    pa_max_qp_force_skip_amf: { arg: "-pa_max_qp_before_force_skip", labelKey: "advanced.video.pa_max_qp_force_skip", type: "input-int", options: [0, 51] },
+    pa_caq_strength_amf: { arg: "-pa_caq_strength", labelKey: "advanced.video.pa_caq_strength", type: "select", options: widgetOptions.pa_sensitivity_amf },
+    pa_frame_sad_amf: { arg: "-pa_frame_sad_enable", labelKey: "advanced.video.pa_frame_sad", type: "checkbox" },
+    pa_ltr_amf: { arg: "-pa_ltr_enable", labelKey: "advanced.video.pa_ltr", type: "checkbox" },
+    pa_lookahead_depth_amf: { arg: "-pa_lookahead_buffer_depth", labelKey: "advanced.video.pa_lookahead_depth", type: "input-int", options: [0, 41] },
+    pa_paq_mode_amf: { arg: "-pa_paq_mode", labelKey: "advanced.video.pa_paq_mode", type: "select", options: widgetOptions.pa_paq_mode_amf },
+    pa_taq_mode_amf: { arg: "-pa_taq_mode", labelKey: "advanced.video.pa_taq_mode", type: "select", options: widgetOptions.pa_taq_mode_amf },
+    pa_hmqb_mode_amf: { arg: "-pa_high_motion_quality_boost_mode", labelKey: "advanced.video.pa_hmqb_mode", type: "select", options: widgetOptions.pa_hmqb_mode_amf },
+    pa_adaptive_mini_gop_amf: { arg: "-pa_adaptive_mini_gop", labelKey: "advanced.video.pa_adaptive_mini_gop", type: "checkbox" },
+    // hevc_amf / av1_amf
+    bitdepth_amf: { arg: "-bitdepth", labelKey: "advanced.video.bitdepth", type: "select", options: widgetOptions.bitdepth_amf },
+    // hevc_amf specific
+    profile_h265_amf: { arg: "-profile", labelKey: "advanced.video.profile", type: "select", options: widgetOptions.profile_h265_amf },
+    profile_tier_amf: { arg: "-profile_tier", labelKey: "advanced.video.tier", type: "select", options: widgetOptions.tier_amf },
+    level_amf_h265: { arg: "-level", labelKey: "advanced.video.level", type: "select", options: widgetOptions.level_amf_h265 },
+    header_insertion_mode_amf: { arg: "-header_insertion_mode", labelKey: "advanced.video.header_insertion_mode", type: "select", options: widgetOptions.header_insertion_mode_amf },
+    gops_per_idr_amf: { arg: "-gops_per_idr", labelKey: "advanced.video.gops_per_idr", type: "input-int", options: [0, 2147483647] },
+    skip_frame_amf: { arg: "-skip_frame", labelKey: "advanced.video.frame_skipping", type: "checkbox" },
+    min_qp_i_amf: { arg: "-min_qp_i", labelKey: "advanced.video.min_qp_i", type: "input-int", options: [0, 51] },
+    max_qp_i_amf: { arg: "-max_qp_i", labelKey: "advanced.video.max_qp_i", type: "input-int", options: [0, 51] },
+    min_qp_p_amf: { arg: "-min_qp_p", labelKey: "advanced.video.min_qp_p", type: "input-int", options: [0, 51] },
+    max_qp_p_amf: { arg: "-max_qp_p", labelKey: "advanced.video.max_qp_p", type: "input-int", options: [0, 51] },
+    // av1_amf specific
+    profile_av1_amf: { arg: "-profile", labelKey: "advanced.video.profile", type: "select", options: widgetOptions.profile_av1_amf },
+    level_amf_av1: { arg: "-level", labelKey: "advanced.video.level", type: "select", options: widgetOptions.level_amf_av1 },
+    preset_av1_amf: { arg: "-preset", labelKey: "advanced.video.preset_amf", type: "select", options: widgetOptions.preset_av1_amf },
+    latency_av1_amf: { arg: "-latency", labelKey: "advanced.video.latency_mode", type: "select", options: widgetOptions.latency_av1_amf },
+    qvbr_quality_level_av1_amf: { arg: "-qvbr_quality_level", labelKey: "advanced.video.qvbr_quality_level", type: "input-int", options: [0, 51] },
+    header_insertion_mode_av1_amf: { arg: "-header_insertion_mode", labelKey: "advanced.video.header_insertion_mode", type: "select", options: widgetOptions.header_insertion_mode_av1_amf },
+    max_b_frames_av1_amf: { arg: "-max_b_frames", labelKey: "advanced.video.max_b_frames", type: "input-int", options: [0, 3] },
+    bf_av1_amf: { arg: "-bf", labelKey: "advanced.video.bf_amf", type: "input-int", options: [0, 3] },
+    min_qp_i_av1_amf: { arg: "-min_qp_i", labelKey: "advanced.video.min_qp_i", type: "input-int", options: [0, 255] },
+    max_qp_i_av1_amf: { arg: "-max_qp_i", labelKey: "advanced.video.max_qp_i", type: "input-int", options: [0, 255] },
+    min_qp_p_av1_amf: { arg: "-min_qp_p", labelKey: "advanced.video.min_qp_p", type: "input-int", options: [0, 255] },
+    max_qp_p_av1_amf: { arg: "-max_qp_p", labelKey: "advanced.video.max_qp_p", type: "input-int", options: [0, 255] },
+    min_qp_b_av1_amf: { arg: "-min_qp_b", labelKey: "advanced.video.min_qp_b", type: "input-int", options: [0, 255] },
+    max_qp_b_av1_amf: { arg: "-max_qp_b", labelKey: "advanced.video.max_qp_b", type: "input-int", options: [0, 255] },
+    qp_i_av1_amf: { arg: "-qp_i", labelKey: "advanced.video.qp_i", type: "input-int", options: [0, 255] },
+    qp_p_av1_amf: { arg: "-qp_p", labelKey: "advanced.video.qp_p", type: "input-int", options: [0, 255] },
+    qp_b_av1_amf: { arg: "-qp_b", labelKey: "advanced.video.qp_b", type: "input-int", options: [0, 255] },
+    aq_mode_av1_amf: { arg: "-aq_mode", labelKey: "advanced.video.aq_mode", type: "select", options: widgetOptions.aq_mode_amf },
+    align_av1_amf: { arg: "-align", labelKey: "advanced.video.alignment_mode", type: "select", options: widgetOptions.align_av1_amf },
+    pa_initial_qp_scene_change_av1_amf: { arg: "-pa_initial_qp_after_scene_change", labelKey: "advanced.video.pa_initial_qp_scene_change", type: "input-int", options: [0, 51] },
+    pa_max_qp_force_skip_av1_amf: { arg: "-pa_max_qp_before_force_skip", labelKey: "advanced.video.pa_max_qp_force_skip", type: "input-int", options: [0, 51] },
+    pa_lookahead_depth_av1_amf: { arg: "-pa_lookahead_buffer_depth", labelKey: "advanced.video.pa_lookahead_depth", type: "input-int", options: [0, 41] },
+
+    // h264_qsv / hevc_qsv
+    async_depth_qsv: { arg: "-async_depth", labelKey: "advanced.video.async_depth", type: "input-int", options: [1, 2147483647] },
+    preset_qsv: { arg: "-preset", labelKey: "advanced.video.preset", type: "select", options: widgetOptions.preset_qsv },
+    profile_h264_qsv: { arg: "-profile", labelKey: "advanced.video.profile", type: "select", options: widgetOptions.profile_h264_qsv },
+    low_power_qsv: { arg: "-low_power", labelKey: "advanced.video.low_power", type: "checkbox" },
+    qsv_params: { arg: "-qsv_params", labelKey: "advanced.video.qsv_params", type: "input-txt" },
+    rdo_qsv: { arg: "-rdo", labelKey: "advanced.video.rdo", type: "checkbox" },
+    max_frame_size_qsv: { arg: "-max_frame_size", labelKey: "advanced.video.max_frame_size", type: "input-int", options: [0, 2147483647] },
+    max_frame_size_i_qsv: { arg: "-max_frame_size_i", labelKey: "advanced.video.max_frame_size_i", type: "input-int", options: [0, 2147483647] },
+    max_frame_size_p_qsv: { arg: "-max_frame_size_p", labelKey: "advanced.video.max_frame_size_p", type: "input-int", options: [0, 2147483647] },
+    max_slice_size_qsv: { arg: "-max_slice_size", labelKey: "advanced.video.max_slice_size", type: "input-int", options: [0, 2147483647] },
+    bitrate_limit_qsv: { arg: "-bitrate_limit", labelKey: "advanced.video.bitrate_limit", type: "checkbox" },
+    mbbrc_qsv: { arg: "-mbbrc", labelKey: "advanced.video.mbbrc", type: "checkbox" },
+    extbrc_qsv: { arg: "-extbrc", labelKey: "advanced.video.extbrc", type: "checkbox" },
+    adaptive_i_qsv: { arg: "-adaptive_i", labelKey: "advanced.video.adaptive_i", type: "checkbox" },
+    adaptive_b_qsv: { arg: "-adaptive_b", labelKey: "advanced.video.adaptive_b", type: "checkbox" },
+    p_strategy_qsv: { arg: "-p_strategy", labelKey: "advanced.video.p_strategy", type: "input-int", options: [0, 2] },
+    b_strategy_qsv: { arg: "-b_strategy", labelKey: "advanced.video.b_strategy_qsv", type: "checkbox" },
+    dblk_idc_qsv: { arg: "-dblk_idc", labelKey: "advanced.video.dblk_idc", type: "input-int", options: [0, 2] },
+    low_delay_brc_qsv: { arg: "-low_delay_brc", labelKey: "advanced.video.low_delay_brc", type: "checkbox" },
+    max_qp_i_qsv: { arg: "-max_qp_i", labelKey: "advanced.video.max_qp_i", type: "input-int", options: [0, 51] },
+    min_qp_i_qsv: { arg: "-min_qp_i", labelKey: "advanced.video.min_qp_i", type: "input-int", options: [0, 51] },
+    max_qp_p_qsv: { arg: "-max_qp_p", labelKey: "advanced.video.max_qp_p", type: "input-int", options: [0, 51] },
+    min_qp_p_qsv: { arg: "-min_qp_p", labelKey: "advanced.video.min_qp_p", type: "input-int", options: [0, 51] },
+    max_qp_b_qsv: { arg: "-max_qp_b", labelKey: "advanced.video.max_qp_b", type: "input-int", options: [0, 51] },
+    min_qp_b_qsv: { arg: "-min_qp_b", labelKey: "advanced.video.min_qp_b", type: "input-int", options: [0, 51] },
+    scenario_qsv: { arg: "-scenario", labelKey: "advanced.video.scenario", type: "select", options: widgetOptions.scenario_qsv },
+    avbr_accuracy_qsv: { arg: "-avbr_accuracy", labelKey: "advanced.video.avbr_accuracy", type: "input-int", options: [0, 65535] },
+    avbr_convergence_qsv: { arg: "-avbr_convergence", labelKey: "advanced.video.avbr_convergence", type: "input-int", options: [0, 65535] },
+    skip_frame_qsv: { arg: "-skip_frame", labelKey: "advanced.video.skip_frame", type: "select", options: widgetOptions.skip_frame_qsv },
+    dual_gfx_qsv: { arg: "-dual_gfx", labelKey: "advanced.video.dual_gfx", type: "select", options: widgetOptions.dual_gfx_qsv },
+    cavlc_qsv: { arg: "-cavlc", labelKey: "advanced.video.cavlc", type: "checkbox" },
+    vcm_qsv: { arg: "-vcm", labelKey: "advanced.video.vcm", type: "checkbox" },
+    idr_interval_qsv: { arg: "-idr_interval", labelKey: "advanced.video.idr_interval", type: "input-int", options: [0, 2147483647] },
+    idr_interval_hevc_qsv: { arg: "-idr_interval", labelKey: "advanced.video.idr_interval", type: "input-int", options: [-1, 2147483647] },
+    pic_timing_sei_qsv: { arg: "-pic_timing_sei", labelKey: "advanced.video.pic_timing_sei", type: "checkbox" },
+    single_sei_nal_unit_qsv: { arg: "-single_sei_nal_unit", labelKey: "advanced.video.single_sei_nal_unit", type: "checkbox" },
+    max_dec_frame_buffering_qsv: { arg: "-max_dec_frame_buffering", labelKey: "advanced.video.max_dec_frame_buffering", type: "input-int", options: [0, 65535] },
+    look_ahead_qsv: { arg: "-look_ahead", labelKey: "advanced.video.look_ahead", type: "checkbox" },
+    look_ahead_depth_qsv: { arg: "-look_ahead_depth", labelKey: "advanced.video.look_ahead_depth", type: "input-int", options: [0, 100] },
+    look_ahead_downsampling_qsv: { arg: "-look_ahead_downsampling", labelKey: "advanced.video.look_ahead_downsampling", type: "select", options: widgetOptions.look_ahead_downsampling_qsv },
+    int_ref_type_qsv: { arg: "-int_ref_type", labelKey: "advanced.video.int_ref_type", type: "select", options: widgetOptions.int_ref_type_qsv },
+    int_ref_cycle_size_qsv: { arg: "-int_ref_cycle_size", labelKey: "advanced.video.int_ref_cycle_size", type: "input-int", options: [0, 65535] },
+    int_ref_qp_delta_qsv: { arg: "-int_ref_qp_delta", labelKey: "advanced.video.int_ref_qp_delta", type: "input-int", options: [-32768, 32767] },
+    recovery_point_sei_qsv: { arg: "-recovery_point_sei", labelKey: "advanced.video.recovery_point_sei", type: "checkbox" },
+    int_ref_cycle_dist_qsv: { arg: "-int_ref_cycle_dist", labelKey: "advanced.video.int_ref_cycle_dist", type: "input-int", options: [0, 32767] },
+    repeat_pps_qsv: { arg: "-repeat_pps", labelKey: "advanced.video.repeat_pps", type: "checkbox" },
+    // hevc_qsv specific
+    profile_h265_qsv: { arg: "-profile", labelKey: "advanced.video.profile", type: "select", options: widgetOptions.profile_h265_qsv },
+    tier_qsv: { arg: "-tier", labelKey: "advanced.video.tier", type: "select", options: widgetOptions.tier_qsv },
+    gpb_qsv: { arg: "-gpb", labelKey: "advanced.video.gpb", type: "checkbox" },
+    tile_cols_qsv: { arg: "-tile_cols", labelKey: "advanced.video.tile_cols_qsv", type: "input-int", options: [0, 65535] },
+    tile_rows_qsv: { arg: "-tile_rows", labelKey: "advanced.video.tile_rows_qsv", type: "input-int", options: [0, 65535] },
+    transform_skip_qsv: { arg: "-transform_skip", labelKey: "advanced.video.transform_skip", type: "checkbox" },
+    load_plugin_qsv: { arg: "-load_plugin", labelKey: "advanced.video.load_plugin", type: "select", options: widgetOptions.load_plugin_qsv },
+    load_plugins_qsv: { arg: "-load_plugins", labelKey: "advanced.video.load_plugins", type: "input-txt" },
 
     // ====== audio.general ======
     disable_audio: { arg: "-an", labelKey: "advanced.audio.disable_audio", type: "checkbox-novalue" },
@@ -449,6 +696,7 @@ export const widgetDefinitions = {
     audio_bitrate: { arg: "-b:a", labelKey: "advanced.audio.audio_bitrate", type: "select", options: widgetOptions.audio_bitrate },
     audio_channels: { arg: "-ac", labelKey: "advanced.audio.channels", type: "input-int", options: [-2147483648, 2147483647] },
     aframes: { arg: "-aframes", labelKey: "advanced.audio.aframes", type: "input-int", options: [-9223372036854775808, 9223372036854775808] },
+
     // ====== audio.codec_specific ======
     sample_rate: { arg: "-ar", labelKey: "advanced.audio.sample_rate", type: "select", options: 'dynamic' },
     sample_format: { arg: "-sample_fmt", labelKey: "advanced.audio.sample_format", type: "select", options: 'dynamic' },
@@ -471,7 +719,10 @@ export const widgetDefinitions = {
     sample_rate_adpcm_swf: { arg: "-ar", labelKey: "advanced.audio.sample_rate", type: "select", options: widgetOptions.sample_rate_adpcm_swf },
     block_size: { arg: "-block_size", labelKey: "advanced.audio.block_size", type: "input-int", options: [32, 8192] },
 
-    // gsm, adpcm_g726
+    // amr_wb
+    sample_rate_16000: { arg: "-ar", labelKey: "advanced.audio.sample_rate", type: "select", options: widgetOptions.sample_rate_16000 },
+
+    // gsm, amr_nb, adpcm_g726
     sample_rate_8000: { arg: "-ar", labelKey: "advanced.audio.sample_rate", type: "select", options: widgetOptions.sample_rate_8000 },
 
     // adpcm_g726
@@ -523,10 +774,10 @@ export const widgetDefinitions = {
     mixing_level: { arg: "-mixing_level", labelKey: "advanced.audio.mixing_level", type: "input-int", options: [0, 111] },
     room_type: { arg: "-room_type", labelKey: "advanced.audio.room_type", type: "select", options: widgetOptions.room_type },
     per_frame_metadata: { arg: "-per_frame_metadata", labelKey: "advanced.audio.per_frame_metadata", type: "checkbox" },
-    copyright_bit: { arg: "-copyright", labelKey: "advanced.audio.copyright_bit", type: "input-int", options: [0, 1] },
+    copyright_bit: { arg: "-copyright", labelKey: "advanced.audio.copyright_bit", type: "checkbox" },
     dialnorm: { arg: "-dialnorm", labelKey: "advanced.audio.dialnorm", type: "input-int", options: [-31, -1] },
     dsur_mode: { arg: "-dsur_mode", labelKey: "advanced.audio.dsur_mode", type: "select", options: widgetOptions.dsur_mode },
-    original_bit: { arg: "-original", labelKey: "advanced.audio.original_bit", type: "input-int", options: [0, 1] },
+    original_bit: { arg: "-original", labelKey: "advanced.audio.original_bit", type: "checkbox" },
     dmix_mode: { arg: "-dmix_mode", labelKey: "advanced.audio.dmix_mode", type: "select", options: widgetOptions.dmix_mode },
     ltrt_cmixlev: { arg: "-ltrt_cmixlev", labelKey: "advanced.audio.ltrt_cmixlev", type: "input-flt", options: [0, 2] },
     ltrt_surmixlev: { arg: "-ltrt_surmixlev", labelKey: "advanced.audio.ltrt_surmixlev", type: "input-flt", options: [0, 2] },
@@ -536,6 +787,8 @@ export const widgetDefinitions = {
     dheadphone_mode: { arg: "-dheadphone_mode", labelKey: "advanced.audio.dheadphone_mode", type: "select", options: widgetOptions.dheadphone_mode },
     ad_conv_type: { arg: "-ad_conv_type", labelKey: "advanced.audio.ad_conv_type", type: "select", options: widgetOptions.ad_conv_type },
     stereo_rematrixing: { arg: "-stereo_rematrixing", labelKey: "advanced.audio.stereo_rematrixing", type: "checkbox" },
+    channel_coupling: { arg: "-channel_coupling", labelKey: "advanced.audio.channel_coupling", type: "checkbox" },
+    cpl_start_band: { arg: "-cpl_start_band", labelKey: "advanced.audio.cpl_start_band", type: "input-int", options: [0, 15] },
 
     // truehd
     max_interval: { arg: "-max_interval", labelKey: "advanced.audio.max_interval", type: "input-int", options: [8, 128] },
@@ -746,22 +999,22 @@ export const widgetDefinitions = {
 const VC = {
     libx264: { label: 'H.264 (libx264)', value: 'libx264', widgets: ['framerate', 'pixel_format', 'preset', 'tune_h264', 'profile_h264', 'fastfirstpass', 'codec_level', 'wpredp', 'a53cc', 'x264opts', 'crf_63', 'crf_max', 'qp', 'aq_mode_h264', 'aq_strength', 'psy', 'psy_rd', 'rc_lookahead_frametype', 'weightb', 'weightp', 'ssim', 'intra_refresh', 'bluray_compat', 'b_bias', 'b_pyramid', 'mixed_refs', '8x8dct', 'fast_pskip', 'aud', 'mbtree', 'deblock', 'cplxblur', 'partitions', 'direct_pred', 'slice_max_size', 'nal_hrd_mp4', 'avcintra_class', 'motion_est_h264', 'forced_idr', 'coder', 'b_strategy', 'chromaoffset', 'sc_threshold', 'noise_reduction', 'udu_sei', 'x264_params', 'mb_info'] },
     h264Nvenc: { label: 'H.264 (NVENC)', value: 'h264_nvenc', widgets: ['framerate', 'pixel_format', 'preset_nvenc_h264', 'tune_nvenc', 'profile_h264_nvenc', 'level_nvenc_h264', 'rc_nvenc', 'qp_nvenc', 'cq_nvenc', 'qmin_nvenc', 'qmax_nvenc', 'init_qpI', 'init_qpP', 'init_qpB', 'qp_cb_offset', 'qp_cr_offset', 'multipass_nvenc', 'nvenc_2pass', 'highbitdepth', 'rc_lookahead_nvenc', 'lookahead_level_nvenc', 'no_scenecut', 'b_adapt', 'spatial_aq', 'temporal_aq', 'aq_strength_nvenc', 'b_ref_mode_nvenc', 'coder_nvenc', 'weighted_pred', 'zerolatency', 'nonref_p', 'strict_gop_nvenc', 'cbr', 'cbr_padding', 'constrained_encoding', 'forced_idr', 'intra_refresh', 'single_slice_intra_refresh', 'max_slice_size_nvenc', 'surfaces', 'gpu', 'delay_nvenc', 'dpb_size', 'rgb_mode_nvenc', 'tf_level_nvenc', 'extra_sei', 's12m_tc', 'ldkfs', 'aud', 'a53cc', 'udu_sei', 'bluray_compat'] },
-    h264Amf: { label: 'H.264 (AMF)', value: 'h264_amf', widgets: [] },
-    h264Qsv: { label: 'H.264 (QSV)', value: 'h264_qsv', widgets: [] },
+    h264Amf: { label: 'H.264 (AMF)', value: 'h264_amf', widgets: ['framerate', 'pixel_format', 'usage_amf', 'profile_h264_amf', 'level_amf_h264', 'latency_amf', 'preset_amf', 'rc_amf', 'qvbr_quality_level_amf', 'qp_i_amf', 'qp_p_amf', 'qp_b_amf', 'enforce_hrd_amf', 'filler_data_amf', 'vbaq_amf', 'frame_skipping_amf', 'preencode_amf', 'max_au_size_amf', 'header_spacing_amf', 'async_depth_amf', 'bf_delta_qp_amf', 'bf_ref_amf', 'bf_ref_delta_qp_amf', 'max_b_frames_amf', 'bf_amf', 'intra_refresh_mb_amf', 'coder_amf', 'hmqb_amf', 'me_half_pel_amf', 'me_quarter_pel_amf', 'forced_idr', 'aud', 'smart_access_video_amf', 'preanalysis_amf', 'pa_activity_type_amf', 'pa_scene_change_detection_amf', 'pa_scene_change_sensitivity_amf', 'pa_static_scene_detection_amf', 'pa_static_scene_sensitivity_amf', 'pa_initial_qp_scene_change_amf', 'pa_max_qp_force_skip_amf', 'pa_caq_strength_amf', 'pa_frame_sad_amf', 'pa_ltr_amf', 'pa_lookahead_depth_amf', 'pa_paq_mode_amf', 'pa_taq_mode_amf', 'pa_hmqb_mode_amf', 'pa_adaptive_mini_gop_amf'] },
+    h264Qsv: { label: 'H.264 (QSV)', value: 'h264_qsv', widgets: ['framerate', 'pixel_format', 'profile_h264_qsv', 'preset_qsv', 'scenario_qsv', 'low_power_qsv', 'async_depth_qsv', 'rdo_qsv', 'bitrate_limit_qsv', 'mbbrc_qsv', 'extbrc_qsv', 'low_delay_brc_qsv', 'max_frame_size_qsv', 'max_frame_size_i_qsv', 'max_frame_size_p_qsv', 'max_slice_size_qsv', 'max_qp_i_qsv', 'min_qp_i_qsv', 'max_qp_p_qsv', 'min_qp_p_qsv', 'max_qp_b_qsv', 'min_qp_b_qsv', 'avbr_accuracy_qsv', 'avbr_convergence_qsv', 'adaptive_i_qsv', 'adaptive_b_qsv', 'p_strategy_qsv', 'b_strategy_qsv', 'dblk_idc_qsv', 'skip_frame_qsv', 'look_ahead_qsv', 'look_ahead_depth_qsv', 'look_ahead_downsampling_qsv', 'int_ref_type_qsv', 'int_ref_cycle_size_qsv', 'int_ref_qp_delta_qsv', 'int_ref_cycle_dist_qsv', 'recovery_point_sei_qsv', 'cavlc_qsv', 'vcm_qsv', 'dual_gfx_qsv', 'idr_interval_qsv', 'pic_timing_sei_qsv', 'single_sei_nal_unit_qsv', 'max_dec_frame_buffering_qsv', 'repeat_pps_qsv', 'qsv_params', 'forced_idr', 'aud', 'a53cc'] },
     libx265: { label: 'H.265 (libx265)', value: 'libx265', widgets: ['framerate', 'pixel_format', 'crf_51', 'qp', 'forced_idr', 'preset', 'tune_h265', 'profile_h265', 'udu_sei', 'a53cc', 'x265_params', 'dolbyvision'] },
-    hevcNvenc: { label: 'H.265 (NVENC)', value: 'hevc_nvenc', widgets: [] },
-    hevcAmf: { label: 'H.265 (AMF)', value: 'hevc_amf', widgets: [] },
-    hevcQsv: { label: 'H.265 (QSV)', value: 'hevc_qsv', widgets: [] },
+    hevcNvenc: { label: 'H.265 (NVENC)', value: 'hevc_nvenc', widgets: ['framerate', 'pixel_format', 'preset_nvenc_h264', 'tune_nvenc_h265', 'profile_h265_nvenc', 'level_nvenc_h265', 'tier_nvenc', 'rc_nvenc', 'qp_nvenc', 'cq_nvenc', 'qmin_nvenc', 'qmax_nvenc', 'init_qpI', 'init_qpP', 'init_qpB', 'qp_cb_offset', 'qp_cr_offset', 'multipass_nvenc', 'nvenc_2pass', 'highbitdepth', 'rc_lookahead_nvenc', 'lookahead_level_nvenc', 'no_scenecut', 'spatial_aq', 'temporal_aq', 'aq_strength_nvenc', 'b_ref_mode_nvenc', 'weighted_pred', 'unidir_b_nvenc', 'zerolatency', 'nonref_p', 'strict_gop_nvenc', 'cbr', 'cbr_padding', 'constrained_encoding', 'forced_idr', 'intra_refresh', 'single_slice_intra_refresh', 'max_slice_size_nvenc', 'surfaces', 'gpu', 'delay_nvenc', 'dpb_size', 'rgb_mode_nvenc', 'tf_level_nvenc', 'split_encode_mode_nvenc', 'extra_sei', 's12m_tc', 'ldkfs', 'aud', 'a53cc', 'udu_sei', 'bluray_compat'] },
+    hevcAmf: { label: 'H.265 (AMF)', value: 'hevc_amf', widgets: ['framerate', 'pixel_format', 'usage_amf', 'bitdepth_amf', 'profile_h265_amf', 'profile_tier_amf', 'level_amf_h265', 'latency_amf', 'preset_amf', 'rc_amf', 'qvbr_quality_level_amf', 'qp_i_amf', 'qp_p_amf', 'min_qp_i_amf', 'max_qp_i_amf', 'min_qp_p_amf', 'max_qp_p_amf', 'enforce_hrd_amf', 'filler_data_amf', 'vbaq_amf', 'skip_frame_amf', 'preencode_amf', 'max_au_size_amf', 'header_insertion_mode_amf', 'gops_per_idr_amf', 'async_depth_amf', 'hmqb_amf', 'me_half_pel_amf', 'me_quarter_pel_amf', 'forced_idr', 'aud', 'smart_access_video_amf', 'preanalysis_amf', 'pa_activity_type_amf', 'pa_scene_change_detection_amf', 'pa_scene_change_sensitivity_amf', 'pa_static_scene_detection_amf', 'pa_static_scene_sensitivity_amf', 'pa_initial_qp_scene_change_amf', 'pa_max_qp_force_skip_amf', 'pa_caq_strength_amf', 'pa_frame_sad_amf', 'pa_ltr_amf', 'pa_lookahead_depth_amf', 'pa_paq_mode_amf', 'pa_taq_mode_amf', 'pa_hmqb_mode_amf', 'pa_adaptive_mini_gop_amf'] },
+    hevcQsv: { label: 'H.265 (QSV)', value: 'hevc_qsv', widgets: ['framerate', 'pixel_format', 'profile_h265_qsv', 'tier_qsv', 'preset_qsv', 'scenario_qsv', 'low_power_qsv', 'async_depth_qsv', 'gpb_qsv', 'rdo_qsv', 'mbbrc_qsv', 'extbrc_qsv', 'low_delay_brc_qsv', 'max_frame_size_qsv', 'max_frame_size_i_qsv', 'max_frame_size_p_qsv', 'max_slice_size_qsv', 'max_qp_i_qsv', 'min_qp_i_qsv', 'max_qp_p_qsv', 'min_qp_p_qsv', 'max_qp_b_qsv', 'min_qp_b_qsv', 'avbr_accuracy_qsv', 'avbr_convergence_qsv', 'adaptive_i_qsv', 'adaptive_b_qsv', 'b_strategy_qsv', 'dblk_idc_qsv', 'skip_frame_qsv', 'dual_gfx_qsv', 'tile_cols_qsv', 'tile_rows_qsv', 'int_ref_type_qsv', 'int_ref_cycle_size_qsv', 'int_ref_qp_delta_qsv', 'int_ref_cycle_dist_qsv', 'recovery_point_sei_qsv', 'transform_skip_qsv', 'load_plugin_qsv', 'load_plugins_qsv', 'idr_interval_hevc_qsv', 'look_ahead_depth_qsv', 'pic_timing_sei_qsv', 'qsv_params', 'forced_idr', 'aud'] },
     libaomAv1: { label: 'AV1 (libaom)', value: 'libaom-av1', widgets: ['framerate', 'pixel_format', 'cpu_used_av1', 'auto_alt_ref', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'aq_mode_av1', 'crf_63', 'static_thresh', 'drop_threshold', 'denoise_noise_level', 'denoise_block_size', 'undershoot_pct', 'overshoot_pct', 'minsection_pct', 'maxsection_pct', 'frame_parallel', 'tiles', 'tile_columns', 'tile_rows', 'row_mt', 'enable_cdef', 'enable_global_motion', 'enable_intrabc', 'enable_restoration', 'usage', 'tune', 'still_picture', 'dolbyvision', 'enable_rect_partitions', 'enable_1to4_partitions', 'enable_ab_partitions', 'enable_angle_delta', 'enable_cfl_intra', 'enable_filter_intra', 'enable_intra_edge_filter', 'enable_smooth_intra', 'enable_paeth_intra', 'enable_palette', 'enable_flip_idtx', 'enable_tx64', 'reduced_tx_type_set', 'use_intra_dct_only', 'use_inter_dct_only', 'use_intra_default_tx_only', 'enable_ref_frame_mvs', 'enable_reduced_reference_set', 'enable_obmc', 'enable_dual_filter', 'enable_diff_wtd_comp', 'enable_dist_wtd_comp', 'enable_onesided_comp', 'enable_interinter_wedge', 'enable_interintra_wedge', 'enable_masked_comp', 'enable_interintra_comp', 'enable_smooth_interintra', 'aom_params'] },
     libsvtav1: { label: 'AV1 (SVT-AV1)', value: 'libsvtav1', widgets: ['framerate', 'pixel_format', 'preset_av1', 'crf_63', 'qp_av1', 'svtav1_params', 'dolbyvision'] },
-    librav1e: { label: 'AV1 (librav1e)', value: 'librav1e', widgets: [] },
-    av1Nvenc: { label: 'AV1 (NVENC)', value: 'av1_nvenc', widgets: [] },
-    av1Amf: { label: 'AV1 (AMF)', value: 'av1_amf', widgets: [] },
+    librav1e: { label: 'AV1 (librav1e)', value: 'librav1e', widgets: ['framerate', 'pixel_format', 'speed_rav1e', 'qp_rav1e', 'tiles_rav1e', 'tile_columns_rav1e', 'tile_rows_rav1e', 'rav1e_params'] },
+    av1Nvenc: { label: 'AV1 (NVENC)', value: 'av1_nvenc', widgets: ['framerate', 'pixel_format', 'preset_nvenc_av1', 'tune_nvenc_h265', 'level_nvenc_av1', 'tier_nvenc_av1', 'rc_nvenc_av1', 'qp_av1_nvenc', 'cq_av1_nvenc', 'qmin_av1_nvenc', 'qmax_av1_nvenc', 'init_qpI_av1_nvenc', 'init_qpP_av1_nvenc', 'init_qpB_av1_nvenc', 'qp_cb_offset', 'qp_cr_offset', 'multipass_nvenc', 'highbitdepth', 'tile_rows_av1_nvenc', 'tile_columns_av1_nvenc', 'rc_lookahead_nvenc', 'lookahead_level_nvenc', 'no_scenecut', 'b_adapt', 'spatial_aq', 'temporal_aq', 'aq_strength_nvenc', 'weighted_pred', 'b_ref_mode_nvenc', 'zerolatency', 'nonref_p', 'strict_gop_nvenc', 'forced_idr', 'intra_refresh', 'timing_info_av1_nvenc', 'cbr_padding', 'surfaces', 'gpu', 'delay_nvenc', 'dpb_size', 'ldkfs', 'rgb_mode_nvenc', 'tf_level_nvenc', 'split_encode_mode_nvenc', 'extra_sei', 'a53cc', 's12m_tc'] },
+    av1Amf: { label: 'AV1 (AMF)', value: 'av1_amf', widgets: ['framerate', 'pixel_format', 'usage_amf', 'bitdepth_amf', 'profile_av1_amf', 'level_amf_av1', 'preset_av1_amf', 'latency_av1_amf', 'rc_amf', 'qvbr_quality_level_av1_amf', 'qp_i_av1_amf', 'qp_p_av1_amf', 'qp_b_av1_amf', 'min_qp_i_av1_amf', 'max_qp_i_av1_amf', 'min_qp_p_av1_amf', 'max_qp_p_av1_amf', 'min_qp_b_av1_amf', 'max_qp_b_av1_amf', 'aq_mode_av1_amf', 'enforce_hrd_amf', 'filler_data_amf', 'skip_frame_amf', 'preencode_amf', 'header_insertion_mode_av1_amf', 'async_depth_amf', 'max_b_frames_av1_amf', 'bf_av1_amf', 'hmqb_amf', 'forced_idr', 'align_av1_amf', 'smart_access_video_amf', 'preanalysis_amf', 'pa_activity_type_amf', 'pa_scene_change_detection_amf', 'pa_scene_change_sensitivity_amf', 'pa_static_scene_detection_amf', 'pa_static_scene_sensitivity_amf', 'pa_initial_qp_scene_change_av1_amf', 'pa_max_qp_force_skip_av1_amf', 'pa_caq_strength_amf', 'pa_frame_sad_amf', 'pa_ltr_amf', 'pa_lookahead_depth_av1_amf', 'pa_paq_mode_amf', 'pa_taq_mode_amf', 'pa_hmqb_mode_amf', 'pa_adaptive_mini_gop_amf'] },
     libvpx: { label: 'VP8', value: 'libvpx', widgets: ['framerate', 'pixel_format', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'arnr_type', 'tune', 'deadline', 'error_resilient', 'max_intra_rate', 'crf_63', 'static_thresh', 'drop_threshold', 'noise_sensitivity', 'undershoot_pct', 'overshoot_pct', 'ts_parameters', 'auto_alt_ref', 'cpu_used_vpx', 'screen_content_mode', 'speed', 'quality_vpx', 'vp8flags', 'rc_lookahead_altref', 'sharpness'] },
     libvpxVp9: { label: 'VP9', value: 'libvpx-vp9', widgets: ['framerate', 'pixel_format', 'lag_in_frames', 'arnr_max_frames', 'arnr_strength', 'arnr_type', 'tune', 'deadline', 'error_resilient', 'max_intra_rate', 'crf_63', 'static_thresh', 'drop_threshold', 'noise_sensitivity', 'undershoot_pct', 'overshoot_pct', 'ts_parameters', 'auto_alt_ref_vp9', 'cpu_used_vp9', 'lossless', 'tile_columns', 'tile_rows_vp9', 'frame_parallel', 'aq_mode_vp9', 'level_vp9', 'row_mt', 'tune_content', 'corpus_complexity', 'enable_tpl', 'min_gf_interval', 'speed', 'quality_vpx', 'rc_lookahead_altref', 'sharpness'] },
-    h263p: { label: 'H.263+', value: 'h263p', widgets: [] },
+    h263p: { label: 'H.263+', value: 'h263p', widgets: ['framerate', 'pixel_format', 'umv_h263p', 'aiv_h263p', 'obmc_h263p', 'structured_slices_h263p', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_eq', 'rc_init_cplx', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'motion_est_mpeg', 'mepc', 'mepre', 'intra_penalty'] },
     mpeg4: { label: 'MPEG-4 Part 2', value: 'mpeg4', widgets: ['framerate', 'pixel_format', 'data_partitioning', 'alternate_scan', 'mpeg_quant', 'b_strategy', 'b_sensitivity', 'brd_scale', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_eq', 'rc_init_cplx', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'motion_est_mpeg', 'mepc', 'mepre', 'intra_penalty'] },
-    libxvid: { label: 'MPEG-4 Part 2 (Xvid)', value: 'libxvid', widgets: [] },
+    libxvid: { label: 'MPEG-4 Part 2 (Xvid)', value: 'libxvid', widgets: ['framerate', 'pixel_format', 'lumi_aq_xvid', 'variance_aq_xvid', 'ssim_xvid', 'ssim_acc_xvid', 'gmc_xvid', 'me_quality_xvid', 'mpeg_quant'] },
     mpeg2video: { label: 'MPEG-2 Video', value: 'mpeg2video', widgets: ['framerate_DYN', 'pixel_format', 'gop_timecode', 'drop_frame_timecode', 'scan_offset', 'timecode_frame_start', 'b_strategy', 'b_sensitivity', 'brd_scale', 'intra_vlc', 'non_linear_quant', 'alternate_scan', 'a53cc', 'seq_disp_ext', 'video_format', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_init_cplx', 'rc_eq', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'motion_est_mpeg', 'mepc', 'mepre', 'intra_penalty'] },
     mpeg1video: { label: 'MPEG-1 Video', value: 'mpeg1video', widgets: ['framerate_DYN', 'pixel_format', 'gop_timecode', 'drop_frame_timecode', 'scan_offset', 'timecode_frame_start', 'b_strategy', 'b_sensitivity', 'brd_scale', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_init_cplx', 'rc_eq', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'motion_est_mpeg', 'mepc', 'mepre', 'intra_penalty'] },
     mjpeg: { label: 'MJPEG', value: 'mjpeg', widgets: ['framerate', 'pixel_format', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_eq', 'rc_init_cplx', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'huffman', 'force_duplicated_matrix'] },
@@ -770,7 +1023,7 @@ const VC = {
     ffv1: { label: 'FFV1', value: 'ffv1', widgets: ['framerate', 'pixel_format', 'slicecrc', 'coder_ffv1', 'context'] },
     huffyuv: { label: 'HuffYUV', value: 'huffyuv', widgets: ['framerate', 'pixel_format', 'non_deterministic', 'pred_huffyuv'] },
     dvvideo: { label: 'DV Video', value: 'dvvideo', widgets: ['framerate_dvvideo', 'pixel_format', 'quant_deadzone'] },
-    amvVideo: { label: 'AMV Video', value: 'amv', widgets: [] },
+    amvVideo: { label: 'AMV Video', value: 'amv', widgets: ['framerate', 'pixel_format', 'mpv_flags_amv', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_eq', 'rc_init_cplx', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'noise_reduction', 'ps'] },
     qtrle: { label: 'QuickTime RLE', value: 'qtrle', widgets: ['framerate', 'pixel_format'] },
     cinepak: { label: 'Cinepak', value: 'cinepak', widgets: ['framerate', 'pixel_format', 'max_extra_cb_iterations', 'skip_empty_cb', 'max_strips', 'min_strips', 'strip_number_adaptivity'] },
     rpza: { label: 'QuickTime RPZA', value: 'rpza', widgets: ['framerate', 'pixel_format', 'skip_frame_thresh', 'start_one_color_thresh', 'continue_one_color_thresh', 'sixteen_color_thresh'] },
@@ -778,16 +1031,16 @@ const VC = {
     wmv2: { label: 'WMV2', value: 'wmv2', widgets: ['framerate', 'pixel_format', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_eq', 'rc_init_cplx', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'motion_est_mpeg', 'mepc', 'mepre', 'intra_penalty'] },
     msvideo1: { label: 'Microsoft Video 1', value: 'msvideo1', widgets: ['framerate', 'pixel_format'] },
     flv1: { label: 'Sorenson Spark', value: 'flv1', widgets: ['framerate', 'pixel_format', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_eq', 'rc_init_cplx', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'motion_est_mpeg', 'mepc', 'mepre', 'intra_penalty'] },
-    libtheora: { label: 'Theora', value: 'libtheora', widgets: [] },
-    rv10: { label: 'RealVideo 1.0', value: 'rv10', widgets: [] },
-    rv20: { label: 'RealVideo 2.0', value: 'rv20', widgets: [] },
+    libtheora: { label: 'Theora', value: 'libtheora', widgets: ['framerate', 'pixel_format', 'speed_level_theora'] },
+    rv10: { label: 'RealVideo 1.0', value: 'rv10', widgets: ['framerate', 'pixel_format', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_eq', 'rc_init_cplx', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'motion_est_mpeg', 'mepc', 'mepre', 'intra_penalty'] },
+    rv20: { label: 'RealVideo 2.0', value: 'rv20', widgets: ['framerate', 'pixel_format', 'mpv_flags', 'luma_elim_threshold', 'chroma_elim_threshold', 'quantizer_noise_shaping', 'qsquish', 'rc_qmod_amp', 'rc_qmod_freq', 'rc_eq', 'rc_init_cplx', 'border_mask', 'lmin', 'lmax', 'skip_threshold', 'skip_factor', 'skip_exp', 'skip_cmp', 'sc_threshold', 'noise_reduction', 'ps', 'motion_est_mpeg', 'mepc', 'mepre', 'intra_penalty'] },
 };
 const AC = {
     aac: { label: 'AAC', value: 'aac', widgets: ['sample_rate', 'sample_format', 'aac_coder', 'aac_ms', 'aac_is', 'aac_pns', 'aac_tns', 'aac_ltp', 'aac_pred', 'aac_pce'] },
     libmp3lame: { label: 'MP3', value: 'libmp3lame', widgets: ['sample_rate', 'sample_format', 'channel_layout', 'reservoir', 'joint_stereo', 'abr', 'copyright_flag', 'original_flag'] },
     mp2: { label: 'MP2', value: 'mp2', widgets: ['sample_rate', 'sample_format', 'channel_layout'] },
     ac3: { label: 'AC-3', value: 'ac3', widgets: ['sample_rate', 'sample_format', 'channel_layout', 'center_mixlev', 'surround_mixlev', 'mixing_level', 'room_type', 'per_frame_metadata', 'copyright_bit', 'dialnorm', 'dsur_mode', 'original_bit', 'dmix_mode', 'ltrt_cmixlev', 'ltrt_surmixlev', 'loro_cmixlev', 'loro_surmixlev', 'dsurex_mode', 'dheadphone_mode', 'ad_conv_type', 'stereo_rematrixing'] },
-    eac3: { label: 'E-AC-3', value: 'eac3', widgets: [] },
+    eac3: { label: 'E-AC-3', value: 'eac3', widgets: ['sample_rate', 'sample_format', 'channel_layout', 'mixing_level', 'room_type', 'per_frame_metadata', 'copyright_bit', 'dialnorm', 'dsur_mode', 'original_bit', 'dmix_mode', 'ltrt_cmixlev', 'ltrt_surmixlev', 'loro_cmixlev', 'loro_surmixlev', 'dsurex_mode', 'dheadphone_mode', 'ad_conv_type', 'stereo_rematrixing', 'channel_coupling', 'cpl_start_band'] },
     truehd: { label: 'TrueHD', value: 'truehd', widgets: ['sample_rate', 'sample_format', 'channel_layout', 'max_interval', 'lpc_coeff_precision', 'lpc_type_truehd', 'lpc_passes', 'codebook_search', 'prediction_order_truehd', 'rematrix_precision'] },
     dca: { label: 'DTS', value: 'dca', widgets: ['sample_rate', 'sample_format', 'channel_layout', 'dca_adpcm'] },
     libopus: { label: 'Opus', value: 'libopus', widgets: ['sample_rate', 'sample_format', 'application', 'frame_duration', 'packet_loss', 'fec', 'vbr', 'mapping_family', 'apply_phase_inv'] },
@@ -809,15 +1062,15 @@ const AC = {
     adpcm_swf: { label: 'ADPCM (SWF)', value: 'adpcm_swf', widgets: ['sample_rate_adpcm_swf', 'sample_format', 'channel_layout', 'block_size'] },
     adpcm_ima_wav: { label: 'ADPCM IMA WAV', value: 'adpcm_ima_wav', widgets: ['sample_format', 'channel_layout', 'block_size'] },
     adpcm_ms: { label: 'ADPCM MS', value: 'adpcm_ms', widgets: ['sample_format', 'channel_layout', 'block_size'] },
-    adpcm_ima_amv: { label: 'ADPCM IMA AMV', value: 'adpcm_ima_amv', widgets: [] },
+    adpcm_ima_amv: { label: 'ADPCM IMA AMV', value: 'adpcm_ima_amv', widgets: ['sample_format', 'channel_layout', 'block_size'] },
     libspeex: { label: 'Speex', value: 'libspeex', widgets: ['sample_rate', 'sample_format', 'channel_layout', 'abr', 'cbr_quality', 'frames_per_packet', 'vad', 'dtx'] },
-    libopencore_amrnb: { label: 'AMR-NB', value: 'libopencore_amrnb', widgets: [] },
-    libvo_amrwbenc: { label: 'AMR-WB', value: 'libvo_amrwbenc', widgets: [] },
+    libopencore_amrnb: { label: 'AMR-NB', value: 'libopencore_amrnb', widgets: ['sample_rate_8000', 'sample_format', 'channel_layout_mono', 'dtx'] },
+    libvo_amrwbenc: { label: 'AMR-WB', value: 'libvo_amrwbenc', widgets: ['sample_rate_16000', 'sample_format', 'channel_layout_mono', 'dtx'] },
     gsm_ms: { label: 'GSM-MS', value: 'gsm_ms', widgets: ['sample_rate_8000', 'sample_format', 'channel_layout'] },
     nellymoser: { label: 'Nellymoser', value: 'nellymoser', widgets: ['sample_rate_nellymoser', 'sample_format', 'channel_layout'] },
     g722: { label: 'G.722', value: 'g722', widgets: ['sample_format', 'channel_layout'] },
     g726: { label: 'G.726', value: 'g726', widgets: ['sample_rate_8000', 'sample_format', 'channel_layout_mono', 'code_size'] },
-    real_144: { label: 'RealAudio 1.0', value: 'real_144', widgets: [] },
+    real_144: { label: 'RealAudio 1.0', value: 'real_144', widgets: ['sample_rate_8000', 'sample_format', 'channel_layout_mono'] },
 };
 
 const allVideoFormats = [
