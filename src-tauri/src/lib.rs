@@ -186,7 +186,6 @@ async fn convert_files(
 
     state.cancel_flag.store(false, Ordering::Relaxed);
     let cancel_flag = Arc::clone(&state.cancel_flag);
-    let is_audio_output = request.group == "audio";
 
     match request.tool.as_str() {
         "ffmpeg" => {
@@ -197,7 +196,7 @@ async fn convert_files(
                 request.options,
                 request.um_input_paths,
                 request.audio_input_paths,
-                is_audio_output,
+                request.group,
                 cancel_flag,
                 max_threads,
             )
