@@ -368,12 +368,23 @@ pub async fn run_cli_command(
     if let Some(path_var) = std::env::var_os("PATH") {
         let mut paths = std::env::split_paths(&path_var).collect::<Vec<_>>();
         paths.insert(0, resource_dir.clone());
+        paths.insert(0, resource_dir.join("resources").join("Ghostscript").join("bin"));
         paths.insert(0, resource_dir.join("resources").join("ImageMagick").join("libjxr"));
         paths.insert(0, resource_dir.join("resources").join("ImageMagick").join("libheif"));
         let new_path = std::env::join_paths(paths).unwrap_or_else(|_| OsStr::new("").to_os_string());
         new_env.insert("PATH".to_string(), new_path);
     }
     if program == "magick" {
+        let ghostscript_dir = resource_dir.join("resources").join("Ghostscript");
+        let gs_lib_paths = [
+            ghostscript_dir.join("lib"),
+            ghostscript_dir.join("Resource").join("Init"),
+            ghostscript_dir.join("Resource"),
+            ghostscript_dir.join("Resource").join("Font"),
+            ghostscript_dir.join("iccprofiles"),
+        ];
+        let gs_lib = std::env::join_paths(gs_lib_paths).unwrap_or_else(|_| OsStr::new("").to_os_string());
+        new_env.insert("GS_LIB".to_string(), gs_lib);
         new_env.insert(
             "MAGICK_CONFIGURE_PATH".to_string(),
             resource_dir.join("resources").join("ImageMagick").into_os_string(),

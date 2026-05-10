@@ -48,7 +48,12 @@
       "binaries/ImageMagick/libheif/aom.dll": "resources/ImageMagick/libheif/aom.dll",
       "binaries/ImageMagick/libheif/libpng16.dll": "resources/ImageMagick/libheif/libpng16.dll",
       "binaries/ImageMagick/libheif/jpeg62.dll": "resources/ImageMagick/libheif/jpeg62.dll",
-      "binaries/ImageMagick/libheif/z.dll": "resources/ImageMagick/libheif/z.dll"
+      "binaries/ImageMagick/libheif/z.dll": "resources/ImageMagick/libheif/z.dll",
+      "binaries/Ghostscript/bin/gswin64c.exe": "resources/Ghostscript/bin/gswin64c.exe",
+      "binaries/Ghostscript/bin/gsdll64.dll": "resources/Ghostscript/bin/gsdll64.dll",
+      "binaries/Ghostscript/lib": "resources/Ghostscript/lib",
+      "binaries/Ghostscript/Resource": "resources/Ghostscript/Resource",
+      "binaries/Ghostscript/iccprofiles": "resources/Ghostscript/iccprofiles"
     },
     "targets": "all",
     "icon": [

@@ -1677,9 +1677,6 @@ export const formats = {
     tga: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
     dds: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
     dcx: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    iff: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    ora: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    lbm: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
     thm: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
     raw: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
     cr2: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
@@ -1701,13 +1698,9 @@ export const formats = {
     kdc: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
     dcr: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
     erf: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    ptx: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    pxn: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
     sr2: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
     srf: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
     mdc: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    gp4: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    bay: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
     svg: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
     emf: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
     wmf: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets } // input only
