@@ -171,7 +171,7 @@ const WIDGET_HEIGHT_PX = {
 
 export default function AdvancedOptions() {
     const { t } = useTranslation();
-    const { filePaths, outputExt, selectedVideoCodec, setSelectedVideoCodec, selectedAudioCodec, setSelectedAudioCodec, advancedOptionValues, setAdvancedOptionValues, activeTab, setActiveTab } = useApp();
+    const { filePaths, fileType, outputExt, selectedVideoCodec, setSelectedVideoCodec, selectedAudioCodec, setSelectedAudioCodec, advancedOptionValues, setAdvancedOptionValues, activeTab, setActiveTab } = useApp();
 
     const config = useMemo(() => formats[outputExt] || null, [outputExt]);
 
@@ -222,6 +222,8 @@ export default function AdvancedOptions() {
             codecAudio = selectedAudioCodec ? audioCodecs.find(c => c.value === selectedAudioCodec)?.widgets || [] : [];
         } else if (config.group === 'image') {
             outputDirect = config.widgets || [];
+        } else if (config.group === 'document') {
+            outputDirect = config.widgets || [];
         }
 
         const direct = Array.from(new Set([...outputDirect, ...(config.group === 'audio' ? inputDrivenWidgets : [])]));
@@ -270,7 +272,7 @@ export default function AdvancedOptions() {
     }, [widgetsToDisplay.all.join(','), setAdvancedOptionValues]);
 
     useEffect(() => {
-        if (config?.group === 'image') {
+        if (config?.group === 'image' || config?.group === 'document') {
             setActiveTab('general');
         }
     }, [config, setActiveTab]);
@@ -296,15 +298,19 @@ export default function AdvancedOptions() {
             delete groupedArgs[arg];
         }
 
-        // 2. Build the command string based on the tool
+        // 2. Build the command string based on the selected conversion route.
         let cmd = "";
-        const tool = config?.tool || null;
+        const outputGroup = config?.group || '';
+        const usesFfmpeg = (fileType === 'audio' && outputGroup === 'audio')
+            || (fileType === 'video' && (outputGroup === 'video' || outputGroup === 'audio'));
+        const usesMagickLike = (fileType === 'image' && (outputGroup === 'image' || outputGroup === 'document'))
+            || (fileType === 'document' && (outputGroup === 'image' || outputGroup === 'document'));
 
-        if (tool === 'magick') {
+        if (usesMagickLike) {
             const inputDisplay = combineInputs && filePaths.length > 1
                 ? Array.from({ length: filePaths.length }, (_, i) => `"${t("advanced.input_file")}${i + 1}"`).join(' ')
                 : `"${t("advanced.input_file")}"`;
-            cmd = `magick ${inputDisplay}`;
+            cmd = `${fileType === 'document' ? 'document' : 'magick'} ${inputDisplay}`;
 
             // Build the command string from the grouped arguments
             for (const arg in groupedArgs) {
@@ -318,7 +324,7 @@ export default function AdvancedOptions() {
 
             cmd += ` "${t("advanced.output_file")}_UCT.${outputExt}"`;
 
-        } else if (tool === 'ffmpeg') {
+        } else if (usesFfmpeg) {
             cmd = `ffmpeg -i "${t("advanced.input_file")}"`;
             if (selectedVideoCodec) {
                 cmd += ` -c:v ${selectedVideoCodec}`;
@@ -341,7 +347,7 @@ export default function AdvancedOptions() {
         }
 
         return cmd;
-    }, [advancedOptionValues, filePaths, selectedVideoCodec, selectedAudioCodec, videoCodecs, audioCodecs, outputExt, t, config]);
+    }, [advancedOptionValues, filePaths, fileType, selectedVideoCodec, selectedAudioCodec, videoCodecs, audioCodecs, outputExt, t, config]);
 
     const renderWidgets = (widgetKeys, codecType = null) => {
         let codecValue = null;
@@ -571,7 +577,7 @@ export default function AdvancedOptions() {
                     </div>
 
                     {/* Tab Navigation */}
-                    {config.group !== 'image' && (
+                    {(config.group === 'video' || config.group === 'audio') && (
                         <Navbar className="mt-3 flex justify-start self-stretch">
                             <NavbarSection>
                                 <NavbarItem as="button" onClick={() => setActiveTab('general')} current={activeTab === 'general'}>{t('advanced.general')}</NavbarItem>

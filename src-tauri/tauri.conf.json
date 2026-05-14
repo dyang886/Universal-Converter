@@ -53,7 +53,8 @@
       "binaries/Ghostscript/bin/gsdll64.dll": "resources/Ghostscript/bin/gsdll64.dll",
       "binaries/Ghostscript/lib": "resources/Ghostscript/lib",
       "binaries/Ghostscript/Resource": "resources/Ghostscript/Resource",
-      "binaries/Ghostscript/iccprofiles": "resources/Ghostscript/iccprofiles"
+      "binaries/Ghostscript/iccprofiles": "resources/Ghostscript/iccprofiles",
+      "binaries/LibreOffice": "resources/LibreOffice"
     },
     "targets": "all",
     "icon": [

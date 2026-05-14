@@ -1101,11 +1101,26 @@ const outAudioFormats = [
 const outImageFormats = [
     'jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'tiff',
     'heic', 'heif', 'avif', 'jxl', 'jp2', 'j2k', 'jxr', 'wdp',
-    'svg', 'pdf', 'eps', 'ps', 'ai',
+    'svg',
     'psd', 'exr', 'hdr', 'qoi', 'ico', 'cur',
     'tga', 'dds', 'pcx', 'dcx', 'dib',
     'pnm', 'ppm', 'pgm', 'pbm', 'xpm', 'xbm'
 ];
+const outDocumentFormats = [
+    'pdf', 'docx', 'doc', 'odt', 'rtf', 'txt',
+    'html', 'htm', 'xhtml', 'epub',
+    'pptx', 'ppt', 'odp',
+    'xlsx', 'xls', 'ods', 'csv',
+    'eps', 'ps', 'ai'
+];
+const imageToDocumentFormats = ['pdf', 'eps', 'ps', 'ai'];
+const imageOutputs = [...outImageFormats, ...imageToDocumentFormats];
+const rasterizableDocumentOutputs = [...outImageFormats, 'pdf', 'txt', 'eps', 'ps', 'ai'];
+const wordDocumentOutputs = [...outImageFormats, 'pdf', 'docx', 'doc', 'odt', 'rtf', 'txt', 'html', 'htm', 'xhtml', 'epub'];
+const textDocumentOutputs = [...outImageFormats, 'pdf', 'docx', 'odt', 'rtf', 'txt', 'html', 'htm', 'xhtml', 'epub'];
+const presentationDocumentOutputs = [...outImageFormats, 'pdf', 'pptx', 'ppt', 'odp'];
+const spreadsheetDocumentOutputs = [...outImageFormats, 'pdf', 'xlsx', 'xls', 'ods', 'csv', 'html', 'htm'];
+const futureDocumentOutputs = [];
 const generalVideoWidgets = ['disable_video', 'disable_subtitle', 'fast_start', 'pass', 'frame_size', 'video_rotate', 'video_flip', 'video_bitrate', 'vframes', 'aspect_ratio'];
 const generalAudioWidgets = ['audio_volume', 'audio_speed', 'audio_quality', 'audio_bitrate', 'audio_channels', 'aframes'];
 const generalImageWidgets = [
@@ -1131,6 +1146,7 @@ const generalImageWidgets = [
     'interword_spacing', 'units', 'define', 'draw', 'contrast', 'contrast_reduce', 'transparent_color',
     'intent', 'range_threshold', 'interpolate'
 ];
+const generalDocumentWidgets = [];
 
 export const formatTags = {
     encrypted: 'encrypted',
@@ -1139,259 +1155,258 @@ export const formatTags = {
 // ===========================================================================
 // FORMATS
 // Main format table; each key is a file extension.
-// Shape: { group, tool, outputs[], tags?, videoCodecs?, audioCodecs?, codecs?, widgets? }
-//   group: 'video' | 'audio' | 'image'
-//   tool:  'ffmpeg' | 'magick'
+// Shape: { group, outputs[], tags?, videoCodecs?, audioCodecs?, codecs?, widgets? }
+//   group: 'video' | 'audio' | 'image' | 'document'
 // ===========================================================================
 export const formats = {
     // ====== Audio Formats ======
     mp3: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.libmp3lame]
     },
     flac: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.flac]
     },
     wav: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.pcm_s16le, AC.pcm_s24le, AC.pcm_s32le, AC.pcm_f32le, AC.adpcm_ima_wav, AC.adpcm_ms, AC.pcm_alaw, AC.pcm_mulaw, AC.g722, AC.g726]
     },
     aac: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.aac]
     },
     ogg: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.libvorbis, AC.libopus, AC.libspeex, AC.flac]
     },
     m4a: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.aac, AC.alac]
     },
     wma: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.wmav2, AC.wmav1]
     },
     aiff: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.pcm_s16be, AC.pcm_s24be, AC.pcm_s32be]
     },
     opus: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.libopus]
     },
     mp2: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.mp2]
     },
     m2a: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.mp2]
     },
     mpa: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.mp2]
     },
     m4b: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.aac, AC.alac]
     },
     w64: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.pcm_s16le, AC.pcm_s24le, AC.pcm_s32le, AC.pcm_f32le]
     },
     aif: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.pcm_s16be, AC.pcm_s24be, AC.pcm_s32be]
     },
     aifc: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.pcm_s16be, AC.pcm_s24be, AC.pcm_s32be]
     },
     afc: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.pcm_s16be, AC.pcm_s24be, AC.pcm_s32be]
     },
     oga: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.libvorbis, AC.libopus, AC.libspeex, AC.flac]
     },
     spx: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.libspeex]
     },
     amr: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.libopencore_amrnb, AC.libvo_amrwbenc]
     },
     au: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.pcm_s16be, AC.pcm_s24be, AC.pcm_s32be, AC.pcm_alaw, AC.pcm_mulaw]
     },
     caf: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.aac, AC.alac, AC.flac, AC.libopus, AC.pcm_s16be, AC.pcm_s24be, AC.pcm_s32be]
     },
     mka: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.libopus, AC.libvorbis, AC.aac, AC.libmp3lame, AC.flac, AC.alac, AC.wavpack, AC.tta, AC.ac3, AC.eac3, AC.dca, AC.truehd, AC.mp2]
     },
     weba: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.libopus, AC.libvorbis]
     },
     ac3: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.ac3]
     },
     eac3: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.eac3]
     },
     ec3: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.eac3]
     },
     dts: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.dca]
     },
     truehd: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.truehd]
     },
     thd: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.truehd]
     },
     mlp: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.mlp]
     },
     tta: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.tta]
     },
     wv: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.wavpack]
     },
     ra: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.real_144, AC.libmp3lame, AC.ac3]
     },
     voc: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.pcm_s16le, AC.pcm_alaw, AC.pcm_mulaw]
     },
     sox: {
-        group: 'audio', tool: 'ffmpeg',
+        group: 'audio',
         outputs: outAudioFormats,
         widgets: generalAudioWidgets,
         codecs: [AC.pcm_s32le, AC.pcm_s16le]
     },
     // Encrypted audio formats (input only)
-    qmc0: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key'] },
-    qmc2: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key'] },
-    qmc3: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key'] },
-    qmcflac: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key'] },
-    qmcogg: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key'] },
-    tkm: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
-    bkcmp3: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
-    bkcflac: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
-    tm0: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
-    tm2: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
-    tm3: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
-    tm6: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
-    mflac: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
-    mgg: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
-    mflac0: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
-    mgg1: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
-    mggl: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
-    ofl_en: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
-    ncm: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
-    xm: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
-    kwm: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
-    kgm: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata', 'kgg_db'] },
-    vpr: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata', 'kgg_db'] },
-    x2m: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
-    x3m: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
-    mg3d: { group: 'audio', tool: 'ffmpeg', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
+    qmc0: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key'] },
+    qmc2: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key'] },
+    qmc3: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key'] },
+    qmcflac: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key'] },
+    qmcogg: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata', 'qmc_mmkv', 'qmc_mmkv_key'] },
+    tkm: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
+    bkcmp3: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
+    bkcflac: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
+    tm0: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
+    tm2: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
+    tm3: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
+    tm6: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
+    mflac: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
+    mgg: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
+    mflac0: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
+    mgg1: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
+    mggl: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
+    ofl_en: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
+    ncm: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
+    xm: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
+    kwm: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
+    kgm: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata', 'kgg_db'] },
+    vpr: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata', 'kgg_db'] },
+    x2m: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
+    x3m: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
+    mg3d: { group: 'audio', outputs: outAudioFormats, tags: [formatTags.encrypted], widgets_input: ['update_metadata'] },
 
     // ====== Video Formats ======
     mp4: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1399,7 +1414,7 @@ export const formats = {
         audioCodecs: [AC.aac, AC.ac3, AC.eac3, AC.dca, AC.alac, AC.flac, AC.libopus, AC.libmp3lame]
     },
     mkv: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1407,7 +1422,7 @@ export const formats = {
         audioCodecs: [AC.aac, AC.ac3, AC.eac3, AC.dca, AC.truehd, AC.alac, AC.flac, AC.libopus, AC.libvorbis, AC.libmp3lame, AC.mp2]
     },
     mov: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1415,7 +1430,7 @@ export const formats = {
         audioCodecs: [AC.aac, AC.alac, AC.pcm_s16le, AC.pcm_s24be, AC.libmp3lame]
     },
     avi: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1423,7 +1438,7 @@ export const formats = {
         audioCodecs: [AC.libmp3lame, AC.pcm_s16le, AC.ac3]
     },
     webm: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1431,7 +1446,7 @@ export const formats = {
         audioCodecs: [AC.libopus, AC.libvorbis]
     },
     flv: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1439,7 +1454,7 @@ export const formats = {
         audioCodecs: [AC.libmp3lame, AC.aac, AC.nellymoser, AC.adpcm_swf]
     },
     wmv: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1447,7 +1462,7 @@ export const formats = {
         audioCodecs: [AC.wmav1, AC.wmav2, AC.gsm_ms]
     },
     mpeg: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1455,7 +1470,7 @@ export const formats = {
         audioCodecs: [AC.mp2, AC.libmp3lame, AC.ac3, AC.dca, AC.pcm_dvd, AC.pcm_s16be]
     },
     mpg: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1463,7 +1478,7 @@ export const formats = {
         audioCodecs: [AC.mp2, AC.libmp3lame, AC.ac3, AC.dca, AC.pcm_dvd, AC.pcm_s16be]
     },
     m4v: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1471,7 +1486,7 @@ export const formats = {
         audioCodecs: [AC.aac, AC.ac3, AC.dca, AC.alac, AC.libmp3lame]
     },
     ts: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1479,7 +1494,7 @@ export const formats = {
         audioCodecs: [AC.aac, AC.ac3, AC.eac3, AC.dca, AC.truehd, AC.mp2, AC.libmp3lame]
     },
     m2ts: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1487,7 +1502,7 @@ export const formats = {
         audioCodecs: [AC.aac, AC.ac3, AC.eac3, AC.dca, AC.truehd, AC.mp2]
     },
     vob: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1495,7 +1510,7 @@ export const formats = {
         audioCodecs: [AC.ac3, AC.dca, AC.mp2, AC.pcm_dvd]
     },
     '3gp': {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1503,7 +1518,7 @@ export const formats = {
         audioCodecs: [AC.aac, AC.libmp3lame, AC.libopencore_amrnb, AC.libvo_amrwbenc]
     },
     qt: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1511,7 +1526,7 @@ export const formats = {
         audioCodecs: [AC.aac, AC.alac, AC.libmp3lame, AC.pcm_s16le, AC.pcm_s24be]
     },
     ogv: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1519,7 +1534,7 @@ export const formats = {
         audioCodecs: [AC.libvorbis, AC.libopus, AC.flac]
     },
     f4v: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1527,7 +1542,7 @@ export const formats = {
         audioCodecs: [AC.aac, AC.libmp3lame]
     },
     asf: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1535,7 +1550,7 @@ export const formats = {
         audioCodecs: [AC.wmav2, AC.wmav1, AC.libmp3lame, AC.aac, AC.gsm_ms]
     },
     divx: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1543,7 +1558,7 @@ export const formats = {
         audioCodecs: [AC.libmp3lame, AC.aac, AC.ac3, AC.pcm_s16le]
     },
     mxf: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1551,7 +1566,7 @@ export const formats = {
         audioCodecs: [AC.pcm_s16le, AC.pcm_s24le, AC.pcm_s32le, AC.aac, AC.ac3, AC.eac3]
     },
     swf: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1559,7 +1574,7 @@ export const formats = {
         audioCodecs: [AC.libmp3lame, AC.nellymoser, AC.adpcm_swf]
     },
     rm: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1567,7 +1582,7 @@ export const formats = {
         audioCodecs: [AC.real_144, AC.ac3, AC.libmp3lame]
     },
     rmvb: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1575,7 +1590,7 @@ export const formats = {
         audioCodecs: [AC.real_144, AC.ac3, AC.libmp3lame]
     },
     '3g2': {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1583,7 +1598,7 @@ export const formats = {
         audioCodecs: [AC.aac, AC.libmp3lame, AC.libopencore_amrnb, AC.libvo_amrwbenc]
     },
     ogx: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1591,7 +1606,7 @@ export const formats = {
         audioCodecs: [AC.libvorbis, AC.libopus, AC.flac, AC.libspeex]
     },
     m2p: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1599,7 +1614,7 @@ export const formats = {
         audioCodecs: [AC.ac3, AC.mp2, AC.dca, AC.pcm_dvd]
     },
     dat: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1607,7 +1622,7 @@ export const formats = {
         audioCodecs: [AC.mp2]
     },
     mts: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1615,7 +1630,7 @@ export const formats = {
         audioCodecs: [AC.aac, AC.ac3, AC.eac3, AC.dca, AC.truehd, AC.mp2]
     },
     amv: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1623,7 +1638,7 @@ export const formats = {
         audioCodecs: [AC.adpcm_ima_amv]
     },
     dv: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1631,7 +1646,7 @@ export const formats = {
         audioCodecs: [AC.pcm_s16le, AC.pcm_s16be]
     },
     gxf: {
-        group: 'video', tool: 'ffmpeg',
+        group: 'video',
         outputs: [...outVideoFormats, ...outAudioFormats],
         videoWidgets: generalVideoWidgets,
         audioWidgets: ['disable_audio', ...generalAudioWidgets],
@@ -1640,70 +1655,90 @@ export const formats = {
     },
 
     // ====== Image Formats ======
-    jpeg: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    jpg: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    png: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    gif: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: ['combine_inputs', 'loop', 'delay', 'dispose', 'coalesce', ...generalImageWidgets] },
-    webp: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: ['combine_inputs', 'loop', 'delay', 'dispose', 'coalesce', ...generalImageWidgets] },
-    bmp: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    dib: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    tiff: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: ['combine_inputs', ...generalImageWidgets] },
-    pnm: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    ppm: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    pgm: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    pbm: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    xpm: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    xbm: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    heic: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    heif: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    avif: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    jxl: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    jp2: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    j2k: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    jxr: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    wdp: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    ico: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: ['ico_sizes', ...generalImageWidgets] },
-    cur: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: ['ico_sizes', ...generalImageWidgets] },
-    psd: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    exr: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    hdr: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    qoi: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    xcf: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    ai: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    eps: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    pdf: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: ['combine_inputs', 'page', ...generalImageWidgets] },
-    ps: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: ['combine_inputs', 'page', ...generalImageWidgets] },
-    pcx: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    tga: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    dds: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    dcx: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    thm: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    raw: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    cr2: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    crw: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    nef: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    dng: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    arw: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    raf: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    rw2: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    orf: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    pef: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    x3f: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    srw: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    iiq: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    '3fr': { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    mef: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    mrw: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    mos: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    kdc: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    dcr: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    erf: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    sr2: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    srf: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    mdc: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    svg: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets },
-    emf: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets }, // input only
-    wmf: { group: 'image', tool: 'magick', outputs: outImageFormats, widgets: generalImageWidgets } // input only
+    jpeg: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    jpg: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    png: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    gif: { group: 'image', outputs: imageOutputs, widgets: ['combine_inputs', 'loop', 'delay', 'dispose', 'coalesce', ...generalImageWidgets] },
+    webp: { group: 'image', outputs: imageOutputs, widgets: ['combine_inputs', 'loop', 'delay', 'dispose', 'coalesce', ...generalImageWidgets] },
+    bmp: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    dib: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    tiff: { group: 'image', outputs: imageOutputs, widgets: ['combine_inputs', ...generalImageWidgets] },
+    pnm: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    ppm: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    pgm: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    pbm: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    xpm: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    xbm: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    heic: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    heif: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    avif: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    jxl: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    jp2: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    j2k: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    jxr: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    wdp: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    ico: { group: 'image', outputs: imageOutputs, widgets: ['ico_sizes', ...generalImageWidgets] },
+    cur: { group: 'image', outputs: imageOutputs, widgets: ['ico_sizes', ...generalImageWidgets] },
+    psd: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    exr: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    hdr: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    qoi: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    xcf: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    pcx: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    tga: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    dds: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    dcx: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    thm: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    raw: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    cr2: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    crw: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    nef: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    dng: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    arw: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    raf: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    rw2: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    orf: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    pef: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    x3f: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    srw: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    iiq: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    '3fr': { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    mef: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    mrw: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    mos: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    kdc: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    dcr: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    erf: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    sr2: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    srf: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    mdc: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    svg: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets },
+    emf: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+    wmf: { group: 'image', outputs: imageOutputs, widgets: generalImageWidgets }, // input only
+
+    // ====== Document Formats ======
+    pdf: { group: 'document', outputs: rasterizableDocumentOutputs, widgets: ['combine_inputs', 'page', ...generalImageWidgets] },
+    ps: { group: 'document', outputs: rasterizableDocumentOutputs, widgets: ['combine_inputs', 'page', ...generalImageWidgets] },
+    eps: { group: 'document', outputs: rasterizableDocumentOutputs, widgets: generalImageWidgets },
+    ai: { group: 'document', outputs: rasterizableDocumentOutputs, widgets: generalImageWidgets },
+    docx: { group: 'document', outputs: wordDocumentOutputs, widgets: generalDocumentWidgets },
+    doc: { group: 'document', outputs: wordDocumentOutputs, widgets: generalDocumentWidgets },
+    odt: { group: 'document', outputs: wordDocumentOutputs, widgets: generalDocumentWidgets },
+    rtf: { group: 'document', outputs: wordDocumentOutputs, widgets: generalDocumentWidgets },
+    txt: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    md: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    html: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    htm: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    xhtml: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    epub: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    pptx: { group: 'document', outputs: presentationDocumentOutputs, widgets: generalDocumentWidgets },
+    ppt: { group: 'document', outputs: presentationDocumentOutputs, widgets: generalDocumentWidgets },
+    odp: { group: 'document', outputs: presentationDocumentOutputs, widgets: generalDocumentWidgets },
+    xlsx: { group: 'document', outputs: spreadsheetDocumentOutputs, widgets: generalDocumentWidgets },
+    xls: { group: 'document', outputs: spreadsheetDocumentOutputs, widgets: generalDocumentWidgets },
+    ods: { group: 'document', outputs: spreadsheetDocumentOutputs, widgets: generalDocumentWidgets },
+    csv: { group: 'document', outputs: spreadsheetDocumentOutputs, widgets: generalDocumentWidgets },
+    tex: { group: 'document', outputs: futureDocumentOutputs, widgets: generalDocumentWidgets }
 };
 
 // ===========================================================================
@@ -1905,3 +1940,5 @@ export function processFiles(newlySelectedPaths, currentFilePaths, currentFileTy
 
     return result;
 }
+
+

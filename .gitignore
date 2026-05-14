@@ -35,4 +35,5 @@ compile.ps1
 secret_config.rs
 src-tauri/binaries/
 unused components/
-docs/
+docs/*
+tmp/

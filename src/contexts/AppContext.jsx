@@ -193,7 +193,12 @@ export function AppProvider({ children }) {
 
     const handleConvert = useCallback(async (showPrompt) => {
         try {
-            const config = formats[outputExt] || {};
+            const outputConfig = formats[outputExt] || {};
+            const outputGroup = outputConfig.group || '';
+            const inputGroup = fileType || (() => {
+                const ext = filePaths[0]?.split('.').pop()?.toLowerCase() || '';
+                return formats[ext]?.group || '';
+            })();
             const combineInputs = advancedOptionValues['combine_inputs'] === true;
 
             const groupedArgs = buildGroupedArgs(advancedOptionValues);
@@ -229,7 +234,7 @@ export function AppProvider({ children }) {
             const result = await invoke('convert_files', {
                 inputPaths: filePaths,
                 outputExt: outputExt,
-                request: { tool: config['tool'], group: config['group'], options: finalOptions, combine: combineInputs, umInputPaths, audioInputPaths },
+                request: { inputGroup, outputGroup, options: finalOptions, combine: combineInputs, umInputPaths, audioInputPaths },
             });
 
             if (result) {
@@ -244,7 +249,7 @@ export function AppProvider({ children }) {
         } finally {
             setIsConverting(false);
         }
-    }, [filePaths, outputExt, advancedOptionValues, selectedVideoCodec, selectedAudioCodec]);
+    }, [filePaths, fileType, outputExt, advancedOptionValues, selectedVideoCodec, selectedAudioCodec]);
 
     const OUTPUT_CAP = 100_000;
 

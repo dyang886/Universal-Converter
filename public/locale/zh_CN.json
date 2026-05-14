@@ -31,6 +31,7 @@
     "audio": "音频",
     "video": "视频",
     "image": "图像",
+    "document": "文档",
     "all_files": "所有文件",
     "drop_files_here": "在此拖放/选择文件",
     "files": "个文件",

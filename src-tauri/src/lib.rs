@@ -14,6 +14,7 @@ use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_shell::{ShellExt, process::CommandEvent};
 use tokio::fs as async_fs;
 
+mod document;
 mod ffmpeg;
 mod magick;
 mod secret_config;
@@ -49,9 +50,11 @@ struct ConversionLogPayload {
 
 #[derive(Deserialize, Debug)]
 pub struct ConversionRequest {
-    tool: String,
     #[serde(default)]
-    group: String,
+    #[serde(rename = "inputGroup")]
+    input_group: String,
+    #[serde(rename = "outputGroup")]
+    output_group: String,
     options: IndexMap<String, String>,
     #[serde(default)]
     combine: bool,
@@ -187,8 +190,8 @@ async fn convert_files(
     state.cancel_flag.store(false, Ordering::Relaxed);
     let cancel_flag = Arc::clone(&state.cancel_flag);
 
-    match request.tool.as_str() {
-        "ffmpeg" => {
+    match (request.input_group.as_str(), request.output_group.as_str()) {
+        ("audio", "audio") | ("video", "video") | ("video", "audio") => {
             ffmpeg::run_conversion(
                 handle,
                 input_paths,
@@ -196,13 +199,13 @@ async fn convert_files(
                 request.options,
                 request.um_input_paths,
                 request.audio_input_paths,
-                request.group,
+                request.output_group,
                 cancel_flag,
                 max_threads,
             )
             .await
         }
-        "magick" => {
+        ("image", "image") | ("image", "document") => {
             magick::run_conversion(
                 handle,
                 input_paths,
@@ -214,7 +217,23 @@ async fn convert_files(
             )
             .await
         }
-        _ => Err(format!("Unsupported tool requested: {}", request.tool)),
+        ("document", "image") | ("document", "document") => {
+            document::run_conversion(
+                handle,
+                input_paths,
+                output_ext,
+                request.output_group,
+                request.options,
+                request.combine,
+                cancel_flag,
+                max_threads,
+            )
+            .await
+        }
+        _ => Err(format!(
+            "Unsupported conversion route: {} -> {}",
+            request.input_group, request.output_group
+        )),
     }
 }
 
@@ -368,6 +387,7 @@ pub async fn run_cli_command(
     if let Some(path_var) = std::env::var_os("PATH") {
         let mut paths = std::env::split_paths(&path_var).collect::<Vec<_>>();
         paths.insert(0, resource_dir.clone());
+        paths.insert(0, resource_dir.join("resources").join("LibreOffice").join("program"));
         paths.insert(0, resource_dir.join("resources").join("Ghostscript").join("bin"));
         paths.insert(0, resource_dir.join("resources").join("ImageMagick").join("libjxr"));
         paths.insert(0, resource_dir.join("resources").join("ImageMagick").join("libheif"));

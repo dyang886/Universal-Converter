@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { open } from '@tauri-apps/plugin-dialog';
 
-import { InformationCircleIcon, MusicalNoteIcon, PaperAirplaneIcon, PhotoIcon, StopIcon, TrashIcon, VideoCameraIcon } from '@heroicons/react/24/solid';
+import { DocumentTextIcon, InformationCircleIcon, MusicalNoteIcon, PaperAirplaneIcon, PhotoIcon, StopIcon, TrashIcon, VideoCameraIcon } from '@heroicons/react/24/solid';
 import { useTranslation } from 'react-i18next';
 
 import { useApp } from '@/contexts/AppContext';
@@ -32,6 +32,7 @@ export default function FileSelection() {
             audio: <span className="flex items-center"><MusicalNoteIcon className={iconClass} />{t('file_selection.audio')}</span>,
             video: <span className="flex items-center"><VideoCameraIcon className={iconClass} />{t('file_selection.video')}</span>,
             image: <span className="flex items-center"><PhotoIcon className={iconClass} />{t('file_selection.image')}</span>,
+            document: <span className="flex items-center"><DocumentTextIcon className={iconClass} />{t('file_selection.document')}</span>,
         };
         return icons[type] || null;
     };
