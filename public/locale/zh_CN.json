@@ -72,7 +72,18 @@
     "files_selected": "已选择文件",
     "current_file_type": "当前文件类型",
     "file_path": "文件路径",
-    "action": "操作"
+    "action": "操作",
+    "remove_file": "移除文件"
+  },
+  "metadata": {
+    "title": "元数据",
+    "view": "查看元数据",
+    "back": "返回",
+    "loading": "正在加载元数据...",
+    "load_failed": "无法加载元数据",
+    "no_metadata": "未找到元数据",
+    "tag": "标签",
+    "value": "值"
   },
   "terminal": {
     "waiting_for_conversion": "等待转换开始...",

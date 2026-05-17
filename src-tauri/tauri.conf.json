@@ -31,6 +31,7 @@
     ],
     "resources": {
       "binaries/7zip": "7zip",
+      "binaries/exiftool": "exiftool",
       "binaries/dependencies/ffmpeg": "dependencies/ffmpeg",
       "binaries/dependencies/imagemagick": "dependencies/imagemagick"
     },

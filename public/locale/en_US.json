@@ -72,7 +72,18 @@
     "files_selected": "Files Selected",
     "current_file_type": "Current File Type",
     "file_path": "File Path",
-    "action": "Action"
+    "action": "Action",
+    "remove_file": "Remove file"
+  },
+  "metadata": {
+    "title": "Metadata",
+    "view": "View metadata",
+    "back": "Back",
+    "loading": "Loading metadata...",
+    "load_failed": "Could not load metadata",
+    "no_metadata": "No metadata found",
+    "tag": "Tag",
+    "value": "Value"
   },
   "terminal": {
     "waiting_for_conversion": "Waiting for conversion to start...",

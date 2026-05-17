@@ -19,6 +19,7 @@ const ROUTING_JSON: &str = include_str!("../../src/shared/conversion-routing.jso
 const DEPENDENCY_MANIFEST_S3_PATH: &str = "UCT/Data/manifest.json";
 const PARALLEL_DOWNLOAD_THRESHOLD: u64 = 2 * 1024 * 1024;
 const DEPENDENCY_PROGRESS_EVENT: &str = "dependency-progress";
+const SEVEN_ZIP_EXE: &str = "7zip/7za.exe";
 
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -205,6 +206,20 @@ pub fn dependency_env(handle: &AppHandle, pack_ids: &[String]) -> Result<HashMap
     }
 
     Ok(env)
+}
+
+pub fn core_utility_path(handle: &AppHandle, relative_path: &str) -> Result<PathBuf, String> {
+    let resource_dir = handle.path().resource_dir().map_err(|e| e.to_string())?;
+    Ok(resolve_resource_path(&resource_dir, relative_path))
+}
+
+pub fn seven_zip_path(handle: &AppHandle) -> Result<PathBuf, String> {
+    core_utility_path(handle, SEVEN_ZIP_EXE)
+}
+
+#[allow(dead_code)]
+pub fn exiftool_path(handle: &AppHandle) -> Result<PathBuf, String> {
+    core_utility_path(handle, "exiftool/exiftool.exe")
 }
 
 pub fn missing_dependency_packs(handle: &AppHandle, pack_ids: &[String]) -> Result<Vec<String>, String> {
@@ -724,7 +739,7 @@ fn emit_dependency_progress(
 
 async fn extract_archive(handle: &AppHandle, archive_path: &Path, stage_root: &Path, cancel_flag: &Arc<AtomicBool>) -> Result<(), String> {
     fs::create_dir_all(stage_root).await.map_err(|e| e.to_string())?;
-    let seven_zip = handle.path().resource_dir().map_err(|e| e.to_string())?.join("7zip").join("7za.exe");
+    let seven_zip = seven_zip_path(handle)?;
     let output_arg = format!("-o{}", stage_root.display());
     let mut child = Command::new(seven_zip)
         .arg("x")

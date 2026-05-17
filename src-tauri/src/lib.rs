@@ -15,6 +15,7 @@ use tokio::fs as async_fs;
 mod document;
 mod ffmpeg;
 mod magick;
+mod metadata;
 mod routing;
 mod secret_config;
 
@@ -329,6 +330,11 @@ async fn get_dynamic_options(handle: AppHandle, widget_name: String, codec: Stri
     Ok(unique_options)
 }
 
+#[tauri::command]
+async fn get_file_metadata(handle: AppHandle, file_path: String) -> Result<metadata::MetadataResponse, String> {
+    metadata::read_file_metadata(handle, file_path).await
+}
+
 // --- Common helper functions for CLI command execution ---
 
 /// Create a HashMap with a single file path for localization context
@@ -498,7 +504,8 @@ pub fn run() {
             cancel_dependency_download,
             convert_files,
             stop_conversion,
-            get_dynamic_options
+            get_dynamic_options,
+            get_file_metadata
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
