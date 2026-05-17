@@ -4,6 +4,7 @@
     "advanced_options": "Advanced Options",
     "terminal_output": "Terminal Output",
     "settings": "Settings",
+    "dependencies": "Dependencies",
     "about": "About"
   },
   "settings": {
@@ -14,6 +15,35 @@
     "language": "Language",
     "auto_update": "Check software update automatically",
     "max_threads": "Max Concurrent Conversions"
+  },
+  "dependencies": {
+    "title": "Dependencies",
+    "subtitle": "Manage optional conversion engines used by specific routes.",
+    "pack_count": "{{count}} dependency packs",
+    "checking": "Checking",
+    "checking_updates": "Checking for updates...",
+    "installed": "Installed",
+    "missing": "Missing",
+    "not_installed": "Not installed",
+    "update_available": "Update available",
+    "install": "Install",
+    "update": "Update",
+    "cancel": "Cancel",
+    "cancelled": "Download cancelled.",
+    "refresh": "Refresh",
+    "current_version": "Current version: {{version}}",
+    "location": "Location",
+    "unknown": "Unknown",
+    "install_success": "{{name}} is ready.",
+    "install_failed": "Could not install dependency",
+    "elevation_required": "This app needs permission to write to its install folder. Please run Universal Converter as administrator, then try again.",
+    "states": {
+      "requesting-url": "Requesting download link",
+      "downloading": "Downloading",
+      "extracting": "Extracting",
+      "complete": "Complete"
+    },
+    "status_failed": "Could not load dependency status"
   },
   "about": {
     "title": "About",
@@ -59,6 +89,7 @@
     "select_same_type": "Please select files from the same type",
     "conversion_success": "Conversion successful",
     "conversion_failed": "Some files failed to convert",
+    "missing_dependencies": "This conversion requires you to install {{dependencies}} first",
     "conversion_unexpected_error": "An unexpected error occurred during conversion"
   },
   "advanced": {

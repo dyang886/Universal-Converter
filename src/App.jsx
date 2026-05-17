@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, Route, Routes, useLocation } from 'react-router-dom';
 
 import { EllipsisHorizontalCircleIcon } from '@heroicons/react/24/outline';
-import { Cog6ToothIcon, CommandLineIcon, DocumentTextIcon, InformationCircleIcon, WrenchIcon } from '@heroicons/react/24/solid';
+import { Cog6ToothIcon, CommandLineIcon, DocumentTextIcon, InformationCircleIcon, PuzzlePieceIcon, WrenchIcon } from '@heroicons/react/24/solid';
 import { useTranslation } from 'react-i18next';
 
 import { AppProvider } from '@/contexts/AppContext';
@@ -10,6 +10,7 @@ import { Navbar, NavbarItem, NavbarSection } from '@/components/navbar';
 import { Sidebar, SidebarBody, SidebarItem, SidebarLabel, SidebarSection } from '@/components/sidebar';
 import AboutPage from '@/pages/About';
 import AdvancedOptions from '@/pages/AdvancedOptions';
+import DependenciesPage from '@/pages/Dependencies';
 import FileSelection from '@/pages/FileSelection';
 import SettingsPage from '@/pages/Settings';
 import TerminalOutput from '@/pages/TerminalOutput';
@@ -19,7 +20,7 @@ export default function App() {
     const { t } = useTranslation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const location = useLocation();
-    const isFullScreenPage = ['/settings', '/about'].includes(location.pathname);
+    const isFullScreenPage = ['/settings', '/dependencies', '/about'].includes(location.pathname);
 
     useEffect(() => {
         setIsSidebarOpen(false);
@@ -53,6 +54,7 @@ export default function App() {
                     <Route path="/advanced" element={<AdvancedOptions />} />
                     <Route path="/terminal" element={<TerminalOutput />} />
                     <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/dependencies" element={<DependenciesPage />} />
                     <Route path="/about" element={<AboutPage />} />
                 </Routes>
 
@@ -69,6 +71,10 @@ export default function App() {
                                 <SidebarItem as={Link} to="/settings">
                                     <Cog6ToothIcon className="h-6 w-6" />
                                     <SidebarLabel>{t('main.settings')}</SidebarLabel>
+                                </SidebarItem>
+                                <SidebarItem as={Link} to="/dependencies">
+                                    <PuzzlePieceIcon className="h-6 w-6" />
+                                    <SidebarLabel>{t('main.dependencies')}</SidebarLabel>
                                 </SidebarItem>
                                 <SidebarItem as={Link} to="/about">
                                     <InformationCircleIcon className="h-6 w-6" />

@@ -1,0 +1,121 @@
+{
+  "packs": {
+    "ffmpeg": {
+      "name": "FFmpeg",
+      "version": "1.0.0",
+      "platform": "windows",
+      "bundled": true,
+      "rootDir": "dependencies/ffmpeg",
+      "commands": ["ffmpeg", "um"],
+      "binDirs": ["dependencies/ffmpeg"],
+      "requiredFiles": ["dependencies/ffmpeg/ffmpeg.exe", "dependencies/ffmpeg/um.exe"],
+      "env": {}
+    },
+    "imagemagick": {
+      "name": "ImageMagick",
+      "version": "1.0.0",
+      "platform": "windows",
+      "bundled": true,
+      "rootDir": "dependencies/imagemagick",
+      "commands": ["magick", "heif-enc", "JXREncApp"],
+      "binDirs": ["dependencies/imagemagick", "dependencies/imagemagick/libheif", "dependencies/imagemagick/libjxr"],
+      "requiredFiles": [
+        "dependencies/imagemagick/magick.exe",
+        "dependencies/imagemagick/delegates.xml",
+        "dependencies/imagemagick/libheif/heif-enc.exe",
+        "dependencies/imagemagick/libjxr/JXREncApp.exe"
+      ],
+      "env": {
+        "MAGICK_CONFIGURE_PATH": "dependencies/imagemagick"
+      }
+    },
+    "ghostscript": {
+      "name": "Ghostscript",
+      "version": "1.0.0",
+      "platform": "windows",
+      "bundled": false,
+      "rootDir": "dependencies/ghostscript",
+      "commands": ["gswin64c"],
+      "binDirs": ["dependencies/ghostscript/bin"],
+      "requiredFiles": [
+        "dependencies/ghostscript/bin/gswin64c.exe",
+        "dependencies/ghostscript/bin/gsdll64.dll",
+        "dependencies/ghostscript/lib",
+        "dependencies/ghostscript/Resource/Init"
+      ],
+      "env": {
+        "GS_LIB": [
+          "dependencies/ghostscript/lib",
+          "dependencies/ghostscript/Resource/Init",
+          "dependencies/ghostscript/Resource",
+          "dependencies/ghostscript/Resource/Font",
+          "dependencies/ghostscript/iccprofiles"
+        ]
+      }
+    },
+    "libreoffice": {
+      "name": "LibreOffice",
+      "version": "1.0.0",
+      "platform": "windows",
+      "bundled": false,
+      "rootDir": "dependencies/libreoffice",
+      "commands": ["soffice.com"],
+      "binDirs": ["dependencies/libreoffice/program"],
+      "requiredFiles": [
+        "dependencies/libreoffice/program/soffice.com",
+        "dependencies/libreoffice/program/fundamental.ini",
+        "dependencies/libreoffice/share/registry"
+      ],
+      "env": {}
+    }
+  },
+  "routes": [
+    {
+      "kind": "ffmpeg",
+      "inputGroup": ["audio"],
+      "outputGroup": ["audio"],
+      "packs": ["ffmpeg"]
+    },
+    {
+      "kind": "ffmpeg",
+      "inputGroup": ["video"],
+      "outputGroup": ["audio", "video"],
+      "packs": ["ffmpeg"]
+    },
+    {
+      "kind": "magick",
+      "inputGroup": ["image"],
+      "outputGroup": ["image", "document"],
+      "packs": ["imagemagick"]
+    },
+    {
+      "kind": "document-postscript",
+      "inputGroup": ["document"],
+      "inputExt": ["pdf", "ps", "eps", "ai"],
+      "outputGroup": ["image"],
+      "packs": ["imagemagick", "ghostscript"]
+    },
+    {
+      "kind": "document-postscript",
+      "inputGroup": ["document"],
+      "inputExt": ["pdf", "ps", "eps", "ai"],
+      "outputGroup": ["document"],
+      "outputExt": ["pdf", "ps", "eps", "ai"],
+      "packs": ["imagemagick", "ghostscript"]
+    },
+    {
+      "kind": "document-office-to-document",
+      "inputGroup": ["document"],
+      "inputExt": ["doc", "docx", "odt", "rtf", "txt", "md", "html", "htm", "xhtml", "epub", "ppt", "pptx", "odp", "xls", "xlsx", "ods", "csv"],
+      "outputGroup": ["document"],
+      "packs": ["libreoffice"]
+    },
+    {
+      "kind": "document-office-to-image",
+      "inputGroup": ["document"],
+      "inputExt": ["doc", "docx", "odt", "rtf", "txt", "md", "html", "htm", "xhtml", "epub", "ppt", "pptx", "odp", "xls", "xlsx", "ods", "csv"],
+      "outputGroup": ["image"],
+      "packs": ["libreoffice", "imagemagick", "ghostscript"]
+    }
+  ]
+}

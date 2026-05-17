@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Universal Converter",
-  "version": "2.0.0-beta.2",
+  "version": "0.0.0",
   "identifier": "com.universal-converter.app",
   "mainBinaryName": "Universal Converter.exe",
   "build": {
@@ -27,34 +27,12 @@
     "copyright": "Copyright © 2025-2026 Yongcan Yang",
     "publisher": "Yongcan Yang",
     "externalBin": [
-      "binaries/ffmpeg",
-      "binaries/um",
-      "binaries/ImageMagick/magick",
       "binaries/Updater"
     ],
     "resources": {
-      "binaries/ImageMagick/delegates.xml": "resources/ImageMagick/delegates.xml",
-      "binaries/ImageMagick/colors.xml": "resources/ImageMagick/colors.xml",
-      "binaries/ImageMagick/thresholds.xml": "resources/ImageMagick/thresholds.xml",
-      "binaries/ImageMagick/sRGB.icc": "resources/ImageMagick/sRGB.icc",
-      "binaries/ImageMagick/english.xml": "resources/ImageMagick/english.xml",
-      "binaries/ImageMagick/locale.xml": "resources/ImageMagick/locale.xml",
-      "binaries/ImageMagick/libjxr/JXREncApp.exe": "resources/ImageMagick/libjxr/JXREncApp.exe",
-      "binaries/ImageMagick/libjxr/JXRDecApp.exe": "resources/ImageMagick/libjxr/JXRDecApp.exe",
-      "binaries/ImageMagick/libheif/heif-enc.exe": "resources/ImageMagick/libheif/heif-enc.exe",
-      "binaries/ImageMagick/libheif/heif.dll": "resources/ImageMagick/libheif/heif.dll",
-      "binaries/ImageMagick/libheif/libde265.dll": "resources/ImageMagick/libheif/libde265.dll",
-      "binaries/ImageMagick/libheif/libx265.dll": "resources/ImageMagick/libheif/libx265.dll",
-      "binaries/ImageMagick/libheif/aom.dll": "resources/ImageMagick/libheif/aom.dll",
-      "binaries/ImageMagick/libheif/libpng16.dll": "resources/ImageMagick/libheif/libpng16.dll",
-      "binaries/ImageMagick/libheif/jpeg62.dll": "resources/ImageMagick/libheif/jpeg62.dll",
-      "binaries/ImageMagick/libheif/z.dll": "resources/ImageMagick/libheif/z.dll",
-      "binaries/Ghostscript/bin/gswin64c.exe": "resources/Ghostscript/bin/gswin64c.exe",
-      "binaries/Ghostscript/bin/gsdll64.dll": "resources/Ghostscript/bin/gsdll64.dll",
-      "binaries/Ghostscript/lib": "resources/Ghostscript/lib",
-      "binaries/Ghostscript/Resource": "resources/Ghostscript/Resource",
-      "binaries/Ghostscript/iccprofiles": "resources/Ghostscript/iccprofiles",
-      "binaries/LibreOffice": "resources/LibreOffice"
+      "binaries/7zip": "7zip",
+      "binaries/dependencies/ffmpeg": "dependencies/ffmpeg",
+      "binaries/dependencies/imagemagick": "dependencies/imagemagick"
     },
     "targets": "all",
     "icon": [

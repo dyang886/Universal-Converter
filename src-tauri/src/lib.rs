@@ -1,7 +1,5 @@
 use indexmap::IndexMap;
 use std::collections::HashMap;
-use std::env;
-use std::ffi::OsStr;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -10,13 +8,14 @@ use std::time::{Duration, Instant};
 
 use directories::BaseDirs;
 use serde::{Deserialize, Serialize};
-use tauri::{AppHandle, Emitter, Manager};
+use tauri::{AppHandle, Emitter};
 use tauri_plugin_shell::{ShellExt, process::CommandEvent};
 use tokio::fs as async_fs;
 
 mod document;
 mod ffmpeg;
 mod magick;
+mod routing;
 mod secret_config;
 
 pub const THROTTLE_INTERVAL: Duration = Duration::from_millis(500);
@@ -66,6 +65,7 @@ pub struct ConversionRequest {
 
 pub struct AppState {
     pub cancel_flag: Arc<AtomicBool>,
+    pub dependency_cancel_flag: Arc<AtomicBool>,
 }
 
 impl Default for AppSettings {
@@ -175,6 +175,30 @@ fn stop_conversion(state: tauri::State<'_, AppState>) {
 }
 
 #[tauri::command]
+fn get_dependency_statuses(handle: AppHandle) -> Result<Vec<routing::DependencyPackStatus>, String> {
+    routing::dependency_pack_statuses(&handle)
+}
+
+#[tauri::command]
+async fn check_dependency_updates(handle: AppHandle) -> Result<Vec<routing::DependencyPackStatus>, String> {
+    routing::dependency_pack_statuses_with_updates(&handle).await
+}
+
+#[tauri::command]
+fn cancel_dependency_download(state: tauri::State<'_, AppState>) {
+    state.dependency_cancel_flag.store(true, Ordering::Relaxed);
+}
+
+#[tauri::command]
+async fn download_dependency_pack(
+    handle: AppHandle, state: tauri::State<'_, AppState>, pack_id: String,
+) -> Result<routing::DependencyPackStatus, String> {
+    state.dependency_cancel_flag.store(false, Ordering::Relaxed);
+    let cancel_flag = Arc::clone(&state.dependency_cancel_flag);
+    routing::download_and_install_dependency_pack(handle, pack_id, cancel_flag).await
+}
+
+#[tauri::command]
 async fn convert_files(
     handle: AppHandle, state: tauri::State<'_, AppState>, input_paths: Vec<String>, output_ext: String, request: ConversionRequest,
 ) -> Result<bool, String> {
@@ -189,9 +213,19 @@ async fn convert_files(
 
     state.cancel_flag.store(false, Ordering::Relaxed);
     let cancel_flag = Arc::clone(&state.cancel_flag);
+    let input_ext = input_paths
+        .first()
+        .and_then(|path| PathBuf::from(path).extension().and_then(|ext| ext.to_str()).map(str::to_ascii_lowercase))
+        .unwrap_or_default();
+    let route = routing::resolve_route(&request.input_group, &input_ext, &request.output_group, &output_ext)?;
 
-    match (request.input_group.as_str(), request.output_group.as_str()) {
-        ("audio", "audio") | ("video", "video") | ("video", "audio") => {
+    let missing_dependency_packs = routing::missing_dependency_packs(&handle, &route.packs)?;
+    if !missing_dependency_packs.is_empty() {
+        return Err(format!("missing_dependencies:{}", missing_dependency_packs.join(",")));
+    }
+
+    match route.kind {
+        routing::ConversionRouteKind::Ffmpeg => {
             ffmpeg::run_conversion(
                 handle,
                 input_paths,
@@ -205,7 +239,7 @@ async fn convert_files(
             )
             .await
         }
-        ("image", "image") | ("image", "document") => {
+        routing::ConversionRouteKind::Magick => {
             magick::run_conversion(
                 handle,
                 input_paths,
@@ -217,11 +251,15 @@ async fn convert_files(
             )
             .await
         }
-        ("document", "image") | ("document", "document") => {
+        routing::ConversionRouteKind::DocumentPostscript
+        | routing::ConversionRouteKind::DocumentOfficeToDocument
+        | routing::ConversionRouteKind::DocumentOfficeToImage => {
             document::run_conversion(
                 handle,
                 input_paths,
                 output_ext,
+                route.kind,
+                route.packs,
                 request.output_group,
                 request.options,
                 request.combine,
@@ -230,10 +268,6 @@ async fn convert_files(
             )
             .await
         }
-        _ => Err(format!(
-            "Unsupported conversion route: {} -> {}",
-            request.input_group, request.output_group
-        )),
     }
 }
 
@@ -242,10 +276,13 @@ async fn get_dynamic_options(handle: AppHandle, widget_name: String, codec: Stri
     let shell = handle.shell();
     let encoder_arg = format!("encoder={}", codec);
     let command_args = vec!["-hide_banner", "-h", &encoder_arg];
+    let command_packs = routing::command_packs("ffmpeg");
+    let command_env = routing::dependency_env(&handle, &command_packs)?;
 
     let (mut rx, _child) = shell
         .command("ffmpeg")
         .args(command_args)
+        .envs(command_env)
         .spawn()
         .map_err(|e| format!("Failed to spawn ffmpeg process: {}", e))?;
 
@@ -379,37 +416,9 @@ pub async fn find_first_file_in_dir(dir: &PathBuf) -> Result<Option<PathBuf>, St
 
 /// Returns `Err("cancelled")` if the cancel flag fires mid-run, `Err(_)` on process failure.
 pub async fn run_cli_command(
-    handle: &AppHandle, original_path_str: &str, program: &str, args: &[String], cancel_flag: &Arc<AtomicBool>,
+    handle: &AppHandle, original_path_str: &str, program: &str, args: &[String], cancel_flag: &Arc<AtomicBool>, pack_ids: &[String],
 ) -> Result<(), String> {
-    let resource_dir = handle.path().resource_dir().map_err(|e| e.to_string())?;
-
-    let mut new_env = HashMap::new();
-    if let Some(path_var) = std::env::var_os("PATH") {
-        let mut paths = std::env::split_paths(&path_var).collect::<Vec<_>>();
-        paths.insert(0, resource_dir.clone());
-        paths.insert(0, resource_dir.join("resources").join("LibreOffice").join("program"));
-        paths.insert(0, resource_dir.join("resources").join("Ghostscript").join("bin"));
-        paths.insert(0, resource_dir.join("resources").join("ImageMagick").join("libjxr"));
-        paths.insert(0, resource_dir.join("resources").join("ImageMagick").join("libheif"));
-        let new_path = std::env::join_paths(paths).unwrap_or_else(|_| OsStr::new("").to_os_string());
-        new_env.insert("PATH".to_string(), new_path);
-    }
-    if program == "magick" {
-        let ghostscript_dir = resource_dir.join("resources").join("Ghostscript");
-        let gs_lib_paths = [
-            ghostscript_dir.join("lib"),
-            ghostscript_dir.join("Resource").join("Init"),
-            ghostscript_dir.join("Resource"),
-            ghostscript_dir.join("Resource").join("Font"),
-            ghostscript_dir.join("iccprofiles"),
-        ];
-        let gs_lib = std::env::join_paths(gs_lib_paths).unwrap_or_else(|_| OsStr::new("").to_os_string());
-        new_env.insert("GS_LIB".to_string(), gs_lib);
-        new_env.insert(
-            "MAGICK_CONFIGURE_PATH".to_string(),
-            resource_dir.join("resources").join("ImageMagick").into_os_string(),
-        );
-    }
+    let new_env = routing::dependency_env(handle, pack_ids)?;
 
     let (mut rx, child) = handle
         .shell()
@@ -469,6 +478,7 @@ pub fn run() {
     tauri::Builder::default()
         .manage(AppState {
             cancel_flag: Arc::new(AtomicBool::new(false)),
+            dependency_cancel_flag: Arc::new(AtomicBool::new(false)),
         })
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_shell::init())
@@ -479,6 +489,10 @@ pub fn run() {
             save_settings,
             check_for_updates,
             launch_updater,
+            get_dependency_statuses,
+            check_dependency_updates,
+            download_dependency_pack,
+            cancel_dependency_download,
             convert_files,
             stop_conversion,
             get_dynamic_options

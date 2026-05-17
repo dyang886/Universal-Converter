@@ -9,9 +9,36 @@ import { useTranslation } from 'react-i18next';
 import { formats, widgetDefinitions, processFiles, truncateMiddle, buildGroupedArgs, formatTags, getTaggedFormatExts } from '@/contexts/format-options';
 import i18n from '@/contexts/i18n';
 import { usePrompt } from '@/components/prompt';
+import { getDependencyPack, resolveConversionRoute } from '@/contexts/conversion-routing';
 
 
 const AppContext = createContext(null);
+const MISSING_DEPENDENCIES_ERROR_PREFIX = 'missing_dependencies:';
+
+function getPathExtension(path) {
+    const fileName = path.split(/[\\/]/).pop() || '';
+    const dotIndex = fileName.lastIndexOf('.');
+    return dotIndex === -1 ? '' : fileName.slice(dotIndex + 1).toLowerCase();
+}
+
+function getDependencyNames(packIds) {
+    return packIds.map(id => getDependencyPack(id)?.name || id).join(', ');
+}
+
+function getMissingDependenciesErrorIds(error) {
+    const errorText = String(error || '');
+    if (!errorText.startsWith(MISSING_DEPENDENCIES_ERROR_PREFIX)) return [];
+
+    return errorText
+        .slice(MISSING_DEPENDENCIES_ERROR_PREFIX.length)
+        .split(',')
+        .map(id => id.trim())
+        .filter(Boolean);
+}
+
+function getMissingDependenciesMessage(t, packIds) {
+    return t('prompt.missing_dependencies', { dependencies: getDependencyNames(packIds) });
+}
 
 export function AppProvider({ children }) {
     const navigate = useNavigate();
@@ -196,9 +223,23 @@ export function AppProvider({ children }) {
             const outputConfig = formats[outputExt] || {};
             const outputGroup = outputConfig.group || '';
             const inputGroup = fileType || (() => {
-                const ext = filePaths[0]?.split('.').pop()?.toLowerCase() || '';
+                const ext = getPathExtension(filePaths[0] || '');
                 return formats[ext]?.group || '';
             })();
+            const inputExt = getPathExtension(filePaths[0] || '');
+            const route = resolveConversionRoute({ inputGroup, inputExt, outputGroup, outputExt });
+
+            if (route?.packs?.length) {
+                const dependencyStatuses = await invoke('get_dependency_statuses');
+                const installedPackIds = new Set(dependencyStatuses.filter(status => status.installed).map(status => status.id));
+                const missingPackIds = Array.from(new Set(route.packs.filter(packId => !installedPackIds.has(packId))));
+
+                if (missingPackIds.length > 0) {
+                    showPrompt('warning', getMissingDependenciesMessage(t, missingPackIds));
+                    return;
+                }
+            }
+
             const combineInputs = advancedOptionValues['combine_inputs'] === true;
 
             const groupedArgs = buildGroupedArgs(advancedOptionValues);
@@ -218,11 +259,11 @@ export function AppProvider({ children }) {
 
             const encryptedInputExts = new Set(getTaggedFormatExts(formatTags.encrypted));
             const umInputPaths = filePaths.filter(path => {
-                const ext = path.split('.').pop()?.toLowerCase() || '';
+                const ext = getPathExtension(path);
                 return encryptedInputExts.has(ext);
             });
             const audioInputPaths = filePaths.filter(path => {
-                const ext = path.split('.').pop()?.toLowerCase() || '';
+                const ext = getPathExtension(path);
                 return formats[ext]?.group === 'audio';
             });
 
@@ -245,11 +286,17 @@ export function AppProvider({ children }) {
 
         } catch (error) {
             console.error('Conversion failed:', error);
+            const missingDependencyIds = getMissingDependenciesErrorIds(error);
+            if (missingDependencyIds.length > 0) {
+                showPrompt('warning', getMissingDependenciesMessage(t, missingDependencyIds));
+                return;
+            }
+
             showPrompt('error', `${t('prompt.conversion_unexpected_error')}: ${error}`);
         } finally {
             setIsConverting(false);
         }
-    }, [filePaths, fileType, outputExt, advancedOptionValues, selectedVideoCodec, selectedAudioCodec]);
+    }, [filePaths, fileType, outputExt, advancedOptionValues, selectedVideoCodec, selectedAudioCodec, t]);
 
     const OUTPUT_CAP = 100_000;
 

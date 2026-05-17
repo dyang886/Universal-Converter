@@ -13,6 +13,7 @@ use tokio::sync::Semaphore;
 use tokio::task::JoinSet;
 use uuid::Uuid;
 
+use crate::routing;
 use crate::{emit_cancelled, emit_delta, emit_error, emit_success, find_first_file_in_dir, run_cli_command};
 
 const COVER_ART_AUDIO_OUTPUTS: &[&str] = &["mp3", "flac", "m4a", "m4b"];
@@ -42,7 +43,11 @@ fn push_video_size_if_missing(args: &mut Vec<String>, options: &IndexMap<String,
 async fn input_has_audio_stream(handle: &AppHandle, path: &PathBuf, cancel_flag: &Arc<AtomicBool>) -> bool {
     let path_str = path.to_string_lossy().to_string();
     let args = vec!["-hide_banner", "-i", path_str.as_str()];
-    let Ok((mut rx, child)) = handle.shell().command("ffmpeg").args(args).spawn() else {
+    let command_packs = routing::command_packs("ffmpeg");
+    let Ok(command_env) = routing::dependency_env(handle, &command_packs) else {
+        return false;
+    };
+    let Ok((mut rx, child)) = handle.shell().command("ffmpeg").args(args).envs(command_env).spawn() else {
         return false;
     };
 
@@ -169,7 +174,8 @@ async fn convert_single_file(
 
         println!("Full um command: um {}", um_cli_args.join(" "));
 
-        match run_cli_command(handle, &path_str, "um", &um_cli_args, cancel_flag).await {
+        let um_pack_ids = routing::command_packs("um");
+        match run_cli_command(handle, &path_str, "um", &um_cli_args, cancel_flag, &um_pack_ids).await {
             Ok(()) => match find_first_file_in_dir(&temp_dir).await {
                 Ok(Some(decrypted_file_path)) => decrypted_file_path,
                 Ok(None) => {
@@ -333,7 +339,8 @@ async fn convert_single_file(
         );
     }
 
-    let result = match run_cli_command(handle, &path_str, "ffmpeg", &ffmpeg_args, cancel_flag).await {
+    let ffmpeg_pack_ids = routing::command_packs("ffmpeg");
+    let result = match run_cli_command(handle, &path_str, "ffmpeg", &ffmpeg_args, cancel_flag, &ffmpeg_pack_ids).await {
         Ok(()) => {
             emit_success(handle, &path_str, &original_input_path);
             true

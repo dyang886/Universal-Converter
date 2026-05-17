@@ -7,6 +7,7 @@ use tauri::AppHandle;
 use tokio::sync::Semaphore;
 use tokio::task::JoinSet;
 
+use crate::routing;
 use crate::{emit_cancelled, emit_delta, emit_error, emit_success, run_cli_command};
 
 fn path_extension(path: &str) -> Option<String> {
@@ -81,7 +82,8 @@ async fn convert_batch(
 
     println!("Full magick command: magick {}", args.join(" "));
 
-    match run_cli_command(handle, &batch[0], "magick", &args, cancel_flag).await {
+    let pack_ids = routing::command_packs("magick");
+    match run_cli_command(handle, &batch[0], "magick", &args, cancel_flag, &pack_ids).await {
         Ok(()) => {
             emit_success(handle, &batch[0], &representative);
             true

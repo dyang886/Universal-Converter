@@ -4,6 +4,7 @@
     "advanced_options": "高级选项",
     "terminal_output": "终端输出",
     "settings": "设置",
+    "dependencies": "依赖项",
     "about": "关于"
   },
   "settings": {
@@ -14,6 +15,35 @@
     "language": "语言",
     "auto_update": "自动检查更新",
     "max_threads": "最大同时转换数"
+  },
+  "dependencies": {
+    "title": "依赖项",
+    "subtitle": "管理特定转换路径所需的可选转换引擎。",
+    "pack_count": "{{count}} 个依赖包",
+    "checking": "检查中",
+    "checking_updates": "正在检查更新...",
+    "installed": "已安装",
+    "missing": "缺失",
+    "not_installed": "未安装",
+    "update_available": "可更新",
+    "install": "安装",
+    "update": "更新",
+    "cancel": "取消",
+    "cancelled": "下载已取消。",
+    "refresh": "刷新",
+    "current_version": "当前版本：{{version}}",
+    "location": "位置",
+    "unknown": "未知",
+    "install_success": "{{name}} 已就绪。",
+    "install_failed": "无法安装依赖项",
+    "elevation_required": "应用需要写入安装目录的权限。请以管理员身份运行 Universal Converter 后重试。",
+    "states": {
+      "requesting-url": "正在请求下载链接",
+      "downloading": "正在下载",
+      "extracting": "正在解压",
+      "complete": "完成"
+    },
+    "status_failed": "无法加载依赖项状态"
   },
   "about": {
     "title": "关于",
@@ -59,6 +89,7 @@
     "select_same_type": "请选择相同类型的文件",
     "conversion_success": "转换成功",
     "conversion_failed": "部分文件转换失败",
+    "missing_dependencies": "此转换需要先安装 {{dependencies}}",
     "conversion_unexpected_error": "转换过程中发生意外错误"
   },
   "advanced": {

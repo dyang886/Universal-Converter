@@ -9,25 +9,18 @@ use tokio::sync::Semaphore;
 use tokio::task::JoinSet;
 use uuid::Uuid;
 
+use crate::routing::ConversionRouteKind;
 use crate::{emit_cancelled, emit_delta, emit_error, emit_success, run_cli_command};
 
 const POSTSCRIPT_DOCUMENT_EXTS: &[&str] = &["ai", "eps", "pdf", "ps"];
 const PAGE_ENCODER_OUTPUT_EXTS: &[&str] = &["heic", "heif", "jxr", "wdp"];
-const LIBREOFFICE_INPUT_EXTS: &[&str] = &[
-    "csv", "doc", "docx", "epub", "htm", "html", "md", "odp", "ods", "odt", "ppt", "pptx", "rtf", "txt", "xls", "xlsx", "xhtml",
-];
 const LIBREOFFICE_OUTPUT_EXTS: &[&str] = &[
     "csv", "doc", "docx", "epub", "htm", "html", "odp", "ods", "odt", "pdf", "ppt", "pptx", "rtf", "txt", "xls", "xlsx", "xhtml",
 ];
 
-enum DocumentInputKind {
-    Postscript,
-    LibreOffice,
-}
-
 pub async fn run_conversion(
-    handle: AppHandle, input_paths: Vec<String>, output_ext: String, output_group: String, options: IndexMap<String, String>, combine: bool,
-    cancel_flag: Arc<AtomicBool>, max_threads: usize,
+    handle: AppHandle, input_paths: Vec<String>, output_ext: String, route_kind: ConversionRouteKind, pack_ids: Vec<String>, output_group: String,
+    options: IndexMap<String, String>, combine: bool, cancel_flag: Arc<AtomicBool>, max_threads: usize,
 ) -> Result<bool, String> {
     let batches: Vec<Vec<String>> = if combine {
         vec![input_paths]
@@ -51,6 +44,8 @@ pub async fn run_conversion(
 
         let handle = handle.clone();
         let output_ext = output_ext.clone();
+        let route_kind = route_kind.clone();
+        let pack_ids = pack_ids.clone();
         let output_group = output_group.clone();
         let options = options.clone();
         let cancel = Arc::clone(&cancel_flag);
@@ -58,7 +53,7 @@ pub async fn run_conversion(
 
         join_set.spawn(async move {
             let _permit = permit;
-            if !convert_batch(&handle, batch, &output_ext, &output_group, &options, &cancel).await {
+            if !convert_batch(&handle, batch, &output_ext, &route_kind, &pack_ids, &output_group, &options, &cancel).await {
                 all_ok.store(false, Ordering::Relaxed);
             }
         });
@@ -70,7 +65,8 @@ pub async fn run_conversion(
 }
 
 async fn convert_batch(
-    handle: &AppHandle, batch: Vec<String>, output_ext: &str, output_group: &str, options: &IndexMap<String, String>, cancel_flag: &Arc<AtomicBool>,
+    handle: &AppHandle, batch: Vec<String>, output_ext: &str, route_kind: &ConversionRouteKind, pack_ids: &[String], output_group: &str,
+    options: &IndexMap<String, String>, cancel_flag: &Arc<AtomicBool>,
 ) -> bool {
     let representative = PathBuf::from(&batch[0]);
     emit_delta(handle, &batch[0], &representative, String::new());
@@ -81,7 +77,18 @@ async fn convert_batch(
         output_ext
     ));
 
-    let result = route_document_conversion(handle, &batch, output_ext, output_group, options, cancel_flag, &output).await;
+    let result = run_document_route(
+        handle,
+        &batch,
+        output_ext,
+        route_kind,
+        pack_ids,
+        output_group,
+        options,
+        cancel_flag,
+        &output,
+    )
+    .await;
 
     match result {
         Ok(()) => {
@@ -100,67 +107,71 @@ async fn convert_batch(
     }
 }
 
-async fn route_document_conversion(
-    handle: &AppHandle, batch: &[String], output_ext: &str, output_group: &str, options: &IndexMap<String, String>, cancel_flag: &Arc<AtomicBool>,
-    output: &Path,
+async fn run_document_route(
+    handle: &AppHandle, batch: &[String], output_ext: &str, route_kind: &ConversionRouteKind, pack_ids: &[String], output_group: &str,
+    options: &IndexMap<String, String>, cancel_flag: &Arc<AtomicBool>, output: &Path,
 ) -> Result<(), String> {
     let input_ext = path_extension(Path::new(&batch[0]));
-
-    match classify_document_input(&input_ext) {
-        Some(DocumentInputKind::Postscript) => {
-            run_postscript_flow(handle, batch, &input_ext, output_ext, output_group, options, cancel_flag, output).await
+    match route_kind {
+        ConversionRouteKind::DocumentPostscript => {
+            run_postscript_flow(
+                handle,
+                batch,
+                &input_ext,
+                output_ext,
+                output_group,
+                options,
+                cancel_flag,
+                output,
+                pack_ids,
+            )
+            .await
         }
-        Some(DocumentInputKind::LibreOffice) => {
+        ConversionRouteKind::DocumentOfficeToDocument => {
             if batch.len() > 1 {
                 return Err("Combining LibreOffice document inputs is not supported yet.".to_string());
             }
-            run_libreoffice_flow(handle, &batch[0], output_ext, output_group, options, cancel_flag, output).await
+            run_libreoffice_to_document_flow(handle, &batch[0], output_ext, cancel_flag, output, pack_ids).await
         }
-        None => Err(format!("Document input .{} is not supported yet.", input_ext)),
+        ConversionRouteKind::DocumentOfficeToImage => {
+            if batch.len() > 1 {
+                return Err("Combining LibreOffice document inputs is not supported yet.".to_string());
+            }
+            run_libreoffice_to_image_flow(handle, &batch[0], output_ext, options, cancel_flag, output, pack_ids).await
+        }
+        _ => Err(format!("Unsupported document route for .{}", input_ext)),
     }
 }
 
 async fn run_postscript_flow(
     handle: &AppHandle, batch: &[String], input_ext: &str, output_ext: &str, output_group: &str, options: &IndexMap<String, String>,
-    cancel_flag: &Arc<AtomicBool>, output: &Path,
+    cancel_flag: &Arc<AtomicBool>, output: &Path, pack_ids: &[String],
 ) -> Result<(), String> {
     match output_group {
         "image" if needs_page_encoder(output_ext) => {
-            render_document_pages_to_encoded_images(handle, batch, output_ext, options, cancel_flag, output, &batch[0]).await
+            render_document_pages_to_encoded_images(handle, batch, output_ext, options, cancel_flag, output, &batch[0], pack_ids).await
         }
-        "image" => run_magick_document(handle, batch, true, options, cancel_flag, output, &batch[0]).await,
+        "image" => run_magick_document(handle, batch, true, options, cancel_flag, output, &batch[0], pack_ids).await,
         "document" if is_postscript_document_ext(output_ext) => {
-            run_magick_document(handle, batch, false, options, cancel_flag, output, &batch[0]).await
+            run_magick_document(handle, batch, false, options, cancel_flag, output, &batch[0], pack_ids).await
         }
         _ => Err(format!("Document route .{} -> .{} is not supported yet.", input_ext, output_ext)),
     }
 }
 
-async fn run_libreoffice_flow(
-    handle: &AppHandle, input_path: &str, output_ext: &str, output_group: &str, options: &IndexMap<String, String>, cancel_flag: &Arc<AtomicBool>,
-    output: &Path,
-) -> Result<(), String> {
-    match output_group {
-        "image" => run_libreoffice_to_image_flow(handle, input_path, output_ext, options, cancel_flag, output).await,
-        "document" if is_libreoffice_output_ext(output_ext) => {
-            run_libreoffice_to_document_flow(handle, input_path, output_ext, cancel_flag, output).await
-        }
-        _ => Err(format!("LibreOffice document route -> .{} is not supported yet.", output_ext)),
-    }
-}
-
 async fn run_libreoffice_to_image_flow(
     handle: &AppHandle, input_path: &str, output_ext: &str, options: &IndexMap<String, String>, cancel_flag: &Arc<AtomicBool>, output: &Path,
+    pack_ids: &[String],
 ) -> Result<(), String> {
     let temp_dir = make_temp_dir().await?;
     let result = async {
-        let pdf = run_libreoffice_export(handle, input_path, "pdf", cancel_flag, &temp_dir).await?;
+        let pdf = run_libreoffice_export(handle, input_path, "pdf", cancel_flag, &temp_dir, pack_ids).await?;
         let pdf_batch = vec![pdf.to_string_lossy().to_string()];
 
         if needs_page_encoder(output_ext) {
-            render_document_pages_to_encoded_images(handle, &pdf_batch, output_ext, options, cancel_flag, output, input_path).await
+            render_document_pages_to_encoded_images(handle, &pdf_batch, output_ext, options, cancel_flag, output, input_path, pack_ids).await
         } else {
-            run_magick_document(handle, &pdf_batch, true, options, cancel_flag, output, input_path).await
+            run_magick_document(handle, &pdf_batch, true, options, cancel_flag, output, input_path, pack_ids).await
         }
     }
     .await;
@@ -169,11 +180,15 @@ async fn run_libreoffice_to_image_flow(
 }
 
 async fn run_libreoffice_to_document_flow(
-    handle: &AppHandle, input_path: &str, output_ext: &str, cancel_flag: &Arc<AtomicBool>, output: &Path,
+    handle: &AppHandle, input_path: &str, output_ext: &str, cancel_flag: &Arc<AtomicBool>, output: &Path, pack_ids: &[String],
 ) -> Result<(), String> {
+    if !is_libreoffice_output_ext(output_ext) {
+        return Err(format!("LibreOffice document route -> .{} is not supported yet.", output_ext));
+    }
+
     let temp_dir = make_temp_dir().await?;
     let result = async {
-        let generated = run_libreoffice_export(handle, input_path, output_ext, cancel_flag, &temp_dir).await?;
+        let generated = run_libreoffice_export(handle, input_path, output_ext, cancel_flag, &temp_dir, pack_ids).await?;
         move_generated_output(&generated, output).await
     }
     .await;
@@ -182,7 +197,7 @@ async fn run_libreoffice_to_document_flow(
 }
 
 async fn run_libreoffice_export(
-    handle: &AppHandle, input_path: &str, output_ext: &str, cancel_flag: &Arc<AtomicBool>, temp_dir: &Path,
+    handle: &AppHandle, input_path: &str, output_ext: &str, cancel_flag: &Arc<AtomicBool>, temp_dir: &Path, pack_ids: &[String],
 ) -> Result<PathBuf, String> {
     let output_format = libreoffice_format_arg(output_ext).ok_or_else(|| format!("LibreOffice output .{} is not supported yet.", output_ext))?;
     let profile_dir = temp_dir.join("lo-profile");
@@ -204,21 +219,21 @@ async fn run_libreoffice_export(
         input_path.to_string(),
     ];
 
-    run_cli_command(handle, input_path, "soffice.com", &args, cancel_flag).await?;
+    run_cli_command(handle, input_path, "soffice.com", &args, cancel_flag, pack_ids).await?;
     find_libreoffice_output(&output_dir, input_path, output_ext).await
 }
 
 async fn run_magick_document(
     handle: &AppHandle, batch: &[String], raster_output: bool, options: &IndexMap<String, String>, cancel_flag: &Arc<AtomicBool>, output: &Path,
-    original_path: &str,
+    original_path: &str, pack_ids: &[String],
 ) -> Result<(), String> {
     let args = build_magick_document_args(batch, raster_output, options, &[], output.to_string_lossy().to_string());
-    run_cli_command(handle, original_path, "magick", &args, cancel_flag).await
+    run_cli_command(handle, original_path, "magick", &args, cancel_flag, pack_ids).await
 }
 
 async fn render_document_pages_to_encoded_images(
     handle: &AppHandle, batch: &[String], output_ext: &str, options: &IndexMap<String, String>, cancel_flag: &Arc<AtomicBool>, output: &Path,
-    original_path: &str,
+    original_path: &str, pack_ids: &[String],
 ) -> Result<(), String> {
     let temp_dir = make_temp_dir().await?;
     let result = async {
@@ -236,7 +251,7 @@ async fn render_document_pages_to_encoded_images(
         };
         let args = build_magick_document_args(batch, true, options, &["-quality"], magick_output);
 
-        run_cli_command(handle, original_path, "magick", &args, cancel_flag).await?;
+        run_cli_command(handle, original_path, "magick", &args, cancel_flag, pack_ids).await?;
 
         let pages = collect_intermediate_pages(&temp_dir, intermediate_ext).await?;
         if pages.is_empty() {
@@ -245,7 +260,7 @@ async fn render_document_pages_to_encoded_images(
 
         for (index, page) in pages.iter().enumerate() {
             let final_output = page_output_path(output, output_ext, index, pages.len());
-            encode_document_page(handle, original_path, page, &final_output, output_ext, options, cancel_flag).await?;
+            encode_document_page(handle, original_path, page, &final_output, output_ext, options, cancel_flag, pack_ids).await?;
         }
 
         Ok(())
@@ -295,16 +310,6 @@ fn push_document_alpha_defaults(args: &mut Vec<String>, options: &IndexMap<Strin
 
     if !has_option(options, "-alpha") && !has_option(options, "-flatten") {
         args.extend(["-alpha".to_string(), "remove".to_string(), "-alpha".to_string(), "off".to_string()]);
-    }
-}
-
-fn classify_document_input(ext: &str) -> Option<DocumentInputKind> {
-    if is_postscript_document_ext(ext) {
-        Some(DocumentInputKind::Postscript)
-    } else if LIBREOFFICE_INPUT_EXTS.contains(&ext) {
-        Some(DocumentInputKind::LibreOffice)
-    } else {
-        None
     }
 }
 
@@ -476,7 +481,7 @@ fn page_output_path(output: &Path, output_ext: &str, index: usize, total_pages: 
 
 async fn encode_document_page(
     handle: &AppHandle, original_path: &str, page: &Path, output: &Path, output_ext: &str, options: &IndexMap<String, String>,
-    cancel_flag: &Arc<AtomicBool>,
+    cancel_flag: &Arc<AtomicBool>, pack_ids: &[String],
 ) -> Result<(), String> {
     match output_ext.to_ascii_lowercase().as_str() {
         "heic" | "heif" => {
@@ -485,7 +490,7 @@ async fn encode_document_page(
                 args.extend(["-q".to_string(), quality.to_string()]);
             }
             args.extend(["-o".to_string(), output.to_string_lossy().to_string(), page.to_string_lossy().to_string()]);
-            run_cli_command(handle, original_path, "heif-enc", &args, cancel_flag).await
+            run_cli_command(handle, original_path, "heif-enc", &args, cancel_flag, pack_ids).await
         }
         "jxr" | "wdp" => {
             let mut args = vec![
@@ -497,7 +502,7 @@ async fn encode_document_page(
             if let Some(quality) = jxr_quality_arg(options) {
                 args.extend(["-q".to_string(), quality]);
             }
-            run_cli_command(handle, original_path, "JXREncApp", &args, cancel_flag).await
+            run_cli_command(handle, original_path, "JXREncApp", &args, cancel_flag, pack_ids).await
         }
         _ => Err(format!("Unsupported document page encoder output: {}", output_ext)),
     }
