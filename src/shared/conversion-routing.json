@@ -20,10 +20,8 @@
       "commands": ["magick", "heif-enc", "JXREncApp"],
       "binDirs": ["dependencies/imagemagick", "dependencies/imagemagick/libheif", "dependencies/imagemagick/libjxr"],
       "requiredFiles": [
-        "dependencies/imagemagick/magick.exe",
-        "dependencies/imagemagick/delegates.xml",
-        "dependencies/imagemagick/libheif/heif-enc.exe",
-        "dependencies/imagemagick/libjxr/JXREncApp.exe"
+        "dependencies/imagemagick/magick.exe", "dependencies/imagemagick/delegates.xml",
+        "dependencies/imagemagick/libheif/heif-enc.exe", "dependencies/imagemagick/libjxr/JXREncApp.exe"
       ],
       "env": {
         "MAGICK_CONFIGURE_PATH": "dependencies/imagemagick"
@@ -38,17 +36,13 @@
       "commands": ["gswin64c"],
       "binDirs": ["dependencies/ghostscript/bin"],
       "requiredFiles": [
-        "dependencies/ghostscript/bin/gswin64c.exe",
-        "dependencies/ghostscript/bin/gsdll64.dll",
-        "dependencies/ghostscript/lib",
-        "dependencies/ghostscript/Resource/Init"
+        "dependencies/ghostscript/bin/gswin64c.exe", "dependencies/ghostscript/bin/gsdll64.dll",
+        "dependencies/ghostscript/lib", "dependencies/ghostscript/Resource/Init"
       ],
       "env": {
         "GS_LIB": [
-          "dependencies/ghostscript/lib",
-          "dependencies/ghostscript/Resource/Init",
-          "dependencies/ghostscript/Resource",
-          "dependencies/ghostscript/Resource/Font",
+          "dependencies/ghostscript/lib", "dependencies/ghostscript/Resource/Init",
+          "dependencies/ghostscript/Resource", "dependencies/ghostscript/Resource/Font",
           "dependencies/ghostscript/iccprofiles"
         ]
       }
@@ -66,6 +60,17 @@
         "dependencies/libreoffice/program/fundamental.ini",
         "dependencies/libreoffice/share/registry"
       ],
+      "env": {}
+    },
+    "pandoc": {
+      "name": "Pandoc",
+      "version": "1.0.0",
+      "platform": "windows",
+      "bundled": false,
+      "rootDir": "dependencies/pandoc",
+      "commands": ["pandoc"],
+      "binDirs": ["dependencies/pandoc"],
+      "requiredFiles": ["dependencies/pandoc/pandoc.exe"],
       "env": {}
     }
   },
@@ -104,16 +109,93 @@
       "packs": ["imagemagick", "ghostscript"]
     },
     {
+      "kind": "document-pandoc-to-pdf",
+      "inputGroup": ["document"],
+      "inputExt": [
+        "md", "tex", "rst", "org", "adoc", "asciidoc", "textile", "typ",
+        "ipynb", "opml", "fb2", "djot", "gfm", "commonmark", "mediawiki",
+        "dokuwiki", "dbk", "man", "muse"
+      ],
+      "outputGroup": ["document"],
+      "outputExt": ["pdf"],
+      "packs": ["pandoc", "libreoffice"]
+    },
+    {
+      "kind": "document-pandoc-to-image",
+      "inputGroup": ["document"],
+      "inputExt": [
+        "md", "tex", "rst", "org", "adoc", "asciidoc", "textile", "typ",
+        "ipynb", "opml", "fb2", "djot", "gfm", "commonmark", "mediawiki",
+        "dokuwiki", "dbk", "man", "muse"
+      ],
+      "outputGroup": ["image"],
+      "packs": ["pandoc", "libreoffice", "imagemagick", "ghostscript"]
+    },
+    {
+      "kind": "document-pandoc",
+      "inputGroup": ["document"],
+      "inputExt": [
+        "docx", "odt", "rtf", "txt", "md", "html", "htm", "xhtml", "epub",
+        "tex", "rst", "org", "adoc", "asciidoc", "textile", "typ", "ipynb",
+        "opml", "fb2", "djot", "gfm", "commonmark", "mediawiki", "dokuwiki",
+        "dbk", "man", "muse"
+      ],
+      "outputGroup": ["document"],
+      "outputExt": [
+        "docx", "odt", "rtf", "txt", "html", "htm", "xhtml", "epub", "md",
+        "tex", "rst", "org", "adoc", "asciidoc", "textile", "typ", "ipynb",
+        "opml", "fb2", "djot", "gfm", "commonmark", "mediawiki", "dokuwiki",
+        "dbk", "man", "muse"
+      ],
+      "packs": ["pandoc"]
+    },
+    {
       "kind": "document-office-to-document",
       "inputGroup": ["document"],
-      "inputExt": ["doc", "docx", "odt", "rtf", "txt", "md", "html", "htm", "xhtml", "epub", "ppt", "pptx", "odp", "xls", "xlsx", "ods", "csv"],
+      "inputExt": ["doc"],
       "outputGroup": ["document"],
+      "outputExt": ["pdf", "docx", "doc", "odt", "rtf", "txt", "html", "htm", "xhtml", "epub"],
+      "packs": ["libreoffice"]
+    },
+    {
+      "kind": "document-office-to-document",
+      "inputGroup": ["document"],
+      "inputExt": ["docx", "odt", "rtf"],
+      "outputGroup": ["document"],
+      "outputExt": ["pdf", "doc"],
+      "packs": ["libreoffice"]
+    },
+    {
+      "kind": "document-office-to-document",
+      "inputGroup": ["document"],
+      "inputExt": ["txt", "html", "htm", "xhtml", "epub"],
+      "outputGroup": ["document"],
+      "outputExt": ["pdf"],
+      "packs": ["libreoffice"]
+    },
+    {
+      "kind": "document-office-to-document",
+      "inputGroup": ["document"],
+      "inputExt": ["ppt", "pptx", "odp"],
+      "outputGroup": ["document"],
+      "outputExt": ["pdf", "ppt", "pptx", "odp"],
+      "packs": ["libreoffice"]
+    },
+    {
+      "kind": "document-office-to-document",
+      "inputGroup": ["document"],
+      "inputExt": ["xls", "xlsx", "ods", "csv"],
+      "outputGroup": ["document"],
+      "outputExt": ["pdf", "xlsx", "xls", "ods", "csv", "html", "htm"],
       "packs": ["libreoffice"]
     },
     {
       "kind": "document-office-to-image",
       "inputGroup": ["document"],
-      "inputExt": ["doc", "docx", "odt", "rtf", "txt", "md", "html", "htm", "xhtml", "epub", "ppt", "pptx", "odp", "xls", "xlsx", "ods", "csv"],
+      "inputExt": [
+        "doc", "docx", "odt", "rtf", "txt", "html", "htm", "xhtml",
+        "epub", "ppt", "pptx", "odp", "xls", "xlsx", "ods", "csv"
+      ],
       "outputGroup": ["image"],
       "packs": ["libreoffice", "imagemagick", "ghostscript"]
     }

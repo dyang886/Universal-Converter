@@ -2,24 +2,29 @@
   "schemaVersion": 1,
   "packs": {
     "ffmpeg": {
-      "version": "1.0.0",
+      "version": "8.0.1",
       "platform": "windows",
       "s3Path": "UCT/Dependencies/ffmpeg-windows.7z"
     },
     "imagemagick": {
-      "version": "1.0.0",
+      "version": "7.1.2-21",
       "platform": "windows",
       "s3Path": "UCT/Dependencies/imagemagick-windows.7z"
     },
     "ghostscript": {
-      "version": "1.0.0",
+      "version": "10.07.0",
       "platform": "windows",
       "s3Path": "UCT/Dependencies/ghostscript-windows.7z"
     },
     "libreoffice": {
-      "version": "1.0.0",
+      "version": "26.2.1.2",
       "platform": "windows",
       "s3Path": "UCT/Dependencies/libreoffice-windows.7z"
+    },
+    "pandoc": {
+      "version": "3.9.0.2",
+      "platform": "windows",
+      "s3Path": "UCT/Dependencies/pandoc-windows.7z"
     }
   }
 }

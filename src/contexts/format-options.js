@@ -1107,20 +1107,28 @@ const outImageFormats = [
     'pnm', 'ppm', 'pgm', 'pbm', 'xpm', 'xbm'
 ];
 const outDocumentFormats = [
-    'pdf', 'docx', 'doc', 'odt', 'rtf', 'txt',
+    'pdf', 'docx', 'doc', 'odt', 'rtf', 'txt', 'md', 'tex',
     'html', 'htm', 'xhtml', 'epub',
+    'rst', 'org', 'adoc', 'asciidoc', 'textile', 'typ', 'ipynb',
+    'opml', 'fb2', 'djot', 'gfm', 'commonmark', 'mediawiki', 'dokuwiki',
+    'dbk', 'man', 'muse',
     'pptx', 'ppt', 'odp',
     'xlsx', 'xls', 'ods', 'csv',
     'eps', 'ps', 'ai'
 ];
 const imageToDocumentFormats = ['pdf', 'eps', 'ps', 'ai'];
 const imageOutputs = [...outImageFormats, ...imageToDocumentFormats];
-const rasterizableDocumentOutputs = [...outImageFormats, 'pdf', 'txt', 'eps', 'ps', 'ai'];
-const wordDocumentOutputs = [...outImageFormats, 'pdf', 'docx', 'doc', 'odt', 'rtf', 'txt', 'html', 'htm', 'xhtml', 'epub'];
-const textDocumentOutputs = [...outImageFormats, 'pdf', 'docx', 'odt', 'rtf', 'txt', 'html', 'htm', 'xhtml', 'epub'];
+const rasterizableDocumentOutputs = [...outImageFormats, 'pdf', 'eps', 'ps', 'ai'];
+const legacyWordDocumentOutputs = [...outImageFormats, 'pdf', 'docx', 'doc', 'odt', 'rtf', 'txt', 'html', 'htm', 'xhtml', 'epub'];
+const pandocSemanticOutputs = [
+    'docx', 'odt', 'rtf', 'txt', 'md', 'tex', 'html', 'htm', 'xhtml', 'epub',
+    'rst', 'org', 'adoc', 'asciidoc', 'textile', 'typ', 'ipynb', 'opml',
+    'fb2', 'djot', 'gfm', 'commonmark', 'mediawiki', 'dokuwiki', 'dbk', 'man', 'muse'
+];
+const wordDocumentOutputs = [...outImageFormats, 'pdf', 'doc', ...pandocSemanticOutputs];
+const textDocumentOutputs = [...outImageFormats, 'pdf', ...pandocSemanticOutputs];
 const presentationDocumentOutputs = [...outImageFormats, 'pdf', 'pptx', 'ppt', 'odp'];
 const spreadsheetDocumentOutputs = [...outImageFormats, 'pdf', 'xlsx', 'xls', 'ods', 'csv', 'html', 'htm'];
-const futureDocumentOutputs = [];
 const generalVideoWidgets = ['disable_video', 'disable_subtitle', 'fast_start', 'pass', 'frame_size', 'video_rotate', 'video_flip', 'video_bitrate', 'vframes', 'aspect_ratio'];
 const generalAudioWidgets = ['audio_volume', 'audio_speed', 'audio_quality', 'audio_bitrate', 'audio_channels', 'aframes'];
 const generalImageWidgets = [
@@ -1722,7 +1730,7 @@ export const formats = {
     eps: { group: 'document', outputs: rasterizableDocumentOutputs, widgets: generalImageWidgets },
     ai: { group: 'document', outputs: rasterizableDocumentOutputs, widgets: generalImageWidgets },
     docx: { group: 'document', outputs: wordDocumentOutputs, widgets: generalDocumentWidgets },
-    doc: { group: 'document', outputs: wordDocumentOutputs, widgets: generalDocumentWidgets },
+    doc: { group: 'document', outputs: legacyWordDocumentOutputs, widgets: generalDocumentWidgets },
     odt: { group: 'document', outputs: wordDocumentOutputs, widgets: generalDocumentWidgets },
     rtf: { group: 'document', outputs: wordDocumentOutputs, widgets: generalDocumentWidgets },
     txt: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
@@ -1738,7 +1746,24 @@ export const formats = {
     xls: { group: 'document', outputs: spreadsheetDocumentOutputs, widgets: generalDocumentWidgets },
     ods: { group: 'document', outputs: spreadsheetDocumentOutputs, widgets: generalDocumentWidgets },
     csv: { group: 'document', outputs: spreadsheetDocumentOutputs, widgets: generalDocumentWidgets },
-    tex: { group: 'document', outputs: futureDocumentOutputs, widgets: generalDocumentWidgets }
+    tex: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    rst: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    org: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    adoc: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    asciidoc: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    textile: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    typ: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    ipynb: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    opml: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    fb2: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    djot: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    gfm: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    commonmark: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    mediawiki: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    dokuwiki: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    dbk: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    man: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets },
+    muse: { group: 'document', outputs: textDocumentOutputs, widgets: generalDocumentWidgets }
 };
 
 // ===========================================================================

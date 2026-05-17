@@ -68,6 +68,9 @@ struct RouteRule {
 pub enum ConversionRouteKind {
     Ffmpeg,
     Magick,
+    DocumentPandoc,
+    DocumentPandocToPdf,
+    DocumentPandocToImage,
     DocumentPostscript,
     DocumentOfficeToDocument,
     DocumentOfficeToImage,

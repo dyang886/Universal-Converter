@@ -14,8 +14,24 @@ use crate::{emit_cancelled, emit_delta, emit_error, emit_success, run_cli_comman
 
 const POSTSCRIPT_DOCUMENT_EXTS: &[&str] = &["ai", "eps", "pdf", "ps"];
 const PAGE_ENCODER_OUTPUT_EXTS: &[&str] = &["heic", "heif", "jxr", "wdp"];
+#[rustfmt::skip]
 const LIBREOFFICE_OUTPUT_EXTS: &[&str] = &[
-    "csv", "doc", "docx", "epub", "htm", "html", "odp", "ods", "odt", "pdf", "ppt", "pptx", "rtf", "txt", "xls", "xlsx", "xhtml",
+    "csv", "doc", "docx", "epub", "htm", "html", "odp", "ods", "odt",
+    "pdf", "ppt", "pptx", "rtf", "txt", "xls", "xlsx", "xhtml",
+];
+#[rustfmt::skip]
+const PANDOC_INPUT_EXTS: &[&str] = &[
+    "adoc", "asciidoc", "commonmark", "dbk", "djot", "docx", "dokuwiki",
+    "epub", "fb2", "gfm", "htm", "html", "ipynb", "man", "md",
+    "mediawiki", "muse", "odt", "opml", "org", "rst", "rtf", "tex",
+    "textile", "txt", "typ", "xhtml",
+];
+#[rustfmt::skip]
+const PANDOC_OUTPUT_EXTS: &[&str] = &[
+    "adoc", "asciidoc", "commonmark", "dbk", "djot", "docx", "dokuwiki",
+    "epub", "fb2", "gfm", "htm", "html", "ipynb", "man", "md",
+    "mediawiki", "muse", "odt", "opml", "org", "rst", "rtf", "tex",
+    "textile", "txt", "typ", "xhtml",
 ];
 
 pub async fn run_conversion(
@@ -127,6 +143,24 @@ async fn run_document_route(
             )
             .await
         }
+        ConversionRouteKind::DocumentPandoc => {
+            if batch.len() > 1 {
+                return Err("Combining Pandoc document inputs is not supported yet.".to_string());
+            }
+            run_pandoc_to_document_flow(handle, &batch[0], &input_ext, output_ext, cancel_flag, output, pack_ids).await
+        }
+        ConversionRouteKind::DocumentPandocToPdf => {
+            if batch.len() > 1 {
+                return Err("Combining Pandoc document inputs is not supported yet.".to_string());
+            }
+            run_pandoc_to_pdf_flow(handle, &batch[0], &input_ext, cancel_flag, output, pack_ids).await
+        }
+        ConversionRouteKind::DocumentPandocToImage => {
+            if batch.len() > 1 {
+                return Err("Combining Pandoc document inputs is not supported yet.".to_string());
+            }
+            run_pandoc_to_image_flow(handle, &batch[0], &input_ext, output_ext, options, cancel_flag, output, pack_ids).await
+        }
         ConversionRouteKind::DocumentOfficeToDocument => {
             if batch.len() > 1 {
                 return Err("Combining LibreOffice document inputs is not supported yet.".to_string());
@@ -137,10 +171,106 @@ async fn run_document_route(
             if batch.len() > 1 {
                 return Err("Combining LibreOffice document inputs is not supported yet.".to_string());
             }
-            run_libreoffice_to_image_flow(handle, &batch[0], output_ext, options, cancel_flag, output, pack_ids).await
+            run_libreoffice_to_image_flow(handle, &batch[0], &batch[0], output_ext, options, cancel_flag, output, pack_ids).await
         }
         _ => Err(format!("Unsupported document route for .{}", input_ext)),
     }
+}
+
+async fn run_pandoc_to_document_flow(
+    handle: &AppHandle, input_path: &str, input_ext: &str, output_ext: &str, cancel_flag: &Arc<AtomicBool>, output: &Path, pack_ids: &[String],
+) -> Result<(), String> {
+    run_pandoc_export(handle, input_path, input_path, input_ext, output_ext, cancel_flag, output, pack_ids).await
+}
+
+async fn run_pandoc_to_pdf_flow(
+    handle: &AppHandle, input_path: &str, input_ext: &str, cancel_flag: &Arc<AtomicBool>, output: &Path, pack_ids: &[String],
+) -> Result<(), String> {
+    let temp_dir = make_temp_dir().await?;
+    let result = async {
+        let intermediate_docx = temp_dir.join("pandoc-intermediate.docx");
+        run_pandoc_export(
+            handle,
+            input_path,
+            input_path,
+            input_ext,
+            "docx",
+            cancel_flag,
+            &intermediate_docx,
+            pack_ids,
+        )
+        .await?;
+        let intermediate_path = intermediate_docx.to_string_lossy().to_string();
+        let generated = run_libreoffice_export(handle, &intermediate_path, input_path, "pdf", cancel_flag, &temp_dir, pack_ids).await?;
+        move_generated_output(&generated, output).await
+    }
+    .await;
+    cleanup_temp_dir(&temp_dir).await;
+    result
+}
+
+async fn run_pandoc_to_image_flow(
+    handle: &AppHandle, input_path: &str, input_ext: &str, output_ext: &str, options: &IndexMap<String, String>, cancel_flag: &Arc<AtomicBool>,
+    output: &Path, pack_ids: &[String],
+) -> Result<(), String> {
+    let temp_dir = make_temp_dir().await?;
+    let result = async {
+        let intermediate_docx = temp_dir.join("pandoc-intermediate.docx");
+        run_pandoc_export(
+            handle,
+            input_path,
+            input_path,
+            input_ext,
+            "docx",
+            cancel_flag,
+            &intermediate_docx,
+            pack_ids,
+        )
+        .await?;
+        let intermediate_path = intermediate_docx.to_string_lossy().to_string();
+        run_libreoffice_to_image_flow(handle, &intermediate_path, input_path, output_ext, options, cancel_flag, output, pack_ids).await
+    }
+    .await;
+    cleanup_temp_dir(&temp_dir).await;
+    result
+}
+
+async fn run_pandoc_export(
+    handle: &AppHandle, input_path: &str, log_path: &str, input_ext: &str, output_ext: &str, cancel_flag: &Arc<AtomicBool>, output: &Path,
+    pack_ids: &[String],
+) -> Result<(), String> {
+    if !PANDOC_INPUT_EXTS.contains(&input_ext.to_ascii_lowercase().as_str()) {
+        return Err(format!("Pandoc input .{} is not supported yet.", input_ext));
+    }
+    if !PANDOC_OUTPUT_EXTS.contains(&output_ext.to_ascii_lowercase().as_str()) {
+        return Err(format!("Pandoc output .{} is not supported yet.", output_ext));
+    }
+
+    let from = pandoc_input_format(input_ext).ok_or_else(|| format!("Pandoc input .{} is not supported yet.", input_ext))?;
+    let to = pandoc_output_format(output_ext).ok_or_else(|| format!("Pandoc output .{} is not supported yet.", output_ext))?;
+
+    if let Some(parent) = output.parent() {
+        fs::create_dir_all(parent).await.map_err(|e| e.to_string())?;
+    }
+    if fs::try_exists(output).await.map_err(|e| e.to_string())? {
+        fs::remove_file(output).await.map_err(|e| e.to_string())?;
+    }
+
+    let mut args = vec![
+        "--from".to_string(),
+        from.to_string(),
+        "--to".to_string(),
+        to.to_string(),
+        "--output".to_string(),
+        output.to_string_lossy().to_string(),
+    ];
+
+    if pandoc_output_needs_standalone(output_ext) {
+        args.push("--standalone".to_string());
+    }
+
+    args.push(input_path.to_string());
+    run_cli_command(handle, log_path, "pandoc", &args, cancel_flag, pack_ids).await
 }
 
 async fn run_postscript_flow(
@@ -160,18 +290,18 @@ async fn run_postscript_flow(
 }
 
 async fn run_libreoffice_to_image_flow(
-    handle: &AppHandle, input_path: &str, output_ext: &str, options: &IndexMap<String, String>, cancel_flag: &Arc<AtomicBool>, output: &Path,
-    pack_ids: &[String],
+    handle: &AppHandle, input_path: &str, log_path: &str, output_ext: &str, options: &IndexMap<String, String>, cancel_flag: &Arc<AtomicBool>,
+    output: &Path, pack_ids: &[String],
 ) -> Result<(), String> {
     let temp_dir = make_temp_dir().await?;
     let result = async {
-        let pdf = run_libreoffice_export(handle, input_path, "pdf", cancel_flag, &temp_dir, pack_ids).await?;
+        let pdf = run_libreoffice_export(handle, input_path, log_path, "pdf", cancel_flag, &temp_dir, pack_ids).await?;
         let pdf_batch = vec![pdf.to_string_lossy().to_string()];
 
         if needs_page_encoder(output_ext) {
-            render_document_pages_to_encoded_images(handle, &pdf_batch, output_ext, options, cancel_flag, output, input_path, pack_ids).await
+            render_document_pages_to_encoded_images(handle, &pdf_batch, output_ext, options, cancel_flag, output, log_path, pack_ids).await
         } else {
-            run_magick_document(handle, &pdf_batch, true, options, cancel_flag, output, input_path, pack_ids).await
+            run_magick_document(handle, &pdf_batch, true, options, cancel_flag, output, log_path, pack_ids).await
         }
     }
     .await;
@@ -188,7 +318,7 @@ async fn run_libreoffice_to_document_flow(
 
     let temp_dir = make_temp_dir().await?;
     let result = async {
-        let generated = run_libreoffice_export(handle, input_path, output_ext, cancel_flag, &temp_dir, pack_ids).await?;
+        let generated = run_libreoffice_export(handle, input_path, input_path, output_ext, cancel_flag, &temp_dir, pack_ids).await?;
         move_generated_output(&generated, output).await
     }
     .await;
@@ -197,7 +327,7 @@ async fn run_libreoffice_to_document_flow(
 }
 
 async fn run_libreoffice_export(
-    handle: &AppHandle, input_path: &str, output_ext: &str, cancel_flag: &Arc<AtomicBool>, temp_dir: &Path, pack_ids: &[String],
+    handle: &AppHandle, input_path: &str, log_path: &str, output_ext: &str, cancel_flag: &Arc<AtomicBool>, temp_dir: &Path, pack_ids: &[String],
 ) -> Result<PathBuf, String> {
     let output_format = libreoffice_format_arg(output_ext).ok_or_else(|| format!("LibreOffice output .{} is not supported yet.", output_ext))?;
     let profile_dir = temp_dir.join("lo-profile");
@@ -219,7 +349,7 @@ async fn run_libreoffice_export(
         input_path.to_string(),
     ];
 
-    run_cli_command(handle, input_path, "soffice.com", &args, cancel_flag, pack_ids).await?;
+    run_cli_command(handle, log_path, "soffice.com", &args, cancel_flag, pack_ids).await?;
     find_libreoffice_output(&output_dir, input_path, output_ext).await
 }
 
@@ -323,6 +453,74 @@ fn needs_page_encoder(output_ext: &str) -> bool {
 
 fn is_libreoffice_output_ext(ext: &str) -> bool {
     LIBREOFFICE_OUTPUT_EXTS.contains(&ext.to_ascii_lowercase().as_str())
+}
+
+fn pandoc_input_format(ext: &str) -> Option<&'static str> {
+    match ext.to_ascii_lowercase().as_str() {
+        "docx" => Some("docx"),
+        "adoc" | "asciidoc" => Some("asciidoc"),
+        "commonmark" => Some("commonmark"),
+        "dbk" => Some("docbook"),
+        "djot" => Some("djot"),
+        "dokuwiki" => Some("dokuwiki"),
+        "epub" => Some("epub"),
+        "fb2" => Some("fb2"),
+        "gfm" => Some("gfm"),
+        "htm" | "html" | "xhtml" => Some("html"),
+        "ipynb" => Some("ipynb"),
+        "man" => Some("man"),
+        "md" => Some("markdown"),
+        "mediawiki" => Some("mediawiki"),
+        "muse" => Some("muse"),
+        "odt" => Some("odt"),
+        "opml" => Some("opml"),
+        "org" => Some("org"),
+        "rst" => Some("rst"),
+        "rtf" => Some("rtf"),
+        "tex" => Some("latex"),
+        "textile" => Some("textile"),
+        "txt" => Some("markdown"),
+        "typ" => Some("typst"),
+        _ => None,
+    }
+}
+
+fn pandoc_output_format(ext: &str) -> Option<&'static str> {
+    match ext.to_ascii_lowercase().as_str() {
+        "adoc" | "asciidoc" => Some("asciidoc"),
+        "commonmark" => Some("commonmark"),
+        "dbk" => Some("docbook"),
+        "djot" => Some("djot"),
+        "docx" => Some("docx"),
+        "dokuwiki" => Some("dokuwiki"),
+        "epub" => Some("epub"),
+        "fb2" => Some("fb2"),
+        "gfm" => Some("gfm"),
+        "htm" | "html" => Some("html"),
+        "ipynb" => Some("ipynb"),
+        "man" => Some("man"),
+        "md" => Some("markdown"),
+        "mediawiki" => Some("mediawiki"),
+        "muse" => Some("muse"),
+        "odt" => Some("odt"),
+        "opml" => Some("opml"),
+        "org" => Some("org"),
+        "rst" => Some("rst"),
+        "rtf" => Some("rtf"),
+        "tex" => Some("latex"),
+        "textile" => Some("textile"),
+        "txt" => Some("plain"),
+        "typ" => Some("typst"),
+        "xhtml" => Some("html4"),
+        _ => None,
+    }
+}
+
+fn pandoc_output_needs_standalone(ext: &str) -> bool {
+    matches!(
+        ext.to_ascii_lowercase().as_str(),
+        "adoc" | "asciidoc" | "dbk" | "docx" | "epub" | "fb2" | "htm" | "html" | "odt" | "opml" | "rtf" | "tex" | "xhtml"
+    )
 }
 
 fn libreoffice_format_arg(output_ext: &str) -> Option<&'static str> {

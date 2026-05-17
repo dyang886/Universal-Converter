@@ -252,6 +252,9 @@ async fn convert_files(
             .await
         }
         routing::ConversionRouteKind::DocumentPostscript
+        | routing::ConversionRouteKind::DocumentPandoc
+        | routing::ConversionRouteKind::DocumentPandocToPdf
+        | routing::ConversionRouteKind::DocumentPandocToImage
         | routing::ConversionRouteKind::DocumentOfficeToDocument
         | routing::ConversionRouteKind::DocumentOfficeToImage => {
             document::run_conversion(
