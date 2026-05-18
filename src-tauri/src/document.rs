@@ -10,7 +10,7 @@ use tokio::task::JoinSet;
 use uuid::Uuid;
 
 use crate::routing::ConversionRouteKind;
-use crate::{emit_cancelled, emit_delta, emit_error, emit_success, run_cli_command};
+use crate::{OcrControls, emit_cancelled, emit_delta, emit_error, emit_success, run_cli_command};
 
 const POSTSCRIPT_DOCUMENT_EXTS: &[&str] = &["ai", "eps", "pdf", "ps"];
 const PAGE_ENCODER_OUTPUT_EXTS: &[&str] = &["heic", "heif", "jxr", "wdp"];
@@ -36,7 +36,7 @@ const PANDOC_OUTPUT_EXTS: &[&str] = &[
 
 pub async fn run_conversion(
     handle: AppHandle, input_paths: Vec<String>, output_ext: String, route_kind: ConversionRouteKind, pack_ids: Vec<String>, output_group: String,
-    options: IndexMap<String, String>, combine: bool, cancel_flag: Arc<AtomicBool>, max_threads: usize,
+    options: IndexMap<String, String>, combine: bool, ocr: Option<OcrControls>, cancel_flag: Arc<AtomicBool>, max_threads: usize,
 ) -> Result<bool, String> {
     let batches: Vec<Vec<String>> = if combine {
         vec![input_paths]
@@ -64,12 +64,25 @@ pub async fn run_conversion(
         let pack_ids = pack_ids.clone();
         let output_group = output_group.clone();
         let options = options.clone();
+        let ocr = ocr.clone();
         let cancel = Arc::clone(&cancel_flag);
         let all_ok = Arc::clone(&all_ok);
 
         join_set.spawn(async move {
             let _permit = permit;
-            if !convert_batch(&handle, batch, &output_ext, &route_kind, &pack_ids, &output_group, &options, &cancel).await {
+            if !convert_batch(
+                &handle,
+                batch,
+                &output_ext,
+                &route_kind,
+                &pack_ids,
+                &output_group,
+                &options,
+                ocr.as_ref(),
+                &cancel,
+            )
+            .await
+            {
                 all_ok.store(false, Ordering::Relaxed);
             }
         });
@@ -82,7 +95,7 @@ pub async fn run_conversion(
 
 async fn convert_batch(
     handle: &AppHandle, batch: Vec<String>, output_ext: &str, route_kind: &ConversionRouteKind, pack_ids: &[String], output_group: &str,
-    options: &IndexMap<String, String>, cancel_flag: &Arc<AtomicBool>,
+    options: &IndexMap<String, String>, ocr: Option<&OcrControls>, cancel_flag: &Arc<AtomicBool>,
 ) -> bool {
     let representative = PathBuf::from(&batch[0]);
     emit_delta(handle, &batch[0], &representative, String::new());
@@ -101,6 +114,7 @@ async fn convert_batch(
         pack_ids,
         output_group,
         options,
+        ocr,
         cancel_flag,
         &output,
     )
@@ -125,10 +139,16 @@ async fn convert_batch(
 
 async fn run_document_route(
     handle: &AppHandle, batch: &[String], output_ext: &str, route_kind: &ConversionRouteKind, pack_ids: &[String], output_group: &str,
-    options: &IndexMap<String, String>, cancel_flag: &Arc<AtomicBool>, output: &Path,
+    options: &IndexMap<String, String>, ocr: Option<&OcrControls>, cancel_flag: &Arc<AtomicBool>, output: &Path,
 ) -> Result<(), String> {
     let input_ext = path_extension(Path::new(&batch[0]));
     match route_kind {
+        ConversionRouteKind::DocumentOcr => {
+            if batch.len() > 1 {
+                return Err("Combining OCR inputs is not supported yet.".to_string());
+            }
+            run_ocr_flow(handle, &batch[0], output_ext, ocr, cancel_flag, output, pack_ids).await
+        }
         ConversionRouteKind::DocumentPostscript => {
             run_postscript_flow(
                 handle,
@@ -175,6 +195,35 @@ async fn run_document_route(
         }
         _ => Err(format!("Unsupported document route for .{}", input_ext)),
     }
+}
+
+async fn run_ocr_flow(
+    handle: &AppHandle, input_path: &str, output_ext: &str, ocr: Option<&OcrControls>, cancel_flag: &Arc<AtomicBool>, output: &Path,
+    pack_ids: &[String],
+) -> Result<(), String> {
+    let ocr = ocr.ok_or_else(|| "OCR controls are missing.".to_string())?;
+    if !ocr.enabled {
+        return Err("OCR is not enabled.".to_string());
+    }
+
+    let subcommand = match output_ext.to_ascii_lowercase().as_str() {
+        "pdf" => "pdf",
+        "txt" => "text",
+        _ => return Err(format!("OCR output .{} is not supported yet.", output_ext)),
+    };
+
+    if let Some(parent) = output.parent() {
+        fs::create_dir_all(parent).await.map_err(|e| e.to_string())?;
+    }
+    if fs::try_exists(output).await.map_err(|e| e.to_string())? {
+        fs::remove_file(output).await.map_err(|e| e.to_string())?;
+    }
+
+    let mut args = vec![subcommand.to_string()];
+    args.extend(ocr.args.clone());
+    args.push(input_path.to_string());
+    args.push(output.to_string_lossy().to_string());
+    run_cli_command(handle, input_path, "uct-ocr.exe", &args, cancel_flag, pack_ids).await
 }
 
 async fn run_pandoc_to_document_flow(

@@ -33,10 +33,7 @@ pub struct RoutingConfig {
 #[allow(dead_code)]
 pub struct DependencyPack {
     pub name: String,
-    pub version: String,
     pub platform: String,
-    #[serde(default)]
-    pub bundled: bool,
     pub root_dir: String,
     pub commands: Vec<String>,
     pub bin_dirs: Vec<String>,
@@ -55,6 +52,8 @@ pub enum EnvValue {
 #[serde(rename_all = "camelCase")]
 struct RouteRule {
     kind: ConversionRouteKind,
+    #[serde(default)]
+    control: Option<String>,
     input_group: Vec<String>,
     #[serde(default)]
     input_ext: Vec<String>,
@@ -69,6 +68,7 @@ struct RouteRule {
 pub enum ConversionRouteKind {
     Ffmpeg,
     Magick,
+    DocumentOcr,
     DocumentPandoc,
     DocumentPandocToPdf,
     DocumentPandocToImage,
@@ -88,12 +88,10 @@ pub struct ConversionRoute {
 pub struct DependencyPackStatus {
     pub id: String,
     pub name: String,
-    pub version: String,
     pub installed_version: String,
     pub latest_version: Option<String>,
     pub update_available: bool,
     pub platform: String,
-    pub bundled: bool,
     pub root_dir: String,
     pub install_path: String,
     pub installed: bool,
@@ -145,16 +143,26 @@ pub fn config() -> &'static RoutingConfig {
     ROUTING_CONFIG.get_or_init(|| serde_json::from_str(ROUTING_JSON).expect("conversion routing JSON is valid"))
 }
 
-pub fn resolve_route(input_group: &str, input_ext: &str, output_group: &str, output_ext: &str) -> Result<ConversionRoute, String> {
+pub fn resolve_route(input_group: &str, input_ext: &str, output_group: &str, output_ext: &str, ocr_enabled: bool) -> Result<ConversionRoute, String> {
     let input_group = input_group.to_ascii_lowercase();
     let input_ext = input_ext.to_ascii_lowercase();
     let output_group = output_group.to_ascii_lowercase();
     let output_ext = output_ext.to_ascii_lowercase();
 
-    config()
+    let matching_route = config()
         .routes
         .iter()
-        .find(|route| route.matches(&input_group, &input_ext, &output_group, &output_ext))
+        .find(|route| {
+            route.control_is_active(ocr_enabled) && route.control.is_some() && route.matches(&input_group, &input_ext, &output_group, &output_ext)
+        })
+        .or_else(|| {
+            config()
+                .routes
+                .iter()
+                .find(|route| route.control.is_none() && route.matches(&input_group, &input_ext, &output_group, &output_ext))
+        });
+
+    matching_route
         .map(|route| ConversionRoute {
             kind: route.kind.clone(),
             packs: route.packs.clone(),
@@ -182,10 +190,10 @@ pub fn dependency_env(handle: &AppHandle, pack_ids: &[String]) -> Result<HashMap
 
     if let Some(path_var) = std::env::var_os("PATH") {
         let mut paths = std::env::split_paths(&path_var).collect::<Vec<_>>();
-        paths.insert(0, resource_dir.clone());
+        paths.insert(0, child_process_path(resource_dir.clone()));
         for pack in packs.iter().rev() {
             for dir in pack.bin_dirs.iter().rev() {
-                paths.insert(0, resolve_resource_path(&resource_dir, dir));
+                paths.insert(0, child_process_path(resolve_resource_path(&resource_dir, dir)));
             }
         }
         let new_path = std::env::join_paths(paths).map_err(|e| e.to_string())?;
@@ -195,9 +203,9 @@ pub fn dependency_env(handle: &AppHandle, pack_ids: &[String]) -> Result<HashMap
     for pack in packs {
         for (key, value) in &pack.env {
             let value = match value {
-                EnvValue::One(path) => resolve_resource_path(&resource_dir, path).into_os_string(),
+                EnvValue::One(path) => child_process_path(resolve_resource_path(&resource_dir, path)).into_os_string(),
                 EnvValue::Many(paths) => {
-                    let resolved = paths.iter().map(|path| resolve_resource_path(&resource_dir, path));
+                    let resolved = paths.iter().map(|path| child_process_path(resolve_resource_path(&resource_dir, path)));
                     std::env::join_paths(resolved).map_err(|e| e.to_string())?
                 }
             };
@@ -227,12 +235,7 @@ pub fn missing_dependency_packs(handle: &AppHandle, pack_ids: &[String]) -> Resu
     let mut missing = Vec::new();
 
     for (pack_id, pack) in resolve_pack_entries(pack_ids)? {
-        let is_missing = pack
-            .required_files
-            .iter()
-            .any(|required_file| !resolve_resource_path(&resource_dir, required_file).exists());
-
-        if is_missing {
+        if !dependency_pack_is_installed(&resource_dir, pack_id, pack) {
             missing.push(pack_id.to_string());
         }
     }
@@ -349,12 +352,9 @@ fn dependency_pack_status_with_latest(
         .collect::<Vec<_>>();
     let pack_root = resolve_resource_path(resource_dir, &pack.root_dir);
     let installed_metadata = read_installed_pack_metadata_sync(&pack_root);
-    let installed = missing_files.is_empty();
+    let installed = missing_files.is_empty() && installed_metadata_is_valid(id, pack, installed_metadata.as_ref());
     let installed_version = if installed {
-        installed_metadata
-            .as_ref()
-            .map(|metadata| metadata.version.clone())
-            .unwrap_or_else(|| pack.version.clone())
+        installed_metadata.as_ref().map(|metadata| metadata.version.clone()).unwrap_or_default()
     } else {
         String::new()
     };
@@ -366,12 +366,10 @@ fn dependency_pack_status_with_latest(
     DependencyPackStatus {
         id: id.to_string(),
         name: pack.name.clone(),
-        version: pack.version.clone(),
         installed_version,
         latest_version,
         update_available,
         platform: pack.platform.clone(),
-        bundled: pack.bundled,
         root_dir: pack.root_dir.clone(),
         install_path: clean_display_path(&pack_root),
         installed,
@@ -379,8 +377,47 @@ fn dependency_pack_status_with_latest(
     }
 }
 
+fn dependency_pack_is_installed(resource_dir: &Path, id: &str, pack: &DependencyPack) -> bool {
+    let required_files_exist = pack
+        .required_files
+        .iter()
+        .all(|required_file| resolve_resource_path(resource_dir, required_file).exists());
+    if !required_files_exist {
+        return false;
+    }
+
+    let pack_root = resolve_resource_path(resource_dir, &pack.root_dir);
+    let installed_metadata = read_installed_pack_metadata_sync(&pack_root);
+    installed_metadata_is_valid(id, pack, installed_metadata.as_ref())
+}
+
+fn installed_metadata_is_valid(id: &str, pack: &DependencyPack, metadata: Option<&InstalledPackMetadata>) -> bool {
+    metadata.is_some_and(|metadata| metadata.id == id && metadata.platform == pack.platform && !metadata.version.trim().is_empty())
+}
+
 fn clean_display_path(path: &Path) -> String {
-    path.display().to_string().trim_start_matches(r"\\?\").to_string()
+    clean_windows_verbatim_path(path)
+}
+
+fn child_process_path(path: PathBuf) -> PathBuf {
+    PathBuf::from(clean_windows_verbatim_path(&path))
+}
+
+#[cfg(windows)]
+fn clean_windows_verbatim_path(path: &Path) -> String {
+    let path = path.display().to_string();
+    if let Some(rest) = path.strip_prefix(r"\\?\UNC\") {
+        format!(r"\\{}", rest)
+    } else if let Some(rest) = path.strip_prefix(r"\\?\") {
+        rest.to_string()
+    } else {
+        path
+    }
+}
+
+#[cfg(not(windows))]
+fn clean_windows_verbatim_path(path: &Path) -> String {
+    path.display().to_string()
 }
 
 fn read_installed_pack_metadata_sync(pack_root: &Path) -> Option<InstalledPackMetadata> {
@@ -872,6 +909,14 @@ fn copy_dir_all_sync(source: &Path, target: &Path) -> Result<(), String> {
 }
 
 impl RouteRule {
+    fn control_is_active(&self, ocr_enabled: bool) -> bool {
+        match self.control.as_deref() {
+            None => true,
+            Some("ocr") => ocr_enabled,
+            Some(_) => false,
+        }
+    }
+
     fn matches(&self, input_group: &str, input_ext: &str, output_group: &str, output_ext: &str) -> bool {
         matches_any(&self.input_group, input_group)
             && matches_optional(&self.input_ext, input_ext)

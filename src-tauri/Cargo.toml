@@ -32,3 +32,6 @@ reqwest = { version = "0.12.22", features = ["json"] }
 obfstr = "0.4.4"
 tauri-plugin-process = "2"
 uuid = "1.18.0"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.60.2", features = ["Win32_Foundation", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging"] }

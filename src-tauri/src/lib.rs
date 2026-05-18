@@ -1,6 +1,8 @@
 use indexmap::IndexMap;
 use std::collections::HashMap;
 use std::fs;
+#[cfg(windows)]
+use std::os::windows::ffi::OsStrExt;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -11,6 +13,8 @@ use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter};
 use tauri_plugin_shell::{ShellExt, process::CommandEvent};
 use tokio::fs as async_fs;
+#[cfg(windows)]
+use windows_sys::Win32::UI::{Shell::ShellExecuteW, WindowsAndMessaging::SW_SHOWNORMAL};
 
 mod document;
 mod ffmpeg;
@@ -55,13 +59,32 @@ pub struct ConversionRequest {
     input_group: String,
     #[serde(rename = "outputGroup")]
     output_group: String,
+    #[serde(default)]
     options: IndexMap<String, String>,
+    #[serde(default)]
+    controls: ConversionControls,
     #[serde(default)]
     combine: bool,
     #[serde(default, rename = "umInputPaths")]
     um_input_paths: Vec<String>,
     #[serde(default, rename = "audioInputPaths")]
     audio_input_paths: Vec<String>,
+}
+
+#[derive(Deserialize, Debug, Default, Clone)]
+#[serde(default, rename_all = "camelCase")]
+pub struct ConversionControls {
+    pub combine_inputs: bool,
+    pub um_input_paths: Vec<String>,
+    pub audio_input_paths: Vec<String>,
+    pub ocr: Option<OcrControls>,
+}
+
+#[derive(Deserialize, Debug, Default, Clone)]
+#[serde(default, rename_all = "camelCase")]
+pub struct OcrControls {
+    pub enabled: bool,
+    pub args: Vec<String>,
 }
 
 pub struct AppState {
@@ -156,16 +179,34 @@ async fn check_for_updates(app_name: String) -> Result<String, String> {
 
 #[tauri::command]
 async fn launch_updater(app_handle: AppHandle, latest_version: String, theme: String, language: String) -> Result<(), String> {
+    let _ = app_handle;
     let pid = std::process::id().to_string();
     let s3_path = format!("UCT/Universal Converter Setup {}.exe", latest_version);
-    let args = vec!["--pid", &pid, "--s3-path", &s3_path, "--theme", &theme, "--language", &language];
+    let exe_path = std::env::current_exe().map_err(|e| format!("Failed to resolve current executable path: {}", e))?;
+    let updater_path = exe_path
+        .parent()
+        .ok_or_else(|| "Failed to resolve current executable directory".to_string())?
+        .join("Updater.exe");
+    let params = format!("--pid {} --s3-path \"{}\" --theme {} --language {}", pid, s3_path, theme, language);
 
-    app_handle
-        .shell()
-        .command("Updater")
-        .args(args)
-        .spawn()
-        .map_err(|e| format!("Failed to spawn updater: {}", e))?;
+    let operation: Vec<u16> = "runas".encode_utf16().chain(std::iter::once(0)).collect();
+    let file: Vec<u16> = updater_path.as_os_str().encode_wide().chain(std::iter::once(0)).collect();
+    let parameters: Vec<u16> = params.encode_utf16().chain(std::iter::once(0)).collect();
+
+    let result = unsafe {
+        ShellExecuteW(
+            std::ptr::null_mut(),
+            operation.as_ptr(),
+            file.as_ptr(),
+            parameters.as_ptr(),
+            std::ptr::null(),
+            SW_SHOWNORMAL,
+        )
+    };
+
+    if result as isize <= 32 {
+        return Err("Failed to launch updater with administrator privileges".to_string());
+    }
 
     Ok(())
 }
@@ -218,7 +259,20 @@ async fn convert_files(
         .first()
         .and_then(|path| PathBuf::from(path).extension().and_then(|ext| ext.to_str()).map(str::to_ascii_lowercase))
         .unwrap_or_default();
-    let route = routing::resolve_route(&request.input_group, &input_ext, &request.output_group, &output_ext)?;
+    let combine_inputs = request.controls.combine_inputs || request.combine;
+    let ocr_controls = request.controls.ocr.clone();
+    let ocr_enabled = ocr_controls.as_ref().is_some_and(|ocr| ocr.enabled);
+    let route = routing::resolve_route(&request.input_group, &input_ext, &request.output_group, &output_ext, ocr_enabled)?;
+    let um_input_paths = if request.controls.um_input_paths.is_empty() {
+        request.um_input_paths
+    } else {
+        request.controls.um_input_paths
+    };
+    let audio_input_paths = if request.controls.audio_input_paths.is_empty() {
+        request.audio_input_paths
+    } else {
+        request.controls.audio_input_paths
+    };
 
     let missing_dependency_packs = routing::missing_dependency_packs(&handle, &route.packs)?;
     if !missing_dependency_packs.is_empty() {
@@ -232,8 +286,8 @@ async fn convert_files(
                 input_paths,
                 output_ext,
                 request.options,
-                request.um_input_paths,
-                request.audio_input_paths,
+                um_input_paths,
+                audio_input_paths,
                 request.output_group,
                 cancel_flag,
                 max_threads,
@@ -241,18 +295,10 @@ async fn convert_files(
             .await
         }
         routing::ConversionRouteKind::Magick => {
-            magick::run_conversion(
-                handle,
-                input_paths,
-                output_ext,
-                request.options,
-                request.combine,
-                cancel_flag,
-                max_threads,
-            )
-            .await
+            magick::run_conversion(handle, input_paths, output_ext, request.options, combine_inputs, cancel_flag, max_threads).await
         }
         routing::ConversionRouteKind::DocumentPostscript
+        | routing::ConversionRouteKind::DocumentOcr
         | routing::ConversionRouteKind::DocumentPandoc
         | routing::ConversionRouteKind::DocumentPandocToPdf
         | routing::ConversionRouteKind::DocumentPandocToImage
@@ -266,7 +312,8 @@ async fn convert_files(
                 route.packs,
                 request.output_group,
                 request.options,
-                request.combine,
+                combine_inputs,
+                ocr_controls,
                 cancel_flag,
                 max_threads,
             )

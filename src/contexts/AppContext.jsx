@@ -6,7 +6,7 @@ import { listen } from '@tauri-apps/api/event';
 
 import { useTranslation } from 'react-i18next';
 
-import { formats, widgetDefinitions, processFiles, truncateMiddle, buildGroupedArgs, formatTags, getTaggedFormatExts } from '@/contexts/format-options';
+import { formats, widgetDefinitions, processFiles, truncateMiddle, buildGroupedArgs, buildControlValues, formatTags, getTaggedFormatExts } from '@/contexts/format-options';
 import i18n from '@/contexts/i18n';
 import { usePrompt } from '@/components/prompt';
 import { getDependencyPack, resolveConversionRoute } from '@/contexts/conversion-routing';
@@ -227,7 +227,37 @@ export function AppProvider({ children }) {
                 return formats[ext]?.group || '';
             })();
             const inputExt = getPathExtension(filePaths[0] || '');
-            const route = resolveConversionRoute({ inputGroup, inputExt, outputGroup, outputExt });
+            const widgetControls = buildControlValues(advancedOptionValues);
+            const combineInputs = widgetControls.combineInputs === true;
+
+            const encryptedInputExts = new Set(getTaggedFormatExts(formatTags.encrypted));
+            const umInputPaths = filePaths.filter(path => {
+                const ext = getPathExtension(path);
+                return encryptedInputExts.has(ext);
+            });
+            const audioInputPaths = filePaths.filter(path => {
+                const ext = getPathExtension(path);
+                return formats[ext]?.group === 'audio';
+            });
+
+            const controls = {
+                ...widgetControls,
+                umInputPaths,
+                audioInputPaths,
+            };
+            const route = resolveConversionRoute({ inputGroup, inputExt, outputGroup, outputExt, controls });
+
+            if (!route) {
+                const ocrRoute = resolveConversionRoute({
+                    inputGroup,
+                    inputExt,
+                    outputGroup,
+                    outputExt,
+                    controls: { ...controls, ocr: { ...(controls.ocr || {}), enabled: true } },
+                });
+                showPrompt('warning', t(ocrRoute ? 'prompt.enable_ocr_required' : 'prompt.unsupported_conversion'));
+                return;
+            }
 
             if (route?.packs?.length) {
                 const dependencyStatuses = await invoke('get_dependency_statuses');
@@ -239,8 +269,6 @@ export function AppProvider({ children }) {
                     return;
                 }
             }
-
-            const combineInputs = advancedOptionValues['combine_inputs'] === true;
 
             const groupedArgs = buildGroupedArgs(advancedOptionValues);
 
@@ -257,16 +285,6 @@ export function AppProvider({ children }) {
                 finalOptions[arg] = combinedValue === '' ? '' : combinedValue;
             }
 
-            const encryptedInputExts = new Set(getTaggedFormatExts(formatTags.encrypted));
-            const umInputPaths = filePaths.filter(path => {
-                const ext = getPathExtension(path);
-                return encryptedInputExts.has(ext);
-            });
-            const audioInputPaths = filePaths.filter(path => {
-                const ext = getPathExtension(path);
-                return formats[ext]?.group === 'audio';
-            });
-
             setConversionMeta({ combine: combineInputs, outputExt, totalCount: filePaths.length });
             setIsConverting(true);
             setTerminalLogs([]);
@@ -275,7 +293,7 @@ export function AppProvider({ children }) {
             const result = await invoke('convert_files', {
                 inputPaths: filePaths,
                 outputExt: outputExt,
-                request: { inputGroup, outputGroup, options: finalOptions, combine: combineInputs, umInputPaths, audioInputPaths },
+                request: { inputGroup, outputGroup, options: finalOptions, controls },
             });
 
             if (result) {

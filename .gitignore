@@ -36,4 +36,5 @@ secret_config.rs
 src-tauri/binaries/
 unused components/
 docs/*
-tmp/
+__pycache__/
+.venv/

@@ -25,6 +25,11 @@
       "version": "3.9.0.2",
       "platform": "windows",
       "s3Path": "UCT/Dependencies/pandoc-windows.7z"
+    },
+    "ocr": {
+      "version": "1.0.1",
+      "platform": "windows",
+      "s3Path": "UCT/Dependencies/ocr-windows.7z"
     }
   }
 }

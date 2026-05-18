@@ -195,6 +195,34 @@ export const widgetOptions = {
     font_stretch: { "Any": "Any", "Condensed": "Condensed", "Expanded": "Expanded", "ExtraCondensed": "ExtraCondensed", "ExtraExpanded": "ExtraExpanded", "Normal": "Normal", "SemiCondensed": "SemiCondensed", "SemiExpanded": "SemiExpanded", "UltraCondensed": "UltraCondensed", "UltraExpanded": "UltraExpanded" },
     rendering_intent: { "Absolute": "Absolute", "Perceptual": "Perceptual", "Relative": "Relative", "Saturation": "Saturation" },
     interpolate_method: { "average": "average", "average4": "average4", "average9": "average9", "average16": "average16", "background": "background", "bilinear": "bilinear", "blend": "blend", "catrom": "catrom", "integer": "integer", "mesh": "mesh", "nearest-neighbor": "nearest-neighbor", "spline": "spline" },
+
+    // ====== app.controls.ocr ======
+    ocr_language: {
+        "English": "eng", "Simplified Chinese": "chi_sim", "Traditional Chinese": "chi_tra", "Japanese": "jpn", "Korean": "kor", "French": "fra", "German": "deu", "Spanish": "spa",
+        "English + Simplified Chinese": "eng+chi_sim", "English + Traditional Chinese": "eng+chi_tra", "English + Japanese": "eng+jpn", "English + Korean": "eng+kor",
+        "Portuguese": "por", "Italian": "ita", "Russian": "rus", "Arabic": "ara", "Hindi": "hin", "Afrikaans": "afr", "Amharic": "amh", "Assamese": "asm",
+        "Azerbaijani": "aze", "Azerbaijani (Cyrillic)": "aze_cyrl", "Belarusian": "bel", "Bengali": "ben", "Tibetan": "bod", "Bosnian": "bos", "Breton": "bre", "Bulgarian": "bul",
+        "Catalan": "cat", "Cebuano": "ceb", "Czech": "ces", "Simplified Chinese (Vertical)": "chi_sim_vert", "Traditional Chinese (Vertical)": "chi_tra_vert", "Cherokee": "chr", "Corsican": "cos", "Welsh": "cym",
+        "Danish": "dan", "German (Fraktur)": "deu_latf", "Divehi": "div", "Dzongkha": "dzo", "Greek": "ell", "Middle English": "enm", "Esperanto": "epo", "Equation / Math": "equ",
+        "Estonian": "est", "Basque": "eus", "Faroese": "fao", "Persian": "fas", "Filipino": "fil", "Finnish": "fin", "Middle French": "frm", "Western Frisian": "fry",
+        "Scottish Gaelic": "gla", "Irish": "gle", "Galician": "glg", "Ancient Greek": "grc", "Gujarati": "guj", "Haitian Creole": "hat", "Hebrew": "heb", "Croatian": "hrv",
+        "Hungarian": "hun", "Armenian": "hye", "Inuktitut": "iku", "Indonesian": "ind", "Icelandic": "isl", "Italian (Old)": "ita_old", "Javanese": "jav", "Japanese (Vertical)": "jpn_vert",
+        "Kannada": "kan", "Georgian": "kat", "Georgian (Old)": "kat_old", "Kazakh": "kaz", "Khmer": "khm", "Kyrgyz": "kir", "Kurdish (Kurmanji)": "kmr", "Lao": "lao",
+        "Latin": "lat", "Latvian": "lav", "Lithuanian": "lit", "Luxembourgish": "ltz", "Malayalam": "mal", "Marathi": "mar", "Macedonian": "mkd", "Maltese": "mlt",
+        "Mongolian": "mon", "Maori": "mri", "Malay": "msa", "Burmese": "mya", "Nepali": "nep", "Dutch": "nld", "Norwegian": "nor", "Occitan": "oci",
+        "Odia": "ori", "Punjabi": "pan", "Polish": "pol", "Pashto": "pus", "Quechua": "que", "Romanian": "ron", "Sanskrit": "san", "Sinhala": "sin",
+        "Slovak": "slk", "Slovenian": "slv", "Sindhi": "snd", "Spanish (Old)": "spa_old", "Albanian": "sqi", "Serbian": "srp", "Serbian (Latin)": "srp_latn", "Sundanese": "sun",
+        "Swahili": "swa", "Swedish": "swe", "Syriac": "syr", "Tamil": "tam", "Tatar": "tat", "Telugu": "tel", "Tajik": "tgk", "Thai": "tha",
+        "Tigrinya": "tir", "Tongan": "ton", "Turkish": "tur", "Uyghur": "uig", "Ukrainian": "ukr", "Urdu": "urd", "Uzbek": "uzb", "Uzbek (Cyrillic)": "uzb_cyrl",
+        "Vietnamese": "vie", "Yiddish": "yid", "Yoruba": "yor",
+        "Script: Arabic": "script/Arabic", "Script: Armenian": "script/Armenian", "Script: Bengali": "script/Bengali", "Script: Canadian Aboriginal": "script/Canadian_Aboriginal", "Script: Cherokee": "script/Cherokee", "Script: Cyrillic": "script/Cyrillic", "Script: Devanagari": "script/Devanagari", "Script: Ethiopic": "script/Ethiopic",
+        "Script: Fraktur": "script/Fraktur", "Script: Georgian": "script/Georgian", "Script: Greek": "script/Greek", "Script: Gujarati": "script/Gujarati", "Script: Gurmukhi": "script/Gurmukhi", "Script: Simplified Han": "script/HanS", "Script: Simplified Han (Vertical)": "script/HanS_vert", "Script: Traditional Han": "script/HanT",
+        "Script: Traditional Han (Vertical)": "script/HanT_vert", "Script: Hangul": "script/Hangul", "Script: Hangul (Vertical)": "script/Hangul_vert", "Script: Hebrew": "script/Hebrew", "Script: Japanese": "script/Japanese", "Script: Japanese (Vertical)": "script/Japanese_vert", "Script: Kannada": "script/Kannada", "Script: Khmer": "script/Khmer",
+        "Script: Lao": "script/Lao", "Script: Latin": "script/Latin", "Script: Malayalam": "script/Malayalam", "Script: Myanmar": "script/Myanmar", "Script: Oriya": "script/Oriya", "Script: Sinhala": "script/Sinhala", "Script: Syriac": "script/Syriac", "Script: Tamil": "script/Tamil",
+        "Script: Telugu": "script/Telugu", "Script: Thaana": "script/Thaana", "Script: Thai": "script/Thai", "Script: Tibetan": "script/Tibetan", "Script: Vietnamese": "script/Vietnamese"
+    },
+    ocr_mode: { "Skip pages with text": "skip", "Force OCR": "force", "Redo OCR": "redo" },
+    ocr_output_type: { "PDF/A": "pdfa", "PDF": "pdf", "PDF/A-1": "pdfa-1", "PDF/A-2": "pdfa-2", "PDF/A-3": "pdfa-3" },
 };
 
 // ===========================================================================
@@ -215,7 +243,7 @@ export const widgetOptions = {
 //   prefix    — string prepended to the value before passing to FFmpeg (e.g. 'scale=')
 //   suffix    — string appended to the value
 //   separator — group join delimiter (default ',')
-//   meta      — marks a UI-behavior widget that emits no FFmpeg arg
+//   controlKey — dot-path under request.controls; marks app behavior, not CLI args
 //   default   — initial value for widgets
 //   hintKey   — translation key for hover help text; specialHintKeys values delegate to UI special-case logic
 // ===========================================================================
@@ -981,7 +1009,7 @@ export const widgetDefinitions = {
     intent: { arg: "-intent", labelKey: "advanced.image.intent", type: "select", options: widgetOptions.rendering_intent },
     range_threshold: { arg: "-range-threshold", labelKey: "advanced.image.range_threshold", type: "input-txt" },
     interpolate: { arg: "-interpolate", labelKey: "advanced.image.interpolate", type: "select", options: widgetOptions.interpolate_method },
-    combine_inputs: { type: 'checkbox-novalue', labelKey: 'advanced.image.combine_inputs', meta: true },
+    combine_inputs: { type: 'checkbox-novalue', labelKey: 'advanced.image.combine_inputs', controlKey: 'combineInputs' },
     ico_sizes: {
         type: 'group', arg: '-define', prefix: 'icon:auto-resize=', separator: ',', labelKey: 'advanced.image.ico_sizes',
         widgets: [
@@ -994,6 +1022,17 @@ export const widgetDefinitions = {
             { arg: '16', label: '16×16', type: 'checkbox-novalue', default: true },
         ],
     },
+
+    // ====== app.controls.ocr ======
+    ocr_enabled: { type: 'checkbox-novalue', labelKey: 'advanced.ocr.enabled', controlKey: 'ocr.enabled' },
+    ocr_language: { arg: '--lang', type: 'select', labelKey: 'advanced.ocr.language', options: widgetOptions.ocr_language, default: 'eng', controlKey: 'ocr.language' },
+    ocr_mode: { arg: '--mode', type: 'select', labelKey: 'advanced.ocr.mode', options: widgetOptions.ocr_mode, default: 'skip', controlKey: 'ocr.mode' },
+    ocr_deskew: { arg: '--deskew', type: 'checkbox-novalue', labelKey: 'advanced.ocr.deskew', controlKey: 'ocr.deskew' },
+    ocr_rotate_pages: { arg: '--rotate-pages', type: 'checkbox-novalue', labelKey: 'advanced.ocr.rotate_pages', controlKey: 'ocr.rotatePages' },
+    ocr_image_dpi: { arg: '--image-dpi', type: 'input-int', labelKey: 'advanced.ocr.image_dpi', options: [1, 2400], controlKey: 'ocr.imageDpi' },
+    ocr_pages: { arg: '--pages', type: 'input-txt', labelKey: 'advanced.ocr.pages', controlKey: 'ocr.pages' },
+    ocr_jobs: { arg: '--jobs', type: 'input-int', labelKey: 'advanced.ocr.jobs', options: [1, 64], controlKey: 'ocr.jobs' },
+    ocr_output_type: { arg: '--output-type', type: 'select', labelKey: 'advanced.ocr.output_type', options: widgetOptions.ocr_output_type, default: 'pdfa', controlKey: 'ocr.outputType' },
 };
 
 // ===========================================================================
@@ -1116,9 +1155,9 @@ const outDocumentFormats = [
     'xlsx', 'xls', 'ods', 'csv',
     'eps', 'ps', 'ai'
 ];
-const imageToDocumentFormats = ['pdf', 'eps', 'ps', 'ai'];
+const imageToDocumentFormats = ['pdf', 'txt', 'eps', 'ps', 'ai'];
 const imageOutputs = [...outImageFormats, ...imageToDocumentFormats];
-const rasterizableDocumentOutputs = [...outImageFormats, 'pdf', 'eps', 'ps', 'ai'];
+const rasterizableDocumentOutputs = [...outImageFormats, 'pdf', 'txt', 'eps', 'ps', 'ai'];
 const legacyWordDocumentOutputs = [...outImageFormats, 'pdf', 'docx', 'doc', 'odt', 'rtf', 'txt', 'html', 'htm', 'xhtml', 'epub'];
 const pandocSemanticOutputs = [
     'docx', 'odt', 'rtf', 'txt', 'md', 'tex', 'html', 'htm', 'xhtml', 'epub',
@@ -1155,6 +1194,13 @@ const generalImageWidgets = [
     'intent', 'range_threshold', 'interpolate'
 ];
 const generalDocumentWidgets = [];
+const baseOcrWidgetKeys = [
+    'ocr_enabled', 'ocr_language', 'ocr_mode', 'ocr_deskew', 'ocr_rotate_pages',
+    'ocr_image_dpi', 'ocr_pages', 'ocr_jobs'
+];
+export function getOcrWidgetKeys(outputExt) {
+    return outputExt === 'pdf' ? [...baseOcrWidgetKeys, 'ocr_output_type'] : baseOcrWidgetKeys;
+}
 
 export const formatTags = {
     encrypted: 'encrypted',
@@ -1821,6 +1867,16 @@ function getExtension(filePath) {
     return filePath.slice(idx + 1).toLowerCase();
 }
 
+export function isOcrApplicable(filePaths, fileType, outputExt) {
+    if (!['pdf', 'txt'].includes((outputExt || '').toLowerCase())) return false;
+    if (!filePaths?.length) return false;
+
+    if (fileType === 'image') return true;
+
+    const exts = filePaths.map(getExtension).filter(Boolean);
+    return exts.length > 0 && exts.every(ext => ext === 'pdf');
+}
+
 function intersect(arrays) {
     if (!arrays.length) return [];
     return arrays.reduce((acc, arr) => acc.filter(x => arr.includes(x)));
@@ -1862,7 +1918,7 @@ export function buildGroupedArgs(advancedOptionValues) {
         const value = advancedOptionValues[widgetKey];
         const definition = widgetDefinitions[widgetKey];
         if (!definition) continue;
-        if (definition.meta) continue;
+        if (definition.controlKey) continue;
 
         if (definition.type === 'group') {
             if (definition.arg && value) {
@@ -1910,6 +1966,71 @@ export function buildGroupedArgs(advancedOptionValues) {
         }
     }
     return groupedArgs;
+}
+
+function shouldIncludeWidgetValue(definition, value) {
+    return definition.type === 'checkbox-novalue' ? value === true
+        : definition.type === 'checkbox' ? (value === true || value === false)
+            : value !== '' && value !== null && value !== undefined;
+}
+
+function getWidgetArgTokens(definition, value) {
+    if (!definition.arg) return [];
+    if (!shouldIncludeWidgetValue(definition, value)) return [];
+
+    if (definition.type === 'checkbox-novalue') {
+        return [definition.arg];
+    }
+
+    const finalValue = definition.type === 'checkbox' ? (value === true ? '1' : '0')
+        : `${definition.prefix || ''}${value}${definition.suffix || ''}`;
+
+    return [definition.arg, String(finalValue)];
+}
+
+function setDotPathValue(target, path, value) {
+    const parts = path.split('.');
+    let cursor = target;
+
+    parts.slice(0, -1).forEach(part => {
+        if (!cursor[part] || typeof cursor[part] !== 'object' || Array.isArray(cursor[part])) {
+            cursor[part] = {};
+        }
+        cursor = cursor[part];
+    });
+
+    cursor[parts[parts.length - 1]] = value;
+}
+
+function appendControlArgTokens(controls, definition, value) {
+    const rootKey = definition.controlKey.split('.')[0];
+    const tokens = getWidgetArgTokens(definition, value);
+    if (tokens.length === 0) return;
+
+    if (!controls[rootKey] || typeof controls[rootKey] !== 'object' || Array.isArray(controls[rootKey])) {
+        controls[rootKey] = {};
+    }
+    if (!Array.isArray(controls[rootKey].args)) {
+        controls[rootKey].args = [];
+    }
+    controls[rootKey].args.push(...tokens);
+}
+
+export function buildControlValues(advancedOptionValues) {
+    const controls = {};
+
+    for (const widgetKey of Object.keys(widgetDefinitions)) {
+        if (!(widgetKey in advancedOptionValues)) continue;
+        const value = advancedOptionValues[widgetKey];
+        const definition = widgetDefinitions[widgetKey];
+        if (!definition?.controlKey) continue;
+        if (!shouldIncludeWidgetValue(definition, value)) continue;
+
+        setDotPathValue(controls, definition.controlKey, value);
+        appendControlArgTokens(controls, definition, value);
+    }
+
+    return controls;
 }
 
 export function truncateMiddle(str, maxLen = 40) {

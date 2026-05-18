@@ -101,6 +101,8 @@
     "conversion_success": "Conversion successful",
     "conversion_failed": "Some files failed to convert",
     "missing_dependencies": "This conversion requires you to install {{dependencies}} first",
+    "unsupported_conversion": "This conversion route is not supported",
+    "enable_ocr_required": "This conversion requires enabling OCR in Advanced Options",
     "conversion_unexpected_error": "An unexpected error occurred during conversion"
   },
   "advanced": {
@@ -702,6 +704,18 @@
       "interpolate": "Pixel Interpolation Method (for Distort / FX)",
       "combine_inputs": "Combine Into Single File",
       "ico_sizes": "Embedded Sizes"
+    },
+    "ocr": {
+      "title": "OCR Options",
+      "enabled": "Enable OCR",
+      "language": "OCR Language(s)",
+      "mode": "OCR Mode",
+      "deskew": "Deskew Pages",
+      "rotate_pages": "Auto-Rotate Pages",
+      "image_dpi": "Image DPI",
+      "pages": "Page Range",
+      "jobs": "Worker Jobs",
+      "output_type": "PDF Output Type"
     }
   }
 }

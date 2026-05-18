@@ -4,7 +4,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { useTranslation } from 'react-i18next';
 
 import { useApp } from '@/contexts/AppContext';
-import { formats, widgetDefinitions, buildGroupedArgs, formatTags, specialHintKeys, getInputWidgetExtMapForTag } from '@/contexts/format-options';
+import { formats, widgetDefinitions, buildGroupedArgs, buildControlValues, formatTags, specialHintKeys, getInputWidgetExtMapForTag, isOcrApplicable, getOcrWidgetKeys } from '@/contexts/format-options';
 import { TriStateCheckbox, DualStateCheckbox } from '@/components/checkbox';
 import { Field, Label } from '@/components/fieldset';
 import { IntegerInput, FloatInput, TextInput } from '@/components/input';
@@ -174,6 +174,8 @@ export default function AdvancedOptions() {
     const { filePaths, fileType, outputExt, selectedVideoCodec, setSelectedVideoCodec, selectedAudioCodec, setSelectedAudioCodec, advancedOptionValues, setAdvancedOptionValues, activeTab, setActiveTab } = useApp();
 
     const config = useMemo(() => formats[outputExt] || null, [outputExt]);
+    const ocrApplicable = useMemo(() => isOcrApplicable(filePaths, fileType, outputExt), [filePaths, fileType, outputExt]);
+    const ocrEnabled = advancedOptionValues['ocr_enabled'] === true;
 
     // Memoize the available codecs based on the selected format
     const { videoCodecs, audioCodecs } = useMemo(() => {
@@ -204,7 +206,7 @@ export default function AdvancedOptions() {
     }, [filePaths]);
 
     const widgetsToDisplay = useMemo(() => {
-        if (!config) return { all: [], generalVideo: [], generalAudio: [], codecVideo: [], codecAudio: [], direct: [] };
+        if (!config) return { all: [], generalVideo: [], generalAudio: [], codecVideo: [], codecAudio: [], direct: [], ocr: [] };
 
         let outputGeneralVideo = [];
         let outputGeneralAudio = [];
@@ -229,12 +231,13 @@ export default function AdvancedOptions() {
         const direct = Array.from(new Set([...outputDirect, ...(config.group === 'audio' ? inputDrivenWidgets : [])]));
         const generalVideo = Array.from(new Set(outputGeneralVideo));
         const generalAudio = Array.from(new Set(outputGeneralAudio));
+        const ocr = ocrApplicable ? (ocrEnabled ? getOcrWidgetKeys(outputExt) : ['ocr_enabled']) : [];
 
-        const all = [...generalVideo, ...generalAudio, ...codecVideo, ...codecAudio, ...direct];
+        const all = [...generalVideo, ...generalAudio, ...codecVideo, ...codecAudio, ...direct, ...ocr];
 
-        return { all, generalVideo, generalAudio, codecVideo, codecAudio, direct };
+        return { all, generalVideo, generalAudio, codecVideo, codecAudio, direct, ocr };
 
-    }, [config, selectedVideoCodec, selectedAudioCodec, videoCodecs, audioCodecs, inputDrivenWidgets]);
+    }, [config, outputExt, selectedVideoCodec, selectedAudioCodec, videoCodecs, audioCodecs, inputDrivenWidgets, ocrApplicable, ocrEnabled]);
 
     // Effect to initialize or clean up advanced option values when the available widgets change
     useEffect(() => {
@@ -271,11 +274,14 @@ export default function AdvancedOptions() {
         });
     }, [widgetsToDisplay.all.join(','), setAdvancedOptionValues]);
 
+    const hasCodecTab = config?.group === 'video' || config?.group === 'audio';
+    const hasOcrTab = ocrApplicable;
+
     useEffect(() => {
-        if (config?.group === 'image' || config?.group === 'document') {
+        if ((activeTab === 'codec' && !hasCodecTab) || (activeTab === 'ocr' && !hasOcrTab)) {
             setActiveTab('general');
         }
-    }, [config, setActiveTab]);
+    }, [activeTab, hasCodecTab, hasOcrTab, setActiveTab]);
 
     const handleOptionChange = (widgetKey, value) => {
         setAdvancedOptionValues(prev => ({ ...prev, [widgetKey]: value }));
@@ -290,7 +296,9 @@ export default function AdvancedOptions() {
 
     // Memoize the final command string
     const commandString = useMemo(() => {
-        const combineInputs = advancedOptionValues['combine_inputs'] === true;
+        const controls = buildControlValues(advancedOptionValues);
+        const combineInputs = controls.combineInputs === true;
+        const ocrActive = ocrApplicable && controls.ocr?.enabled === true;
 
         // 1. Group all selected options by their argument
         const groupedArgs = buildGroupedArgs(advancedOptionValues);
@@ -303,14 +311,16 @@ export default function AdvancedOptions() {
         const outputGroup = config?.group || '';
         const usesFfmpeg = (fileType === 'audio' && outputGroup === 'audio')
             || (fileType === 'video' && (outputGroup === 'video' || outputGroup === 'audio'));
-        const usesMagickLike = (fileType === 'image' && (outputGroup === 'image' || outputGroup === 'document'))
-            || (fileType === 'document' && (outputGroup === 'image' || outputGroup === 'document'));
+        const directMagickDocumentOutputs = ['pdf', 'eps', 'ps', 'ai'];
+        const usesDirectMagick = !ocrActive
+            && fileType === 'image'
+            && (outputGroup === 'image' || (outputGroup === 'document' && directMagickDocumentOutputs.includes(outputExt)));
 
-        if (usesMagickLike) {
+        if (usesDirectMagick) {
             const inputDisplay = combineInputs && filePaths.length > 1
                 ? Array.from({ length: filePaths.length }, (_, i) => `"${t("advanced.input_file")}${i + 1}"`).join(' ')
                 : `"${t("advanced.input_file")}"`;
-            cmd = `${fileType === 'document' ? 'document' : 'magick'} ${inputDisplay}`;
+            cmd = `magick ${inputDisplay}`;
 
             // Build the command string from the grouped arguments
             for (const arg in groupedArgs) {
@@ -347,7 +357,7 @@ export default function AdvancedOptions() {
         }
 
         return cmd;
-    }, [advancedOptionValues, filePaths, fileType, selectedVideoCodec, selectedAudioCodec, videoCodecs, audioCodecs, outputExt, t, config]);
+    }, [advancedOptionValues, filePaths, fileType, selectedVideoCodec, selectedAudioCodec, videoCodecs, audioCodecs, outputExt, t, config, ocrApplicable]);
 
     const renderWidgets = (widgetKeys, codecType = null) => {
         let codecValue = null;
@@ -562,6 +572,27 @@ export default function AdvancedOptions() {
         }
     };
 
+    const renderOcrOptions = () => {
+        const ocrWidgets = widgetsToDisplay.ocr;
+        const leftWidgets = [];
+        const rightWidgets = [];
+
+        ocrWidgets.forEach((widgetKey, index) => {
+            if (index % 2 === 0) {
+                leftWidgets.push(widgetKey);
+            } else {
+                rightWidgets.push(widgetKey);
+            }
+        });
+
+        return (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                <div className="flex flex-col gap-y-6">{renderWidgets(leftWidgets)}</div>
+                <div className="flex flex-col gap-y-6">{renderWidgets(rightWidgets)}</div>
+            </div>
+        );
+    };
+
     return (
         <div className="w-full flex-1 flex flex-col overflow-hidden px-4 mb-2 mt-6">
             {!outputExt ? (
@@ -573,15 +604,21 @@ export default function AdvancedOptions() {
                     {/* Tab Content */}
                     <div className="flex-1 overflow-y-auto pr-2">
                         {activeTab === 'general' && renderGeneralOptions()}
-                        {activeTab === 'codec' && renderCodecOptions()}
+                        {activeTab === 'codec' && hasCodecTab && renderCodecOptions()}
+                        {activeTab === 'ocr' && hasOcrTab && renderOcrOptions()}
                     </div>
 
                     {/* Tab Navigation */}
-                    {(config.group === 'video' || config.group === 'audio') && (
+                    {(hasCodecTab || hasOcrTab) && (
                         <Navbar className="mt-3 flex justify-start self-stretch">
                             <NavbarSection>
                                 <NavbarItem as="button" onClick={() => setActiveTab('general')} current={activeTab === 'general'}>{t('advanced.general')}</NavbarItem>
-                                <NavbarItem as="button" onClick={() => setActiveTab('codec')} current={activeTab === 'codec'}>{t('advanced.codec')}</NavbarItem>
+                                {hasCodecTab && (
+                                    <NavbarItem as="button" onClick={() => setActiveTab('codec')} current={activeTab === 'codec'}>{t('advanced.codec')}</NavbarItem>
+                                )}
+                                {hasOcrTab && (
+                                    <NavbarItem as="button" onClick={() => setActiveTab('ocr')} current={activeTab === 'ocr'}>{t('advanced.ocr.title')}</NavbarItem>
+                                )}
                             </NavbarSection>
                         </Navbar>
                     )}

@@ -2,9 +2,7 @@
   "packs": {
     "ffmpeg": {
       "name": "FFmpeg",
-      "version": "1.0.0",
       "platform": "windows",
-      "bundled": true,
       "rootDir": "dependencies/ffmpeg",
       "commands": ["ffmpeg", "um"],
       "binDirs": ["dependencies/ffmpeg"],
@@ -13,9 +11,7 @@
     },
     "imagemagick": {
       "name": "ImageMagick",
-      "version": "1.0.0",
       "platform": "windows",
-      "bundled": true,
       "rootDir": "dependencies/imagemagick",
       "commands": ["magick", "heif-enc", "JXREncApp"],
       "binDirs": ["dependencies/imagemagick", "dependencies/imagemagick/libheif", "dependencies/imagemagick/libjxr"],
@@ -29,9 +25,7 @@
     },
     "ghostscript": {
       "name": "Ghostscript",
-      "version": "1.0.0",
       "platform": "windows",
-      "bundled": false,
       "rootDir": "dependencies/ghostscript",
       "commands": ["gswin64c"],
       "binDirs": ["dependencies/ghostscript/bin"],
@@ -49,9 +43,7 @@
     },
     "libreoffice": {
       "name": "LibreOffice",
-      "version": "1.0.0",
       "platform": "windows",
-      "bundled": false,
       "rootDir": "dependencies/libreoffice",
       "commands": ["soffice.com"],
       "binDirs": ["dependencies/libreoffice/program"],
@@ -64,14 +56,28 @@
     },
     "pandoc": {
       "name": "Pandoc",
-      "version": "1.0.0",
       "platform": "windows",
-      "bundled": false,
       "rootDir": "dependencies/pandoc",
       "commands": ["pandoc"],
       "binDirs": ["dependencies/pandoc"],
       "requiredFiles": ["dependencies/pandoc/pandoc.exe"],
       "env": {}
+    },
+    "ocr": {
+      "name": "OCR",
+      "platform": "windows",
+      "rootDir": "dependencies/ocr",
+      "commands": ["uct-ocr.exe"],
+      "binDirs": ["dependencies/ocr/runtime", "dependencies/ocr/tesseract"],
+      "requiredFiles": [
+        "dependencies/ocr/runtime/uct-ocr.exe",
+        "dependencies/ocr/tesseract/tesseract.exe",
+        "dependencies/ocr/tesseract/tessdata/eng.traineddata"
+      ],
+      "env": {
+        "UCT_OCR_HOME": "dependencies/ocr",
+        "TESSDATA_PREFIX": "dependencies/ocr/tesseract/tessdata"
+      }
     }
   },
   "routes": [
@@ -90,8 +96,32 @@
     {
       "kind": "magick",
       "inputGroup": ["image"],
-      "outputGroup": ["image", "document"],
+      "outputGroup": ["image"],
       "packs": ["imagemagick"]
+    },
+    {
+      "kind": "magick",
+      "inputGroup": ["image"],
+      "outputGroup": ["document"],
+      "outputExt": ["pdf", "eps", "ps", "ai"],
+      "packs": ["imagemagick"]
+    },
+    {
+      "kind": "document-ocr",
+      "control": "ocr",
+      "inputGroup": ["image"],
+      "outputGroup": ["document"],
+      "outputExt": ["pdf", "txt"],
+      "packs": ["ocr", "ghostscript"]
+    },
+    {
+      "kind": "document-ocr",
+      "control": "ocr",
+      "inputGroup": ["document"],
+      "inputExt": ["pdf"],
+      "outputGroup": ["document"],
+      "outputExt": ["pdf", "txt"],
+      "packs": ["ocr", "ghostscript"]
     },
     {
       "kind": "document-postscript",

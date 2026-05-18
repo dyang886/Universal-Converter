@@ -101,6 +101,8 @@
     "conversion_success": "转换成功",
     "conversion_failed": "部分文件转换失败",
     "missing_dependencies": "此转换需要先安装 {{dependencies}}",
+    "unsupported_conversion": "不支持此转换路径",
+    "enable_ocr_required": "此转换需要在高级选项中启用 OCR",
     "conversion_unexpected_error": "转换过程中发生意外错误"
   },
   "advanced": {
@@ -702,6 +704,18 @@
       "interpolate": "像素插值方法 (用于扭曲变形 / FX)",
       "combine_inputs": "合并为单个文件",
       "ico_sizes": "嵌入尺寸"
+    },
+    "ocr": {
+      "title": "OCR 选项",
+      "enabled": "启用 OCR",
+      "language": "OCR 语言",
+      "mode": "OCR 模式",
+      "deskew": "校正文档倾斜",
+      "rotate_pages": "自动旋转页面",
+      "image_dpi": "图像 DPI",
+      "pages": "页面范围",
+      "jobs": "工作线程数",
+      "output_type": "PDF 输出类型"
     }
   }
 }
